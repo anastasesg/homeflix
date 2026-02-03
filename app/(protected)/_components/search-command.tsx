@@ -41,14 +41,26 @@ function SearchCommand() {
 
   return (
     <>
+      {/* Mobile: Icon-only button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-8 md:hidden"
+        onClick={() => setOpen(true)}
+        aria-label="Search"
+      >
+        <Search className="size-4" />
+      </Button>
+
+      {/* Desktop: Full search bar */}
       <Button
         variant="outline"
-        className="relative h-8 w-48 justify-start rounded-md bg-muted/50 text-sm font-normal text-muted-foreground shadow-none md:w-64"
+        className="relative hidden h-8 w-48 justify-start rounded-md bg-muted/50 text-sm font-normal text-muted-foreground shadow-none md:flex lg:w-64"
         onClick={() => setOpen(true)}
       >
         <Search className="mr-2 size-4" />
         Search...
-        <kbd className="pointer-events-none absolute right-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+        <kbd className="pointer-events-none absolute right-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 lg:flex">
           <span className="text-xs">⌘</span>K
         </kbd>
       </Button>

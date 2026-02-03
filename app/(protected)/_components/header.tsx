@@ -37,17 +37,19 @@ function Header({}: HeaderProps) {
   const breadcrumbs = generateBreadcrumbs(pathname);
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between gap-2">
-      <div className="flex items-center gap-2 px-4">
-        <SidebarTrigger />
-        <Separator orientation="vertical" className="!h-4" />
-        <Breadcrumb>
+    <header className="flex h-14 w-full shrink-0 items-center justify-between gap-1 overflow-hidden md:h-16 md:gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-1 px-2 md:gap-2 md:px-4">
+        <SidebarTrigger className="size-8 shrink-0 md:size-9" />
+        <Separator orientation="vertical" className="hidden !h-4 shrink-0 md:block" />
+        <Breadcrumb className="min-w-0">
           <BreadcrumbList>
             {breadcrumbs.map((crumb, index) => (
               <BreadcrumbItem key={crumb.href}>
                 {index > 0 && <BreadcrumbSeparator className="hidden md:block" />}
                 {crumb.isLast ? (
-                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                  <BreadcrumbPage className="max-w-[120px] truncate text-sm md:max-w-none md:text-base">
+                    {crumb.label}
+                  </BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild className="hidden md:block">
                     <Link href={crumb.href}>{crumb.label}</Link>
@@ -59,7 +61,7 @@ function Header({}: HeaderProps) {
         </Breadcrumb>
       </div>
 
-      <div className="flex items-center gap-2 px-4">
+      <div className="flex shrink-0 items-center gap-1 px-2 md:gap-2 md:px-4">
         <SearchCommand />
         <ThemeToggle />
         <Notifications />

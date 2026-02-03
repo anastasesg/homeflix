@@ -73,6 +73,9 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    ignores: ['./components/ui/*.tsx', './hooks/use-mobile.ts', './lib/utils.ts'],
+  },
 ]);
 
 export default eslintConfig;
