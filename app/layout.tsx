@@ -1,7 +1,8 @@
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import type { Metadata } from 'next';
-import { ThemeProvider } from 'next-themes';
+
+import { Providers } from './providers';
 
 import './globals.css';
 
@@ -51,9 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
