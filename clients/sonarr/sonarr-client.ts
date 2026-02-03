@@ -2,11 +2,15 @@ import createClient from 'openapi-fetch';
 
 import type { paths } from './sonarr-client.d';
 
+/**
+ * Creates a Sonarr API client that routes through our Next.js proxy.
+ * This avoids CORS issues since requests go to the same origin.
+ *
+ * The proxy at /api/sonarr/[...path] forwards to the actual Sonarr server
+ * and handles authentication server-side.
+ */
 export function createSonarrClient() {
-  const sonarrApiUrl = process.env.NEXT_PUBLIC_SONARR_API_URL;
-  const sonarrApiKey = process.env.NEXT_PUBLIC_SONARR_API_KEY;
-  if (!sonarrApiUrl) throw new Error('Sonarr API URL is not defined');
-  if (!sonarrApiKey) throw new Error('Sonarr API Key is not defined');
-
-  return createClient<paths>({ baseUrl: sonarrApiUrl, headers: { 'X-Api-Key': sonarrApiKey } });
+  // Use relative URL to hit our proxy - works in browser
+  // The proxy handles the actual Sonarr URL and API key server-side
+  return createClient<paths>({ baseUrl: '/api/sonarr' });
 }

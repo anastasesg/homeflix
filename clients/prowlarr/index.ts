@@ -1,2 +1,2 @@
 export * from './prowlarr-client';
-export * from './prowlarr-client.d';
+export type * from './prowlarr-client.d';

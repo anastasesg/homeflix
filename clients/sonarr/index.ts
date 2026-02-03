@@ -1,2 +1,2 @@
 export * from './sonarr-client';
-export * from './sonarr-client.d';
+export type * from './sonarr-client.d';
