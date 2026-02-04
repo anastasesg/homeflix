@@ -6,8 +6,8 @@ import path from 'path';
 // Constants
 // =============================================================================
 
-const OPENAPI_DIR = path.join(__dirname, '../openapi');
-const CLIENTS_DIR = path.join(__dirname, '../clients');
+const OPENAPI_DIR = path.join(__dirname, '../api/openapi');
+const CLIENTS_DIR = path.join(__dirname, '../api/clients');
 const VALID_EXTENSIONS = ['.json', '.yaml', '.yml'];
 
 // =============================================================================
@@ -30,7 +30,7 @@ const fmt = {
   success: (msg: string) => `${colors.green}${colors.bold}✓${colors.reset} ${msg}`,
   info: (msg: string) => `${colors.blue}${colors.bold}info${colors.reset}: ${msg}`,
   warn: (msg: string) => `${colors.yellow}${colors.bold}warn${colors.reset}: ${msg}`,
-  provider: (name: string) => `${colors.cyan}${name}${colors.reset}`,
+  client: (name: string) => `${colors.cyan}${name}${colors.reset}`,
   path: (p: string) => `${colors.dim}${p}${colors.reset}`,
 };
 
@@ -46,8 +46,8 @@ ${colors.bold}USAGE${colors.reset}
 
 ${colors.bold}OPTIONS${colors.reset}
   --all                 Generate clients for all OpenAPI specs in openapi/
-  --provider=<name>     Generate client for a specific provider
-  --list                List all available providers
+  --client=<name>     Generate client for a specific client
+  --list                List all available clients
   --dry-run             Show what would be generated without writing files
   --help, -h            Show this help message
 
@@ -55,13 +55,13 @@ ${colors.bold}EXAMPLES${colors.reset}
   # Generate all clients
   bun run scripts/generate-api-client.ts --all
 
-  # Generate client for a specific provider
-  bun run scripts/generate-api-client.ts --provider=prowlarr
+  # Generate client for a specific client
+  bun run scripts/generate-api-client.ts --client=prowlarr
 
   # Preview what would be generated
   bun run scripts/generate-api-client.ts --all --dry-run
 
-  # List available providers
+  # List available clients
   bun run scripts/generate-api-client.ts --list
 `;
 
@@ -97,17 +97,17 @@ async function getAvailableProviders(): Promise<string[]> {
   return files.filter(isOpenApiFile).map(extractProviderName).sort();
 }
 
-function getOpenApiFilePath(provider: string): string | null {
+function getOpenApiFilePath(client: string): string | null {
   for (const ext of VALID_EXTENSIONS) {
-    const filename = `${provider}-openapi${ext}`;
+    const filename = `${client}-openapi${ext}`;
     return path.join(OPENAPI_DIR, filename);
   }
   return null;
 }
 
-async function findOpenApiFile(provider: string): Promise<string | null> {
+async function findOpenApiFile(client: string): Promise<string | null> {
   for (const ext of VALID_EXTENSIONS) {
-    const filePath = path.join(OPENAPI_DIR, `${provider}-openapi${ext}`);
+    const filePath = path.join(OPENAPI_DIR, `${client}-openapi${ext}`);
     if (await fileExists(filePath)) {
       return filePath;
     }
@@ -115,8 +115,8 @@ async function findOpenApiFile(provider: string): Promise<string | null> {
   return null;
 }
 
-function getOutputPath(provider: string): string {
-  return path.join(CLIENTS_DIR, provider, `${provider}-client.d.ts`);
+function getOutputPath(client: string): string {
+  return path.join(CLIENTS_DIR, client, `${client}-client.d.ts`);
 }
 
 // =============================================================================
@@ -124,33 +124,33 @@ function getOutputPath(provider: string): string {
 // =============================================================================
 
 async function listProviders(): Promise<void> {
-  const providers = await getAvailableProviders();
+  const clients = await getAvailableProviders();
 
-  if (providers.length === 0) {
+  if (clients.length === 0) {
     console.log(fmt.warn(`No OpenAPI specs found in ${fmt.path(OPENAPI_DIR)}`));
     return;
   }
 
-  console.log(`\n${colors.bold}Available providers:${colors.reset}\n`);
-  for (const provider of providers) {
-    const outputPath = getOutputPath(provider);
+  console.log(`\n${colors.bold}Available clients:${colors.reset}\n`);
+  for (const client of clients) {
+    const outputPath = getOutputPath(client);
     const hasClient = await fileExists(outputPath);
     const status = hasClient ? colors.green + '●' + colors.reset : colors.dim + '○' + colors.reset;
-    console.log(`  ${status} ${fmt.provider(provider)}`);
+    console.log(`  ${status} ${fmt.client(client)}`);
   }
   console.log(`\n${colors.dim}● = client exists  ○ = no client${colors.reset}\n`);
 }
 
-async function generateClient(provider: string, dryRun: boolean): Promise<boolean> {
-  const inputPath = await findOpenApiFile(provider);
+async function generateClient(client: string, dryRun: boolean): Promise<boolean> {
+  const inputPath = await findOpenApiFile(client);
 
   if (!inputPath) {
-    console.error(fmt.error(`OpenAPI spec not found for provider "${provider}"`));
-    console.error(`  Looked for: ${fmt.path(getOpenApiFilePath(provider) ?? '')}`);
+    console.error(fmt.error(`OpenAPI spec not found for client "${client}"`));
+    console.error(`  Looked for: ${fmt.path(getOpenApiFilePath(client) ?? '')}`);
     return false;
   }
 
-  const outputPath = getOutputPath(provider);
+  const outputPath = getOutputPath(client);
 
   if (dryRun) {
     console.log(fmt.info(`Would generate ${fmt.path(outputPath)}`));
@@ -166,19 +166,19 @@ async function generateClient(provider: string, dryRun: boolean): Promise<boolea
     await ensureDir(CLIENTS_DIR);
     await writeFile(outputPath, types);
 
-    console.log(fmt.success(`Generated ${fmt.provider(provider)} → ${fmt.path(path.basename(outputPath))}`));
+    console.log(fmt.success(`Generated ${fmt.client(client)} → ${fmt.path(path.basename(outputPath))}`));
     return true;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error(fmt.error(`Failed to generate client for "${provider}": ${message}`));
+    console.error(fmt.error(`Failed to generate client for "${client}": ${message}`));
     return false;
   }
 }
 
 async function generateAllClients(dryRun: boolean): Promise<void> {
-  const providers = await getAvailableProviders();
+  const clients = await getAvailableProviders();
 
-  if (providers.length === 0) {
+  if (clients.length === 0) {
     console.log(fmt.warn(`No OpenAPI specs found in ${fmt.path(OPENAPI_DIR)}`));
     return;
   }
@@ -189,8 +189,8 @@ async function generateAllClients(dryRun: boolean): Promise<void> {
   let successCount = 0;
   let failureCount = 0;
 
-  for (const provider of providers) {
-    const success = await generateClient(provider, dryRun);
+  for (const client of clients) {
+    const success = await generateClient(client, dryRun);
     if (success) {
       successCount++;
     } else {
@@ -212,8 +212,8 @@ async function generateAllClients(dryRun: boolean): Promise<void> {
 // =============================================================================
 
 interface ParsedArgs {
-  command: 'help' | 'list' | 'all' | 'provider';
-  provider?: string;
+  command: 'help' | 'list' | 'all' | 'client';
+  client?: string;
   dryRun: boolean;
 }
 
@@ -232,14 +232,14 @@ function parseArgs(args: string[]): ParsedArgs {
     return { command: 'all', dryRun };
   }
 
-  const providerArg = args.find((arg) => arg.startsWith('--provider='));
-  if (providerArg) {
-    const provider = providerArg.split('=')[1];
-    if (!provider) {
-      console.error(fmt.error('Provider name is required after --provider='));
+  const clientArg = args.find((arg) => arg.startsWith('--client='));
+  if (clientArg) {
+    const client = clientArg.split('=')[1];
+    if (!client) {
+      console.error(fmt.error('Provider name is required after --client='));
       process.exit(1);
     }
-    return { command: 'provider', provider, dryRun };
+    return { command: 'client', client, dryRun };
   }
 
   // Check for unknown flags
@@ -273,12 +273,12 @@ async function main() {
       await generateAllClients(parsed.dryRun);
       break;
 
-    case 'provider':
-      if (!parsed.provider) {
+    case 'client':
+      if (!parsed.client) {
         console.error(fmt.error('Provider name is required'));
         process.exit(1);
       }
-      const success = await generateClient(parsed.provider, parsed.dryRun);
+      const success = await generateClient(parsed.client, parsed.dryRun);
       if (!success) {
         process.exit(1);
       }
