@@ -1,44 +1,84 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
-import { Calendar, Clock, Play, Star, Tv2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { AlertCircle, Calendar, Clock, Play, Star, Tv2 } from 'lucide-react';
 
+import { ShowItem } from '@/api/entities';
+import { formatRuntime } from '@/utilities';
+import { featuredShowQuery } from '@/options/queries/shows';
+
+import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 
-import type { EnrichedShow } from './types';
+function FeaturedShowLoading() {
+  return (
+    <section className="relative overflow-hidden rounded-xl">
+      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] md:aspect-[2/1] xl:aspect-[2.4/1]">
+        <Skeleton className="absolute inset-0 h-full w-full" />
 
-interface FeaturedShowProps {
-  show: EnrichedShow;
+        {/* Gradient Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+
+        {/* Content Skeleton */}
+        <div className="absolute inset-0 flex items-end p-4 sm:p-6 lg:p-8">
+          <div className="flex max-w-2xl flex-col gap-2 sm:gap-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-6 w-16" />
+            </div>
+            <Skeleton className="h-10 w-80 sm:h-12 md:h-14" />
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-5 w-12" />
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-5 w-20" />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton className="h-6 w-16" />
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-6 w-14" />
+            </div>
+            <Skeleton className="mt-2 h-10 w-32" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
-function FeaturedShow({ show }: FeaturedShowProps) {
-  const formatRuntime = (mins: number) => {
-    if (mins < 60) return `${mins}m`;
-    const hours = Math.floor(mins / 60);
-    const minutes = mins % 60;
-    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
-  };
+function FeaturedShowError({ error }: { error: Error }) {
+  return (
+    <section className="relative overflow-hidden rounded-xl border border-destructive/20 bg-destructive/5">
+      <div className="flex items-center justify-center gap-3 p-8">
+        <AlertCircle className="size-5 text-destructive" />
+        <p className="text-sm text-destructive">{error.message}</p>
+      </div>
+    </section>
+  );
+}
 
+function FeaturedShowContent({ show }: { show: ShowItem }) {
   const progressPercent = show.totalEpisodes > 0 ? Math.round((show.downloadedEpisodes / show.totalEpisodes) * 100) : 0;
-
   const isComplete = show.downloadedEpisodes === show.totalEpisodes && show.totalEpisodes > 0;
 
   return (
     <section className="relative overflow-hidden rounded-xl">
-      {/* Backdrop Image */}
-      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] md:aspect-[2.4/1]">
+      <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] md:aspect-[2/1] xl:aspect-[2.4/1]">
         {show.backdropUrl && (
-          <img src={show.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <Image src={show.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" fill />
         )}
 
         {/* Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
-        {/* Noise texture overlay for cinematic feel */}
+        {/* Noise texture overlay */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -62,7 +102,7 @@ function FeaturedShow({ show }: FeaturedShowProps) {
               )}
             </div>
 
-            {/* Tagline - hidden on mobile for space */}
+            {/* Tagline */}
             {show.tagline && (
               <p className="hidden font-serif text-sm italic text-muted-foreground/80 sm:block md:text-base">
                 &ldquo;{show.tagline}&rdquo;
@@ -141,16 +181,15 @@ function FeaturedShow({ show }: FeaturedShowProps) {
               </div>
             )}
 
-            {/* Next Episode Info */}
+            {/* Next Episode Info - hidden on md/lg (iPad landscape) to save space */}
             {show.nextEpisode && (
-              <div className="mt-1 flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2">
-                <Calendar className="size-4 text-amber-400" />
-                <div className="text-sm">
-                  <span className="font-medium text-amber-400">Next Episode: </span>
+              <div className="mt-1 hidden items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 sm:flex md:hidden xl:flex">
+                <Calendar className="size-4 shrink-0 text-amber-400" />
+                <div className="min-w-0 text-sm">
+                  <span className="font-medium text-amber-400">Next: </span>
                   <span className="text-foreground">
                     S{show.nextEpisode.seasonNumber.toString().padStart(2, '0')}E
                     {show.nextEpisode.episodeNumber.toString().padStart(2, '0')}
-                    {show.nextEpisode.title && ` – ${show.nextEpisode.title}`}
                   </span>
                   {show.nextEpisode.airDate && (
                     <span className="text-muted-foreground"> · {show.nextEpisode.airDate}</span>
@@ -159,9 +198,9 @@ function FeaturedShow({ show }: FeaturedShowProps) {
               </div>
             )}
 
-            {/* Overview - hidden on mobile */}
+            {/* Overview - hidden on md/lg (iPad landscape) to save space */}
             {show.overview && (
-              <p className="hidden max-w-xl text-sm leading-relaxed text-muted-foreground sm:line-clamp-2 md:line-clamp-3 md:text-base">
+              <p className="hidden max-w-xl text-sm leading-relaxed text-muted-foreground sm:line-clamp-2 md:hidden xl:line-clamp-2 xl:text-base">
                 {show.overview}
               </p>
             )}
@@ -180,6 +219,21 @@ function FeaturedShow({ show }: FeaturedShowProps) {
         </div>
       </div>
     </section>
+  );
+}
+
+function FeaturedShow() {
+  const featuredQuery = useQuery(featuredShowQuery());
+
+  return (
+    <Query
+      result={featuredQuery}
+      callbacks={{
+        loading: () => <FeaturedShowLoading />,
+        error: (error) => <FeaturedShowError error={error} />,
+        success: (show) => (show ? <FeaturedShowContent show={show} /> : null),
+      }}
+    />
   );
 }
 
