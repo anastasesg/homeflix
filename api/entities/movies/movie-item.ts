@@ -1,11 +1,10 @@
-export type MediaStatus = 'downloaded' | 'downloading' | 'missing' | 'wanted';
-export type MediaType = 'movie' | 'show' | 'music' | 'book';
+import { MediaStatus } from '@/api/types';
 
-export interface EnrichedMovie {
+export interface MovieItem {
   id: string | number;
   title: string;
   year?: number;
-  type: MediaType;
+  type: 'movie';
   status: MediaStatus;
   posterUrl?: string;
   backdropUrl?: string;
