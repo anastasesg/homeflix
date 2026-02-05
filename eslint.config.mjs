@@ -44,8 +44,9 @@ const eslintConfig = defineConfig([
             ['^next(/.*)?$'],
             // External packages
             ['^@?\\w'],
-            // Internal aliases (components, hooks, lib, etc.)
+            // Internal aliases (hooks, lib, etc.)
             ['^@/'],
+            ['^@/components(/.*)?$'],
             // Parent imports
             ['^\\.\\.'],
             // Sibling and index imports
