@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "check": "tsc --noEmit",
     "generate:api": "bun run ./scripts/generate-api-client.ts"
   },
   "dependencies": {
