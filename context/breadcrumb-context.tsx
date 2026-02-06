@@ -48,19 +48,21 @@ export function useBreadcrumbOverride() {
 
 /**
  * Hook for detail pages to set their breadcrumb label.
+ * Key is the full href (e.g. "/media/shows/1399") to avoid collisions
+ * between segments with the same name at different depths.
  * Automatically cleans up when the component unmounts.
  */
-export function useSetBreadcrumb(segment: string | undefined, label: string | undefined) {
+export function useSetBreadcrumb(href: string | undefined, label: string | undefined) {
   const { setOverride, clearOverride } = useBreadcrumbOverride();
 
   useEffect(() => {
-    if (segment && label) {
-      setOverride(segment, label);
+    if (href && label) {
+      setOverride(href, label);
     }
     return () => {
-      if (segment) {
-        clearOverride(segment);
+      if (href) {
+        clearOverride(href);
       }
     };
-  }, [segment, label, setOverride, clearOverride]);
+  }, [href, label, setOverride, clearOverride]);
 }

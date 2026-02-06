@@ -76,7 +76,7 @@ function SearchCommand() {
           <CommandEmpty>No results found.</CommandEmpty>
 
           <CommandGroup heading="Quick Actions">
-            <CommandItem onSelect={() => runCommand(() => router.push('/dashboard'))}>
+            <CommandItem onSelect={() => runCommand(() => router.push('/system/dashboard'))}>
               <Gauge className="mr-2 size-4" />
               Go to Dashboard
             </CommandItem>

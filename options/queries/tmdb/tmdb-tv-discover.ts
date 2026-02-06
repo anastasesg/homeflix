@@ -17,7 +17,7 @@ function mapToDiscoverShow(item: TMDBTVListItem): DiscoverShow {
     rating: item.vote_average,
     voteCount: item.vote_count,
     popularity: item.popularity,
-    posterUrl: getTMDBImageUrl(item.poster_path, 'w342'),
+    posterUrl: getTMDBImageUrl(item.poster_path, 'original'),
     backdropUrl: getTMDBImageUrl(item.backdrop_path, 'original'),
     genreIds: item.genre_ids,
     originCountry: item.origin_country,

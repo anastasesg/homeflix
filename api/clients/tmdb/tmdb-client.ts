@@ -46,6 +46,11 @@ export interface TMDBImages {
   posters: Array<{ file_path: string; width: number; height: number }>;
 }
 
+export interface TMDBEpisodeImages {
+  id: number;
+  stills: Array<{ file_path: string; width: number; height: number }>;
+}
+
 export interface TMDBVideos {
   id: number;
   results: Array<{
@@ -164,6 +169,81 @@ export interface TMDBTVListResponse {
   results: TMDBTVListItem[];
   total_pages: number;
   total_results: number;
+}
+
+export interface TMDBTV {
+  id: number;
+  name: string;
+  original_name: string;
+  overview: string;
+  tagline: string;
+  first_air_date: string;
+  last_air_date: string;
+  number_of_seasons: number;
+  number_of_episodes: number;
+  episode_run_time: number[];
+  vote_average: number;
+  vote_count: number;
+  popularity: number;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  genres: Array<{ id: number; name: string }>;
+  networks: Array<{ id: number; name: string; logo_path: string | null; origin_country: string }>;
+  production_companies: Array<{ id: number; name: string; logo_path: string | null; origin_country: string }>;
+  created_by: Array<{ id: number; name: string; profile_path: string | null }>;
+  spoken_languages: Array<{ iso_639_1: string; name: string; english_name: string }>;
+  seasons: Array<{
+    id: number;
+    name: string;
+    overview: string;
+    season_number: number;
+    episode_count: number;
+    air_date: string | null;
+    poster_path: string | null;
+  }>;
+  status: string;
+  type: string;
+  homepage: string | null;
+  in_production: boolean;
+  external_ids?: { imdb_id?: string | null; tvdb_id?: number | null };
+}
+
+export interface TMDBTVSeason {
+  id: number;
+  name: string;
+  overview: string;
+  season_number: number;
+  air_date: string | null;
+  poster_path: string | null;
+  episodes: Array<{
+    id: number;
+    name: string;
+    overview: string;
+    episode_number: number;
+    season_number: number;
+    air_date: string | null;
+    runtime: number | null;
+    still_path: string | null;
+    vote_average: number;
+    vote_count: number;
+    crew: Array<{ id: number; name: string; job: string; department: string; profile_path: string | null }>;
+    guest_stars: Array<{ id: number; name: string; character: string; profile_path: string | null; order: number }>;
+  }>;
+}
+
+export interface TMDBTVEpisode {
+  id: number;
+  name: string;
+  overview: string;
+  episode_number: number;
+  season_number: number;
+  air_date: string | null;
+  runtime: number | null;
+  still_path: string | null;
+  vote_average: number;
+  vote_count: number;
+  crew: Array<{ id: number; name: string; job: string; department: string; profile_path: string | null }>;
+  guest_stars: Array<{ id: number; name: string; character: string; profile_path: string | null; order: number }>;
 }
 
 export interface DiscoverTVParams {
@@ -431,6 +511,93 @@ export function createTMDBClient() {
 
     async getTVWatchProviders(region: string = 'US'): Promise<TMDBWatchProvidersResponse> {
       const res = await fetch(`${baseUrl}/watch/providers/tv?api_key=${apiKey}&watch_region=${region}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVShow(tvId: number): Promise<TMDBTV> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}?api_key=${apiKey}&append_to_response=external_ids`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVCredits(tvId: number): Promise<TMDBCredits> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/aggregate_credits?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      const data = await res.json();
+      return {
+        id: data.id,
+        cast: data.cast.map((c: Record<string, unknown>) => ({
+          id: c.id,
+          name: c.name,
+          character: ((c.roles as Array<{ character: string }>) ?? [])[0]?.character ?? '',
+          profile_path: c.profile_path,
+          order: c.order,
+        })),
+        crew: data.crew.map((c: Record<string, unknown>) => ({
+          id: c.id,
+          name: c.name,
+          job: ((c.jobs as Array<{ job: string }>) ?? [])[0]?.job ?? '',
+          department: c.department,
+          profile_path: c.profile_path,
+        })),
+      };
+    },
+
+    async getTVImages(tvId: number): Promise<TMDBImages> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/images?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVVideos(tvId: number): Promise<TMDBVideos> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/videos?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVKeywords(tvId: number): Promise<{ id: number; results: Array<{ id: number; name: string }> }> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/keywords?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVSeason(tvId: number, seasonNumber: number): Promise<TMDBTVSeason> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/season/${seasonNumber}?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVEpisode(tvId: number, seasonNumber: number, episodeNumber: number): Promise<TMDBTVEpisode> {
+      const res = await fetch(
+        `${baseUrl}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${apiKey}`
+      );
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVRecommendations(tvId: number): Promise<TMDBTVListResponse> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/recommendations?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVSimilar(tvId: number): Promise<TMDBTVListResponse> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/similar?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVContentRatings(tvId: number): Promise<{ results: Array<{ iso_3166_1: string; rating: string }> }> {
+      const res = await fetch(`${baseUrl}/tv/${tvId}/content_ratings?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVEpisodeImages(tvId: number, seasonNumber: number, episodeNumber: number): Promise<TMDBEpisodeImages> {
+      const res = await fetch(
+        `${baseUrl}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}/images?api_key=${apiKey}`
+      );
       if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
       return res.json();
     },

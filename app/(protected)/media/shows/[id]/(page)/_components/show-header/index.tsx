@@ -3,15 +3,19 @@
 import Image from 'next/image';
 
 import { useQuery } from '@tanstack/react-query';
-import { Clock, Play, Star } from 'lucide-react';
+import { Clock, Play, Star, Tv } from 'lucide-react';
 
-import { type MovieBasic, type MovieVideos } from '@/api/entities';
+import { type ShowBasic, type ShowContentRating, type ShowVideos } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
-import { tmdbMovieQueryOptions, tmdbVideosQueryOptions } from '@/options/queries/tmdb';
-import { formatRuntime } from '@/utilities';
+import {
+  tmdbTVContentRatingsQueryOptions,
+  tmdbTVShowQueryOptions,
+  tmdbTVVideosQueryOptions,
+} from '@/options/queries/tmdb';
 
 import { Queries } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,14 +23,38 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { LibraryStatusBadge } from './library-status-badge';
 
 // ============================================================================
+// Utilities
+// ============================================================================
+
+function formatShowYear(year: number, endYear?: number): string {
+  if (endYear) return `${year}\u2013${endYear}`;
+  return `${year}\u2013`;
+}
+
+function getShowStatusBadge(status: string) {
+  const normalized = status.toLowerCase();
+
+  if (normalized === 'returning series' || normalized === 'in production') {
+    return { label: 'Continuing', className: 'bg-emerald-500/20 text-emerald-400' };
+  }
+  if (normalized === 'ended' || normalized === 'canceled') {
+    return { label: 'Ended', className: 'bg-muted text-muted-foreground' };
+  }
+  if (normalized === 'planned' || normalized === 'pilot') {
+    return { label: 'Upcoming', className: 'bg-amber-500/20 text-amber-400' };
+  }
+  return { label: status, className: 'bg-muted text-muted-foreground' };
+}
+
+// ============================================================================
 // Error
 // ============================================================================
 
-interface MovieHeaderErrorProps {
+interface ShowHeaderErrorProps {
   error: unknown;
 }
 
-function MovieHeaderError({ error }: MovieHeaderErrorProps) {
+function ShowHeaderError({ error }: ShowHeaderErrorProps) {
   const message = error instanceof Error ? error.message : 'An unexpected error occurred';
 
   return (
@@ -37,14 +65,14 @@ function MovieHeaderError({ error }: MovieHeaderErrorProps) {
           <div className="shrink-0 sm:w-44 md:w-52">
             <AspectRatio ratio={2 / 3} className="overflow-hidden rounded-xl bg-destructive/10">
               <div className="flex h-full items-center justify-center">
-                <Star className="size-10 text-destructive/30" />
+                <Tv className="size-10 text-destructive/30" />
               </div>
             </AspectRatio>
           </div>
 
           {/* Error info */}
           <div className="flex flex-1 flex-col justify-center">
-            <h2 className="text-lg font-semibold text-destructive">Failed to load movie</h2>
+            <h2 className="text-lg font-semibold text-destructive">Failed to load show</h2>
             <p className="mt-2 text-sm text-muted-foreground">{message}</p>
           </div>
         </div>
@@ -57,7 +85,7 @@ function MovieHeaderError({ error }: MovieHeaderErrorProps) {
 // Loading
 // ============================================================================
 
-function MovieHeaderLoading() {
+function ShowHeaderLoading() {
   return (
     <section className="relative flex overflow-hidden rounded-xl bg-accent/30 min-h-[420px] sm:min-h-[500px] lg:min-h-[560px]">
       <div className="relative mt-auto px-4 pb-6 pt-20 sm:px-6 sm:pb-8 sm:pt-24 lg:px-8 lg:pb-10 lg:pt-28">
@@ -100,23 +128,27 @@ function MovieHeaderLoading() {
 // Success
 // ============================================================================
 
-interface MovieHeaderSuccessProps {
-  movie: MovieBasic;
-  videos: MovieVideos;
+interface ShowHeaderSuccessProps {
+  show: ShowBasic;
+  videos: ShowVideos;
+  contentRatings: ShowContentRating[];
   tmdbId: number;
 }
 
-function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) {
-  useSetBreadcrumb(`/media/movies/${tmdbId}`, movie?.title);
+function ShowHeaderSuccess({ show, videos, contentRatings, tmdbId }: ShowHeaderSuccessProps) {
+  useSetBreadcrumb(`/media/shows/${tmdbId}`, show?.name);
 
   const trailerUrl = videos.trailerUrl;
+  const statusBadge = getShowStatusBadge(show.status);
+  const networkName = show.networks[0]?.name;
+  const usRating = contentRatings.find((r) => r.country === 'US')?.rating;
 
   return (
     <section className="relative flex min-h-[420px] overflow-hidden rounded-xl sm:min-h-[500px] lg:min-h-[560px]">
       {/* Backdrop Image */}
-      {movie.backdropUrl && (
+      {show.backdropUrl && (
         <Image
-          src={movie.backdropUrl}
+          src={show.backdropUrl}
           alt=""
           fill
           className="absolute inset-0 h-full w-full object-cover"
@@ -136,23 +168,23 @@ function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) 
         }}
       />
 
-      {/* Content — pinned to bottom */}
+      {/* Content -- pinned to bottom */}
       <div className="relative mt-auto px-4 pb-6 pt-20 sm:px-6 sm:pb-8 sm:pt-24 lg:px-8 lg:pb-10 lg:pt-28">
         <div className="flex flex-col gap-6 sm:flex-row">
           {/* Poster */}
           <div className="shrink-0 sm:w-44 md:w-52">
             <AspectRatio ratio={2 / 3} className="overflow-hidden rounded-xl shadow-2xl ring-1 ring-foreground/10">
-              {movie.posterUrl ? (
+              {show.posterUrl ? (
                 <Image
-                  src={movie.posterUrl}
-                  alt={movie.title}
+                  src={show.posterUrl}
+                  alt={show.name}
                   fill
                   className="h-full w-full object-cover"
                   sizes="(min-width: 768px) 208px, (min-width: 640px) 176px, 100vw"
                 />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/80 p-4 text-center text-sm text-muted-foreground">
-                  {movie.title}
+                  {show.name}
                 </div>
               )}
             </AspectRatio>
@@ -160,32 +192,60 @@ function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) 
 
           {/* Info */}
           <div className="flex flex-1 flex-col justify-end">
-            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{movie.title}</h1>
-            <p className="mt-1 text-lg text-muted-foreground">{movie.year}</p>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">{show.name}</h1>
+            {show.originalName !== show.name && <p className="text-sm text-muted-foreground/70">{show.originalName}</p>}
 
-            {movie.tagline && (
-              <p className="mt-2 text-sm italic text-muted-foreground/80">&ldquo;{movie.tagline}&rdquo;</p>
+            <div className="mt-1 flex items-center gap-2">
+              <p className="text-lg text-muted-foreground">{formatShowYear(show.year, show.endYear)}</p>
+              <Badge className={statusBadge.className}>{statusBadge.label}</Badge>
+              {show.type && <Badge className="bg-muted text-muted-foreground text-xs">{show.type}</Badge>}
+            </div>
+
+            {show.tagline && (
+              <p className="mt-2 text-sm italic text-muted-foreground/80">&ldquo;{show.tagline}&rdquo;</p>
             )}
 
             {/* Metadata */}
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-              {movie.rating > 0 && (
+              {usRating && (
+                <Badge className="border border-foreground/20 bg-foreground/10 px-2 py-0.5 text-xs font-semibold">
+                  {usRating}
+                </Badge>
+              )}
+
+              {show.rating > 0 && (
                 <div className="flex items-center gap-1.5 rounded-lg bg-foreground/10 px-2.5 py-1.5 backdrop-blur-sm">
                   <Star className="size-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold tabular-nums">{movie.rating.toFixed(1)}</span>
+                  <span className="font-semibold tabular-nums">{show.rating.toFixed(1)}</span>
+                  <span className="text-xs text-muted-foreground/80">({show.voteCount.toLocaleString()})</span>
                 </div>
               )}
 
               <Separator orientation="vertical" className="h-4 bg-foreground/20" />
 
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <Clock className="size-4" />
-                {formatRuntime(movie.runtime)}
+              <span className="text-muted-foreground">
+                {show.numberOfSeasons} {show.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
               </span>
+
+              {show.runtime && show.runtime > 0 && (
+                <>
+                  <Separator orientation="vertical" className="h-4 bg-foreground/20" />
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <Clock className="size-4" />~{show.runtime}m
+                  </span>
+                </>
+              )}
 
               <Separator orientation="vertical" className="h-4 bg-foreground/20" />
 
-              <span className="text-muted-foreground">{movie.genres.slice(0, 3).join(' / ')}</span>
+              <span className="text-muted-foreground">{show.genres.slice(0, 3).join(' / ')}</span>
+
+              {networkName && (
+                <>
+                  <Separator orientation="vertical" className="h-4 bg-foreground/20" />
+                  <span className="text-muted-foreground">{networkName}</span>
+                </>
+              )}
             </div>
 
             {/* Library Status + Actions */}
@@ -212,25 +272,28 @@ function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) 
 // Main
 // ============================================================================
 
-interface MovieHeaderProps {
+interface ShowHeaderProps {
   tmdbId: number;
 }
 
-function MovieHeader({ tmdbId }: MovieHeaderProps) {
-  const movieQuery = useQuery(tmdbMovieQueryOptions(tmdbId));
-  const videosQuery = useQuery(tmdbVideosQueryOptions(tmdbId));
+function ShowHeader({ tmdbId }: ShowHeaderProps) {
+  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
+  const videosQuery = useQuery(tmdbTVVideosQueryOptions(tmdbId));
+  const contentRatingsQuery = useQuery(tmdbTVContentRatingsQueryOptions(tmdbId));
 
   return (
     <Queries
-      results={[movieQuery, videosQuery] as const}
+      results={[showQuery, videosQuery, contentRatingsQuery] as const}
       callbacks={{
-        loading: MovieHeaderLoading,
-        error: (error) => <MovieHeaderError error={error} />,
-        success: ([movie, videos]) => <MovieHeaderSuccess movie={movie} videos={videos} tmdbId={tmdbId} />,
+        loading: ShowHeaderLoading,
+        error: (error) => <ShowHeaderError error={error} />,
+        success: ([show, videos, contentRatings]) => (
+          <ShowHeaderSuccess show={show} videos={videos} contentRatings={contentRatings} tmdbId={tmdbId} />
+        ),
       }}
     />
   );
 }
 
-export type { MovieHeaderProps };
-export { MovieHeader };
+export type { ShowHeaderProps };
+export { ShowHeader };

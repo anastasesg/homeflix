@@ -21,7 +21,7 @@ function mapToMovieBasic(movie: TMDBMovie): MovieBasic {
     revenue: movie.revenue || undefined,
     rating: movie.vote_average,
     voteCount: movie.vote_count,
-    posterUrl: getTMDBImageUrl(movie.poster_path, 'w500'),
+    posterUrl: getTMDBImageUrl(movie.poster_path, 'original'),
     backdropUrl: getTMDBImageUrl(movie.backdrop_path, 'original'),
     genres: movie.genres.map((g) => g.name),
     productionCompanies: movie.production_companies.map((c) => ({
@@ -100,7 +100,7 @@ export function tmdbImagesQueryOptions(tmdbId: number) {
           .filter(Boolean),
         posters: images.posters
           .slice(0, 5)
-          .map((p) => getTMDBImageUrl(p.file_path, 'w500')!)
+          .map((p) => getTMDBImageUrl(p.file_path, 'original')!)
           .filter(Boolean),
       };
     },

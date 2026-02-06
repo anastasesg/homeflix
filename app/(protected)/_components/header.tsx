@@ -52,17 +52,28 @@ const libraryItems = [
   { title: 'Books', url: '/library/books', icon: Book },
 ] as const;
 
+/** Structural-only segments that have no page and should be hidden from breadcrumbs */
+const HIDDEN_SEGMENTS = new Set(['seasons', 'episodes']);
+
 function generateBreadcrumbs(pathname: string, overrides: Map<string, string>) {
   const segments = pathname.split('/').filter(Boolean);
 
-  return segments.map((segment, index) => {
-    const href = ('/' + segments.slice(0, index + 1).join('/')) as Route;
-    // Use override if available, otherwise capitalize the segment
-    const label = overrides.get(segment) || segment.charAt(0).toUpperCase() + segment.slice(1);
-    const isLast = index === segments.length - 1;
+  const breadcrumbs: Array<{ href: Route; label: string; isLast: boolean; segment: string }> = [];
 
-    return { href, label, isLast, segment };
-  });
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
+    if (HIDDEN_SEGMENTS.has(segment)) continue;
+
+    const href = ('/' + segments.slice(0, i + 1).join('/')) as Route;
+    const label = overrides.get(href) || segment.charAt(0).toUpperCase() + segment.slice(1);
+    breadcrumbs.push({ href, label, isLast: false, segment });
+  }
+
+  if (breadcrumbs.length > 0) {
+    breadcrumbs[breadcrumbs.length - 1].isLast = true;
+  }
+
+  return breadcrumbs;
 }
 
 // ============================================================================
