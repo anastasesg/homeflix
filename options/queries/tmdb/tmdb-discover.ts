@@ -29,7 +29,7 @@ function mapToDiscoverMovie(item: TMDBMovieListItem): DiscoverMovie {
     voteCount: item.vote_count,
     popularity: item.popularity,
     posterUrl: getTMDBImageUrl(item.poster_path, 'w342'),
-    backdropUrl: getTMDBImageUrl(item.backdrop_path, 'w780'),
+    backdropUrl: getTMDBImageUrl(item.backdrop_path, 'original'),
     genreIds: item.genre_ids,
   };
 }

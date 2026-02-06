@@ -139,6 +139,55 @@ export interface TMDBPersonSearchResponse {
   total_results: number;
 }
 
+// ============================================================================
+// TV Types
+// ============================================================================
+
+export interface TMDBTVListItem {
+  id: number;
+  name: string;
+  original_name: string;
+  overview: string;
+  first_air_date: string;
+  vote_average: number;
+  vote_count: number;
+  popularity: number;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  genre_ids: number[];
+  origin_country: string[];
+  original_language: string;
+}
+
+export interface TMDBTVListResponse {
+  page: number;
+  results: TMDBTVListItem[];
+  total_pages: number;
+  total_results: number;
+}
+
+export interface DiscoverTVParams {
+  genres?: number[];
+  yearMin?: number;
+  yearMax?: number;
+  ratingMin?: number;
+  runtimeMin?: number;
+  runtimeMax?: number;
+  language?: string;
+  voteCountMin?: number;
+  networks?: number[];
+  status?: string[];
+  watchProviders?: number[];
+  watchRegion?: string;
+  keywords?: number[];
+  sortBy?: string;
+  page?: number;
+}
+
+// ============================================================================
+// Movie Params
+// ============================================================================
+
 export interface DiscoverMovieParams {
   genres?: number[];
   yearMin?: number;
@@ -163,7 +212,7 @@ const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p';
 
 export function getTMDBImageUrl(
   path: string | null,
-  size: 'w92' | 'w185' | 'w342' | 'w500' | 'w780' | 'original' = 'w500'
+  size: 'w92' | 'w185' | 'w342' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500'
 ): string | undefined {
   if (!path) return undefined;
   return `${TMDB_IMAGE_BASE}/${size}${path}`;
@@ -302,6 +351,86 @@ export function createTMDBClient() {
     async searchPeople(query: string): Promise<TMDBPersonSearchResponse> {
       const searchParams = new URLSearchParams({ api_key: apiKey, query });
       const res = await fetch(`${baseUrl}/search/person?${searchParams}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    // ==================================================================
+    // TV Methods
+    // ==================================================================
+
+    async getTVTrending(): Promise<TMDBTVListResponse> {
+      const res = await fetch(`${baseUrl}/trending/tv/week?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVTopRated(): Promise<TMDBTVListResponse> {
+      const res = await fetch(`${baseUrl}/tv/top_rated?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVOnTheAir(): Promise<TMDBTVListResponse> {
+      const res = await fetch(`${baseUrl}/tv/on_the_air?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVAiringToday(): Promise<TMDBTVListResponse> {
+      const res = await fetch(`${baseUrl}/tv/airing_today?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVGenres(): Promise<TMDBGenreListResponse> {
+      const res = await fetch(`${baseUrl}/genre/tv/list?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async discoverByTVGenre(genreId: number): Promise<TMDBTVListResponse> {
+      const res = await fetch(
+        `${baseUrl}/discover/tv?api_key=${apiKey}&with_genres=${genreId}&sort_by=popularity.desc&vote_count.gte=50`
+      );
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async discoverTV(params: DiscoverTVParams): Promise<TMDBTVListResponse> {
+      const searchParams = new URLSearchParams({ api_key: apiKey });
+      if (params.genres?.length) searchParams.set('with_genres', params.genres.join(','));
+      if (params.yearMin) searchParams.set('first_air_date.gte', `${params.yearMin}-01-01`);
+      if (params.yearMax) searchParams.set('first_air_date.lte', `${params.yearMax}-12-31`);
+      if (params.ratingMin) searchParams.set('vote_average.gte', String(params.ratingMin));
+      if (params.runtimeMin) searchParams.set('with_runtime.gte', String(params.runtimeMin));
+      if (params.runtimeMax) searchParams.set('with_runtime.lte', String(params.runtimeMax));
+      if (params.language) searchParams.set('with_original_language', params.language);
+      if (params.networks?.length) searchParams.set('with_networks', params.networks.join('|'));
+      if (params.status?.length) searchParams.set('with_status', params.status.join('|'));
+      if (params.watchProviders?.length) {
+        searchParams.set('with_watch_providers', params.watchProviders.join('|'));
+        searchParams.set('watch_region', params.watchRegion ?? 'US');
+      }
+      if (params.keywords?.length) searchParams.set('with_keywords', params.keywords.join(','));
+      searchParams.set('sort_by', params.sortBy ?? 'popularity.desc');
+      searchParams.set('vote_count.gte', String(params.voteCountMin ?? 50));
+      if (params.page) searchParams.set('page', String(params.page));
+      const res = await fetch(`${baseUrl}/discover/tv?${searchParams}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async searchTV(query: string, page?: number): Promise<TMDBTVListResponse> {
+      const searchParams = new URLSearchParams({ api_key: apiKey, query });
+      if (page) searchParams.set('page', String(page));
+      const res = await fetch(`${baseUrl}/search/tv?${searchParams}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getTVWatchProviders(region: string = 'US'): Promise<TMDBWatchProvidersResponse> {
+      const res = await fetch(`${baseUrl}/watch/providers/tv?api_key=${apiKey}&watch_region=${region}`);
       if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
       return res.json();
     },
