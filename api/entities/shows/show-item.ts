@@ -3,6 +3,7 @@ export type DisplayStatus = 'complete' | 'partial' | 'downloading' | 'missing' |
 
 export interface ShowItem {
   id: string | number;
+  tmdbId: number | undefined;
   title: string;
   year?: number;
   endYear?: number;

@@ -20,7 +20,7 @@ function ShowCard({ show, status, index = 0 }: ShowCardProps) {
 
   return (
     <MediaCard
-      href={`/media/shows/${show.id}`}
+      href={`/media/shows/${show.tmdbId}`}
       title={show.title}
       posterUrl={show.posterUrl}
       status={status}

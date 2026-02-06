@@ -18,7 +18,7 @@ function ShowItem({ show, status }: ShowItemProps) {
 
   return (
     <MediaListItem
-      href={`/media/shows/${show.id}`}
+      href={`/media/shows/${show.tmdbId}`}
       title={show.title}
       year={show.year}
       posterUrl={show.posterUrl}

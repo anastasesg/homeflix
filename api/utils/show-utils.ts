@@ -50,6 +50,7 @@ export function mapToShowItem(series: SeriesResource): ShowItem {
 
   return {
     id: series.id ?? 0,
+    tmdbId: series.tmdbId,
     title: series.title ?? 'Unknown',
     year: series.year,
     type: 'show',
