@@ -2,6 +2,7 @@ import { MediaStatus } from '@/api/types';
 
 export interface MovieItem {
   id: string | number;
+  tmdbId?: number;
   title: string;
   year?: number;
   type: 'movie';

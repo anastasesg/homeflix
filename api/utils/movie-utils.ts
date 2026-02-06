@@ -23,6 +23,7 @@ export function mapToMovieItem(movie: MovieResource): MovieItem {
 
   return {
     id: movie.id ?? 0,
+    tmdbId: movie.tmdbId ?? undefined,
     title: movie.title ?? 'Unknown',
     year: movie.year,
     type: 'movie',
