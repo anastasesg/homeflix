@@ -61,7 +61,7 @@ function MediaCard<TRoute extends string = string>({
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-xl ring-1 ring-white/5 transition-all duration-300 hover:-translate-y-1 hover:ring-2 hover:ring-primary/40 hover:shadow-xl hover:shadow-primary/10"
+      className="group relative block overflow-hidden rounded-xl ring-1 ring-white/5 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:ring-2 hover:ring-primary/40 hover:shadow-xl hover:shadow-primary/10"
       style={animationDelay ? { animationDelay: `${animationDelay}ms` } : undefined}
     >
       <AspectRatio ratio={2 / 3}>
@@ -90,7 +90,7 @@ function MediaCard<TRoute extends string = string>({
               <Badge
                 variant="secondary"
                 className={cn(
-                  'size-6 p-0 shadow-md backdrop-blur-sm transition-transform duration-200 group-hover:scale-110',
+                  'size-6 p-0 shadow-md transition-transform duration-200 group-hover:scale-110',
                   status.bg,
                   status.glow && `shadow-lg ${status.glow}`
                 )}

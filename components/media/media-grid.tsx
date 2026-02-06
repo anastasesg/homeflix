@@ -143,7 +143,7 @@ function VirtualizedGrid<T extends BaseMediaItem>({
   const virtualizer = useWindowVirtualizer({
     count: rowCount,
     estimateSize: getRowHeight,
-    overscan: 2,
+    overscan: 5,
     scrollMargin,
   });
 

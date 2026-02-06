@@ -36,7 +36,7 @@ function MoviesPageContent() {
       </div>
 
       <section className="space-y-6">
-        <div className="sticky top-0 z-30 -mx-4 bg-background/95 px-4 py-2 backdrop-blur-sm">
+        <div className="sticky top-0 z-30 -mx-4 bg-background px-4 py-2 md:bg-background/95 md:backdrop-blur-sm">
           <MoviesFilter />
         </div>
         {hasActiveFilters ? <MoviesGrid /> : <MoviesBrowse onApplyGenreFilter={handleApplyGenreFilter} />}

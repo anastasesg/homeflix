@@ -21,7 +21,7 @@ function MovieCarousel({ children, className }: MovieCarouselProps) {
   return (
     <div className={cn('relative -mx-2', className)}>
       <div
-        className="flex gap-3 overflow-x-auto px-2 py-2 scrollbar-none sm:gap-4"
+        className="flex touch-pan-x gap-3 overflow-x-auto px-2 py-2 scrollbar-none sm:gap-4"
         style={{ scrollSnapType: 'x mandatory' }}
       >
         {children}
