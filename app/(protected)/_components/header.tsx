@@ -141,38 +141,40 @@ function Header({}: HeaderProps) {
   const breadcrumbs = generateBreadcrumbs(pathname, overrides);
 
   return (
-    <header className="flex h-14 w-full shrink-0 items-center justify-between gap-1 overflow-hidden md:h-16 md:gap-2">
-      <div className="flex min-w-0 flex-1 items-center gap-1 px-2 md:gap-2 md:px-4">
-        <SidebarTrigger className="size-8 shrink-0 md:size-9" />
-        <Separator orientation="vertical" className="hidden h-4! shrink-0 md:block" />
-        <Breadcrumb className="min-w-0">
-          <BreadcrumbList>
-            {breadcrumbs.map((crumb, index) => (
-              <React.Fragment key={crumb.href}>
-                {index > 0 && <BreadcrumbSeparator className="hidden md:block" />}
-                <BreadcrumbItem>
-                  {crumb.isLast ? (
-                    <BreadcrumbPage className="max-w-30 truncate text-sm md:max-w-none md:text-base">
-                      {crumb.label}
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink asChild className="hidden md:block">
-                      <Link href={crumb.href}>{crumb.label}</Link>
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
+    <header className="sticky top-0 z-20 shrink-0 bg-background pt-[env(safe-area-inset-top)]">
+      <div className="flex h-14 w-full items-center justify-between gap-1 overflow-hidden md:h-16 md:gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-1 px-2 md:gap-2 md:px-4">
+          <SidebarTrigger className="size-8 shrink-0 md:size-9" />
+          <Separator orientation="vertical" className="hidden h-4! shrink-0 md:block" />
+          <Breadcrumb className="min-w-0">
+            <BreadcrumbList>
+              {breadcrumbs.map((crumb, index) => (
+                <React.Fragment key={crumb.href}>
+                  {index > 0 && <BreadcrumbSeparator className="hidden md:block" />}
+                  <BreadcrumbItem>
+                    {crumb.isLast ? (
+                      <BreadcrumbPage className="max-w-30 truncate text-sm md:max-w-none md:text-base">
+                        {crumb.label}
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild className="hidden md:block">
+                        <Link href={crumb.href}>{crumb.label}</Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
 
-      <div className="flex shrink-0 items-center gap-1 px-2 md:gap-2 md:px-4">
-        <SearchCommand />
-        <ThemeToggle />
-        <Notifications />
-        <div className="md:hidden">
-          <HeaderUserMenu />
+        <div className="flex shrink-0 items-center gap-1 px-2 md:gap-2 md:px-4">
+          <SearchCommand />
+          <ThemeToggle />
+          <Notifications />
+          <div className="md:hidden">
+            <HeaderUserMenu />
+          </div>
         </div>
       </div>
     </header>

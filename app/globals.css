@@ -122,6 +122,19 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* PWA safe area: main content area (sidebar-inset) */
+  [data-slot='sidebar-inset'] {
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+  }
+
+  /* PWA safe area: mobile sidebar sheet */
+  [data-mobile='true'] [data-slot='sidebar-header'] {
+    padding-top: env(safe-area-inset-top)!important;
+    padding-bottom: env(safe-area-inset-bottom)!important;
+  }
 }
 
 @utility scrollbar-none {

@@ -36,7 +36,7 @@ function ShowsPageContent() {
       </div>
 
       <section className="space-y-6">
-        <div className="sticky top-0 z-30 -mx-4 bg-background px-4 py-2 md:bg-background/95 md:backdrop-blur-sm">
+        <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-30 -mx-4 bg-background px-4 py-2 md:top-[calc(env(safe-area-inset-top)+4rem)]">
           <ShowsFilter />
         </div>
         {hasActiveFilters ? <ShowsGrid /> : <ShowsBrowse onApplyGenreFilter={handleApplyGenreFilter} />}
