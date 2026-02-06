@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import {
+  BadgeCheck,
   Book,
   Calendar,
+  ChevronsUpDown,
   Clapperboard,
   Clock,
   Download,
@@ -14,6 +16,8 @@ import {
   Globe,
   Hand,
   Headphones,
+  Library,
+  LogOut,
   MonitorPlay,
   Search,
   Server,
@@ -21,6 +25,19 @@ import {
   Tv,
 } from 'lucide-react';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar as BaseSidebar,
   SidebarContent,
@@ -33,7 +50,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar';
+
+// Mocked user data
+const user = {
+  name: 'Alex Thompson',
+  email: 'alex@homeflix.local',
+  avatar: '',
+} as const;
 
 // Navigation structure from UI plan
 const navigation = {
@@ -149,25 +174,6 @@ function Sidebar({}: SidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Library section */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Library</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navigation.library.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.url)} tooltip={item.title}>
-                    <Link href={item.url}>
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         {/* Activity section */}
         <SidebarGroup>
           <SidebarGroupLabel>Activity</SidebarGroupLabel>
@@ -207,12 +213,98 @@ function Sidebar({}: SidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer */}
-      <SidebarFooter />
+      {/* Footer with user menu */}
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
 
       {/* Rail for hover-to-expand on collapsed state */}
       <SidebarRail />
     </BaseSidebar>
+  );
+}
+
+// ============================================================================
+// NavUser — Sidebar footer user menu with library submenu
+// ============================================================================
+
+function NavUser() {
+  const { isMobile } = useSidebar();
+
+  if (isMobile) return null;
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <Avatar className="size-8 rounded-lg">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="rounded-lg">AT</AvatarFallback>
+              </Avatar>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-semibold">{user.name}</span>
+                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+              </div>
+              <ChevronsUpDown className="ml-auto size-4" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            side={isMobile ? 'bottom' : 'right'}
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <Avatar className="size-8 rounded-lg">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="rounded-lg">AT</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">{user.name}</span>
+                  <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Library className="size-4" />
+                  Library
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent>
+                  {navigation.library.map((item) => (
+                    <DropdownMenuItem key={item.url} asChild>
+                      <Link href={item.url}>
+                        <item.icon className="size-4" />
+                        {item.title}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <BadgeCheck className="size-4" />
+                Account
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <LogOut className="size-4" />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
   );
 }
 
