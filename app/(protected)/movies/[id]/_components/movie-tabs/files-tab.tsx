@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { useQuery } from '@tanstack/react-query';
 import {
   AudioLines,
   Check,
@@ -17,6 +18,11 @@ import {
   Video,
 } from 'lucide-react';
 
+import { type MovieFile } from '@/api/entities';
+import { cn } from '@/lib/utils';
+import { radarrLookupQueryOptions } from '@/options/queries/tmdb';
+
+import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,14 +34,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
 
-import type { Movie, MovieFile } from './types';
-
-interface FilesTabProps {
-  movie: Movie;
-}
+// ============================================================================
+// Helpers
+// ============================================================================
 
 function parseFileSize(size: string): number {
   const match = size.match(/([\d.]+)\s*(GB|MB|TB)/i);
@@ -96,6 +100,10 @@ function getAudioBadge(audio: string): { label: string; premium: boolean } {
   return { label: audio, premium: false };
 }
 
+// ============================================================================
+// File Card
+// ============================================================================
+
 interface FileCardProps {
   file: MovieFile;
 }
@@ -116,7 +124,7 @@ function FileCard({ file }: FileCardProps) {
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-white/[0.06] bg-gradient-to-br from-white/[0.03] to-transparent transition-all duration-300 hover:border-white/[0.12] hover:from-white/[0.05]">
+    <div className="group relative overflow-hidden rounded-xl border border-border/50 bg-muted/30 transition-all duration-300 hover:border-border hover:bg-muted/50">
       {/* Quality accent bar */}
       <div className={cn('absolute left-0 top-0 h-full w-1 bg-gradient-to-b', qualityGradient)} />
 
@@ -187,7 +195,7 @@ function FileCard({ file }: FileCardProps) {
           </DropdownMenu>
         </div>
 
-        <Separator className="my-4 bg-white/[0.04]" />
+        <Separator className="my-4 bg-border" />
 
         {/* Specs Grid */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -241,7 +249,7 @@ function FileCard({ file }: FileCardProps) {
             </div>
             <Progress
               value={Math.min((parseFileSize(file.size) / 50) * 100, 100)}
-              className="mt-1.5 h-1.5 bg-white/[0.04]"
+              className="mt-1.5 h-1.5 bg-muted/50"
             />
           </div>
         </div>
@@ -250,9 +258,13 @@ function FileCard({ file }: FileCardProps) {
   );
 }
 
+// ============================================================================
+// Empty State
+// ============================================================================
+
 function EmptyFiles() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/[0.08] bg-white/[0.01] py-16 text-center">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/50 bg-muted/20 py-16 text-center">
       <div className="relative">
         <div className="absolute -inset-4 rounded-full bg-amber-500/10 blur-xl" />
         <HardDrive className="relative size-14 text-muted-foreground/30" />
@@ -261,7 +273,7 @@ function EmptyFiles() {
       <p className="mt-2 max-w-xs text-sm text-muted-foreground">
         This movie hasn&apos;t been downloaded yet. Search for releases or wait for automatic download.
       </p>
-      <Button variant="outline" size="sm" className="mt-6 gap-2 border-white/10">
+      <Button variant="outline" size="sm" className="mt-6 gap-2 border-border">
         <Play className="size-4" />
         Search for releases
       </Button>
@@ -269,43 +281,94 @@ function EmptyFiles() {
   );
 }
 
-function StorageSummary({ files }: { files: MovieFile[] }) {
-  const totalSize = files.reduce((acc, file) => acc + parseFileSize(file.size), 0);
-  const formattedTotal = totalSize >= 1024 ? `${(totalSize / 1024).toFixed(2)} TB` : `${totalSize.toFixed(2)} GB`;
+// ============================================================================
+// Loading
+// ============================================================================
 
+function FilesTabLoading() {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-      <div className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-amber-500/10">
-          <HardDrive className="size-4 text-amber-500" />
+    <div className="space-y-4">
+      <div className="rounded-xl border border-border/50 bg-muted/30 p-5 pl-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="mt-2 h-3 w-1/2" />
+          </div>
         </div>
-        <div>
-          <p className="text-xs text-muted-foreground">Total Storage</p>
-          <p className="text-lg font-semibold tabular-nums">{formattedTotal}</p>
+        <Separator className="my-4 bg-border" />
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="space-y-1.5">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-5 w-16" />
+            </div>
+          ))}
         </div>
-      </div>
-      <div className="text-right">
-        <p className="text-xs text-muted-foreground">Files</p>
-        <p className="text-lg font-semibold tabular-nums">{files.length}</p>
+        <div className="mt-4 flex items-center gap-3">
+          <Skeleton className="size-4 rounded" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-1.5 w-full" />
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-export function FilesTab({ movie }: FilesTabProps) {
-  if (movie.files.length === 0) {
+// ============================================================================
+// Error
+// ============================================================================
+
+function FilesTabError({ error }: { error: unknown }) {
+  const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+  return (
+    <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+      <h2 className="text-lg font-semibold text-destructive">Failed to load files</h2>
+      <p className="mt-2 text-sm text-muted-foreground">{message}</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// Content
+// ============================================================================
+
+function FilesTabContent({ file }: { file?: MovieFile }) {
+  if (!file) {
     return <EmptyFiles />;
   }
 
   return (
     <div className="space-y-4">
-      <StorageSummary files={movie.files} />
-
-      <div className="space-y-3">
-        {movie.files.map((file) => (
-          <FileCard key={file.id} file={file} />
-        ))}
-      </div>
+      <FileCard file={file} />
     </div>
   );
 }
+
+// ============================================================================
+// Main
+// ============================================================================
+
+interface FilesTabProps {
+  tmdbId: number;
+}
+
+function FilesTab({ tmdbId }: FilesTabProps) {
+  const libraryQuery = useQuery(radarrLookupQueryOptions(tmdbId));
+
+  return (
+    <Query
+      result={libraryQuery}
+      callbacks={{
+        loading: FilesTabLoading,
+        error: (error) => <FilesTabError error={error} />,
+        success: (data) => <FilesTabContent file={data.file} />,
+      }}
+    />
+  );
+}
+
+export type { FilesTabProps };
+export { FilesTab };
