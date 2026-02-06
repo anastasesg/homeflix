@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Clock, Play, Star } from 'lucide-react';
 
 import { type MovieBasic, type MovieVideos } from '@/api/entities';
-import { useSetBreadcrumb } from '@/app/(protected)/_components/breadcrumb-context';
+import { useSetBreadcrumb } from '@/context';
 import { tmdbMovieQueryOptions, tmdbVideosQueryOptions } from '@/options/queries/tmdb';
 import { formatRuntime } from '@/utilities';
 
