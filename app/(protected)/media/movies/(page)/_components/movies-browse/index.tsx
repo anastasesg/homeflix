@@ -5,14 +5,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import {
-  tmdbDiscoverByGenreQueryOptions,
-  tmdbGenresQueryOptions,
-  tmdbHiddenGemsQueryOptions,
-  tmdbNowPlayingQueryOptions,
-  tmdbTopRatedQueryOptions,
-  tmdbTrendingQueryOptions,
-  tmdbUpcomingQueryOptions,
-} from '@/options/queries/tmdb';
+  hiddenGemMoviesQueryOptions,
+  moviesByGenreQueryOptions,
+  nowPlayingMoviesQueryOptions,
+  topRatedMoviesQueryOptions,
+  trendingMoviesQueryOptions,
+  upcomingMoviesQueryOptions,
+} from '@/options/queries/movies/discover';
+import { movieGenresQueryOptions } from '@/options/queries/movies/metadata';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -62,7 +62,7 @@ function LazyMovieRow({ title, genreId, onSeeAll }: LazyMovieRowProps) {
   return (
     <div ref={ref}>
       {isVisible ? (
-        <MovieRow title={title} queryOptions={tmdbDiscoverByGenreQueryOptions(genreId)} onSeeAll={onSeeAll} />
+        <MovieRow title={title} queryOptions={moviesByGenreQueryOptions(genreId)} onSeeAll={onSeeAll} />
       ) : (
         <section className="space-y-3">
           <Skeleton className="h-6 w-32" />
@@ -99,7 +99,7 @@ interface GenreRowsProps {
 }
 
 function GenreRows({ onApplyGenreFilter }: GenreRowsProps) {
-  const genresQuery = useQuery(tmdbGenresQueryOptions());
+  const genresQuery = useQuery(movieGenresQueryOptions());
 
   return (
     <Query
@@ -132,11 +132,11 @@ function MoviesBrowse({ onApplyGenreFilter }: MoviesBrowseProps) {
   return (
     <div className="space-y-8">
       {/* Smart rows — elevated treatment */}
-      <MovieRow title="Trending This Week" queryOptions={tmdbTrendingQueryOptions()} size="lg" />
-      <MovieRow title="Top Rated" queryOptions={tmdbTopRatedQueryOptions()} size="lg" />
-      <MovieRow title="Now Playing" queryOptions={tmdbNowPlayingQueryOptions()} size="lg" />
-      <MovieRow title="Upcoming" queryOptions={tmdbUpcomingQueryOptions()} size="lg" />
-      <MovieRow title="Hidden Gems" queryOptions={tmdbHiddenGemsQueryOptions()} size="lg" />
+      <MovieRow title="Trending This Week" queryOptions={trendingMoviesQueryOptions()} size="lg" />
+      <MovieRow title="Top Rated" queryOptions={topRatedMoviesQueryOptions()} size="lg" />
+      <MovieRow title="Now Playing" queryOptions={nowPlayingMoviesQueryOptions()} size="lg" />
+      <MovieRow title="Upcoming" queryOptions={upcomingMoviesQueryOptions()} size="lg" />
+      <MovieRow title="Hidden Gems" queryOptions={hiddenGemMoviesQueryOptions()} size="lg" />
 
       {/* Separator */}
       <div className="border-t border-border/40" />

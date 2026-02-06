@@ -8,7 +8,7 @@ import { Calendar, Clock, Film, Star, Users } from 'lucide-react';
 
 import type { EpisodeBasic, SeasonDetail } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { tmdbTVSeasonQueryOptions } from '@/options/queries/tmdb';
+import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -222,7 +222,7 @@ interface EpisodesTabProps {
 }
 
 function EpisodesTab({ tmdbId, seasonNumber }: EpisodesTabProps) {
-  const seasonQuery = useQuery(tmdbTVSeasonQueryOptions(tmdbId, seasonNumber));
+  const seasonQuery = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
 
   return (
     <Query

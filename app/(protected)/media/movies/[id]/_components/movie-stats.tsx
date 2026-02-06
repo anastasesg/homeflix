@@ -5,7 +5,8 @@ import { CheckCircle2, Clock, Film, HardDrive, Plus, TrendingUp } from 'lucide-r
 
 import { type LibraryInfo, type MovieBasic } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { radarrLookupQueryOptions, tmdbMovieQueryOptions } from '@/options/queries/tmdb';
+import { movieDetailQueryOptions } from '@/options/queries/movies/detail';
+import { movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 import { formatCurrency, formatRuntime } from '@/utilities';
 
 import { Queries } from '@/components/query';
@@ -187,8 +188,8 @@ interface MovieStatsProps {
 }
 
 function MovieStats({ tmdbId }: MovieStatsProps) {
-  const movieQuery = useQuery(tmdbMovieQueryOptions(tmdbId));
-  const libraryQuery = useQuery(radarrLookupQueryOptions(tmdbId));
+  const movieQuery = useQuery(movieDetailQueryOptions(tmdbId));
+  const libraryQuery = useQuery(movieLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Queries

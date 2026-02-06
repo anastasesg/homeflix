@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Maximize2, X } fro
 
 import { type ShowImages } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { tmdbTVImagesQueryOptions } from '@/options/queries/tmdb';
+import { showImagesQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -365,7 +365,7 @@ interface GallerySectionProps {
 }
 
 function GallerySection({ tmdbId, showTitle }: GallerySectionProps) {
-  const query = useQuery(tmdbTVImagesQueryOptions(tmdbId));
+  const query = useQuery(showImagesQueryOptions(tmdbId));
 
   return (
     <Query

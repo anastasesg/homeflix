@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, Clock, Film, Play, RefreshCw, Star } from 'lucide-react';
 
 import { MovieItem } from '@/api/entities';
-import { featuredMovieQuery } from '@/options/queries/movies';
+import { featuredMovieQueryOptions } from '@/options/queries/movies/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -258,7 +258,7 @@ function FeaturedMovieSuccess({ movie }: FeaturedMovieSuccessProps) {
 }
 
 function FeaturedMovie() {
-  const featuredMovie = useQuery(featuredMovieQuery());
+  const featuredMovie = useQuery(featuredMovieQueryOptions());
 
   return (
     <Query

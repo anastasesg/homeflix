@@ -15,7 +15,7 @@ import {
 
 import { type HistoryEvent } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { radarrHistoryQueryOptions, radarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { movieHistoryQueryOptions, movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -386,11 +386,11 @@ interface HistoryTabProps {
 }
 
 function HistoryTab({ tmdbId }: HistoryTabProps) {
-  const libraryQuery = useQuery(radarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(movieLibraryInfoQueryOptions(tmdbId));
   const radarrId = libraryQuery.data?.radarrId;
 
   const historyQuery = useQuery({
-    ...radarrHistoryQueryOptions(radarrId ?? 0),
+    ...movieHistoryQueryOptions(radarrId ?? 0),
     enabled: !!radarrId,
   });
 

@@ -5,7 +5,8 @@ import { CheckCircle2, Clock, Film, HardDrive, Layers, Plus, Tv } from 'lucide-r
 
 import { type ShowBasic, type ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrLookupQueryOptions, tmdbTVShowQueryOptions } from '@/options/queries/tmdb';
+import { showDetailQueryOptions } from '@/options/queries/shows/detail';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -196,8 +197,8 @@ interface ShowStatsProps {
 }
 
 function ShowStats({ tmdbId }: ShowStatsProps) {
-  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Queries

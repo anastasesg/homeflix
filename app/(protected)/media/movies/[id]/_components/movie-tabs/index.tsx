@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { radarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -143,7 +143,7 @@ interface MovieTabsProps {
 }
 
 function MovieTabs({ tmdbId }: MovieTabsProps) {
-  const libraryQuery = useQuery(radarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(movieLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

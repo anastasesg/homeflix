@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Star, ThumbsUp } from 'lucide-react';
 
 import { type ShowRecommendation } from '@/api/entities';
-import { tmdbTVRecommendationsQueryOptions } from '@/options/queries/tmdb';
+import { showRecommendationsQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -119,7 +119,7 @@ interface RecommendationsSectionProps {
 }
 
 function RecommendationsSection({ tmdbId }: RecommendationsSectionProps) {
-  const query = useQuery(tmdbTVRecommendationsQueryOptions(tmdbId));
+  const query = useQuery(showRecommendationsQueryOptions(tmdbId));
 
   return (
     <Query

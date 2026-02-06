@@ -5,14 +5,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import {
-  tmdbTVAiringTodayQueryOptions,
-  tmdbTVDiscoverByGenreQueryOptions,
-  tmdbTVGenresQueryOptions,
-  tmdbTVHiddenGemsQueryOptions,
-  tmdbTVOnTheAirQueryOptions,
-  tmdbTVTopRatedQueryOptions,
-  tmdbTVTrendingQueryOptions,
-} from '@/options/queries/tmdb/tmdb-tv-discover';
+  airingTodayShowsQueryOptions,
+  hiddenGemShowsQueryOptions,
+  onTheAirShowsQueryOptions,
+  showsByGenreQueryOptions,
+  topRatedShowsQueryOptions,
+  trendingShowsQueryOptions,
+} from '@/options/queries/shows/discover';
+import { showGenresQueryOptions } from '@/options/queries/shows/metadata';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -62,7 +62,7 @@ function LazyShowRow({ title, genreId, onSeeAll }: LazyShowRowProps) {
   return (
     <div ref={ref}>
       {isVisible ? (
-        <ShowRow title={title} queryOptions={tmdbTVDiscoverByGenreQueryOptions(genreId)} onSeeAll={onSeeAll} />
+        <ShowRow title={title} queryOptions={showsByGenreQueryOptions(genreId)} onSeeAll={onSeeAll} />
       ) : (
         <section className="space-y-3">
           <Skeleton className="h-6 w-32" />
@@ -99,7 +99,7 @@ interface GenreRowsProps {
 }
 
 function GenreRows({ onApplyGenreFilter }: GenreRowsProps) {
-  const genresQuery = useQuery(tmdbTVGenresQueryOptions());
+  const genresQuery = useQuery(showGenresQueryOptions());
 
   return (
     <Query
@@ -132,11 +132,11 @@ function ShowsBrowse({ onApplyGenreFilter }: ShowsBrowseProps) {
   return (
     <div className="space-y-8">
       {/* Smart rows — elevated treatment */}
-      <ShowRow title="Trending This Week" queryOptions={tmdbTVTrendingQueryOptions()} size="lg" />
-      <ShowRow title="Top Rated" queryOptions={tmdbTVTopRatedQueryOptions()} size="lg" />
-      <ShowRow title="On The Air" queryOptions={tmdbTVOnTheAirQueryOptions()} size="lg" />
-      <ShowRow title="Airing Today" queryOptions={tmdbTVAiringTodayQueryOptions()} size="lg" />
-      <ShowRow title="Hidden Gems" queryOptions={tmdbTVHiddenGemsQueryOptions()} size="lg" />
+      <ShowRow title="Trending This Week" queryOptions={trendingShowsQueryOptions()} size="lg" />
+      <ShowRow title="Top Rated" queryOptions={topRatedShowsQueryOptions()} size="lg" />
+      <ShowRow title="On The Air" queryOptions={onTheAirShowsQueryOptions()} size="lg" />
+      <ShowRow title="Airing Today" queryOptions={airingTodayShowsQueryOptions()} size="lg" />
+      <ShowRow title="Hidden Gems" queryOptions={hiddenGemShowsQueryOptions()} size="lg" />
 
       {/* Separator */}
       <div className="border-t border-border/40" />

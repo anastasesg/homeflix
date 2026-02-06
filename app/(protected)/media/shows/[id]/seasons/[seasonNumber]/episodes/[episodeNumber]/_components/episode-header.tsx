@@ -8,7 +8,11 @@ import { Calendar, ChevronLeft, ChevronRight, Clock, Layers, Star, Tv } from 'lu
 
 import type { EpisodeBasic, SeasonDetail, ShowBasic } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
-import { tmdbTVEpisodeQueryOptions, tmdbTVSeasonQueryOptions, tmdbTVShowQueryOptions } from '@/options/queries/tmdb';
+import {
+  showDetailQueryOptions,
+  showEpisodeQueryOptions,
+  showSeasonQueryOptions,
+} from '@/options/queries/shows/detail';
 
 import { Queries } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -246,9 +250,9 @@ interface EpisodeHeaderProps {
 }
 
 function EpisodeHeader({ tmdbId, seasonNumber, episodeNumber }: EpisodeHeaderProps) {
-  const episodeQuery = useQuery(tmdbTVEpisodeQueryOptions(tmdbId, seasonNumber, episodeNumber));
-  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
-  const seasonQuery = useQuery(tmdbTVSeasonQueryOptions(tmdbId, seasonNumber));
+  const episodeQuery = useQuery(showEpisodeQueryOptions(tmdbId, seasonNumber, episodeNumber));
+  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
+  const seasonQuery = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
 
   return (
     <Queries

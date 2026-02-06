@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Film, Hash, Loader2, Search, Users } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { tmdbSearchKeywordsQueryOptions, tmdbSearchPeopleQueryOptions } from '@/options/queries/tmdb';
+import { keywordSearchQueryOptions, peopleSearchQueryOptions } from '@/options/queries/search';
 
 import { Input } from '@/components/ui/input';
 
@@ -92,12 +92,12 @@ function SmartSearch({
   const isQueryActive = debouncedQuery.length >= 2;
 
   const peopleQuery = useQuery({
-    ...tmdbSearchPeopleQueryOptions(debouncedQuery),
+    ...peopleSearchQueryOptions(debouncedQuery),
     enabled: isQueryActive,
   });
 
   const keywordsQuery = useQuery({
-    ...tmdbSearchKeywordsQueryOptions(debouncedQuery),
+    ...keywordSearchQueryOptions(debouncedQuery),
     enabled: isQueryActive,
   });
 

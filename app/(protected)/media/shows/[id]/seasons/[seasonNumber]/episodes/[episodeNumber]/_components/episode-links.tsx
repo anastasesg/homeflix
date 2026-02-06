@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Film, Globe } from 'lucide-react';
 
 import type { ShowBasic } from '@/api/entities';
-import { tmdbTVShowQueryOptions } from '@/options/queries/tmdb';
+import { showDetailQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,7 @@ interface EpisodeLinksProps {
 }
 
 function EpisodeLinks({ tmdbId, seasonNumber, episodeNumber }: EpisodeLinksProps) {
-  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
+  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
 
   return (
     <Query

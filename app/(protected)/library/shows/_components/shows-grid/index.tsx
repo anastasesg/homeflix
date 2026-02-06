@@ -6,7 +6,7 @@ import { AlertCircle, CheckCircle2, Clock, Download, Tv2 } from 'lucide-react';
 import { DisplayStatus } from '@/api/entities';
 import { ShowItemsResponse } from '@/api/functions';
 import { type ShowTabValueType, useShowFilters } from '@/hooks/filters';
-import { showsQueryOptions } from '@/options/queries/shows';
+import { showItemsQueryOptions } from '@/options/queries/shows/library';
 
 import { MediaGrid, type StatusConfig } from '@/components/media';
 import { Query } from '@/components/query';
@@ -193,7 +193,7 @@ function ShowsGrid() {
   const { filters } = useShowFilters();
 
   const showsQuery = useQuery(
-    showsQueryOptions({
+    showItemsQueryOptions({
       tab: filters.tab,
       search: filters.q,
       genres: filters.genres,

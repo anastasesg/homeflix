@@ -6,11 +6,8 @@ import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Loader2, Tv } from 'lucide-react';
 
 import { useTVDiscoverFilters } from '@/hooks/filters/use-tv-discover-filters';
-import {
-  tmdbTVDiscoverInfiniteQueryOptions,
-  tmdbTVGenresQueryOptions,
-  tmdbTVSearchInfiniteQueryOptions,
-} from '@/options/queries/tmdb/tmdb-tv-discover';
+import { filteredShowsInfiniteQueryOptions, searchShowsInfiniteQueryOptions } from '@/options/queries/shows/discover';
+import { showGenresQueryOptions } from '@/options/queries/shows/metadata';
 
 import { MediaGrid } from '@/components/media';
 
@@ -98,12 +95,12 @@ function ShowsGrid() {
   const isSearch = search.length > 0;
 
   const searchQuery = useInfiniteQuery({
-    ...tmdbTVSearchInfiniteQueryOptions(search),
+    ...searchShowsInfiniteQueryOptions(search),
     enabled: isSearch,
   });
 
   const discoverQuery = useInfiniteQuery({
-    ...tmdbTVDiscoverInfiniteQueryOptions({
+    ...filteredShowsInfiniteQueryOptions({
       genres: genres.length > 0 ? genres : undefined,
       yearMin: yearMin ?? undefined,
       yearMax: yearMax ?? undefined,
@@ -122,7 +119,7 @@ function ShowsGrid() {
     enabled: !isSearch,
   });
 
-  const genresQuery = useQuery(tmdbTVGenresQueryOptions());
+  const genresQuery = useQuery(showGenresQueryOptions());
   const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
 
   const activeQuery = isSearch ? searchQuery : discoverQuery;

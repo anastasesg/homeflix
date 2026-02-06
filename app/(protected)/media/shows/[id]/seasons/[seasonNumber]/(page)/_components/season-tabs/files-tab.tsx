@@ -20,7 +20,7 @@ import {
 
 import type { EpisodeFile } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrEpisodeFilesQueryOptions } from '@/options/queries/tmdb';
+import { showEpisodeFilesQueryOptions } from '@/options/queries/shows/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -358,7 +358,7 @@ interface FilesTabProps {
 }
 
 function FilesTab({ sonarrId, seasonNumber }: FilesTabProps) {
-  const filesQuery = useQuery(sonarrEpisodeFilesQueryOptions(sonarrId));
+  const filesQuery = useQuery(showEpisodeFilesQueryOptions(sonarrId));
 
   return (
     <Query

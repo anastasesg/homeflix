@@ -20,7 +20,7 @@ import {
 
 import { type LibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { radarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 
 import { Query } from '@/components/query';
 import { Button } from '@/components/ui/button';
@@ -299,7 +299,7 @@ interface ManageTabProps {
 }
 
 function ManageTab({ tmdbId }: ManageTabProps) {
-  const libraryQuery = useQuery(radarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(movieLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

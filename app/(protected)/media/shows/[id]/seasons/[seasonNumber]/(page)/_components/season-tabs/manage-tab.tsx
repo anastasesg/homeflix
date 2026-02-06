@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, ArrowUpCircle, Eye, EyeOff, Loader2, Search, Trash2, Zap } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { sonarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Query } from '@/components/query';
 import { Button } from '@/components/ui/button';
@@ -217,7 +217,7 @@ interface ManageTabProps {
 }
 
 function ManageTab({ tmdbId, seasonNumber }: ManageTabProps) {
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

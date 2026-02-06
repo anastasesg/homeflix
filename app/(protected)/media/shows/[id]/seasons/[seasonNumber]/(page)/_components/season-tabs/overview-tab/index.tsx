@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import type { SeasonDetail } from '@/api/entities';
-import { tmdbTVSeasonQueryOptions } from '@/options/queries/tmdb';
+import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -61,7 +61,7 @@ interface OverviewTabProps {
 }
 
 function OverviewTab({ tmdbId, seasonNumber }: OverviewTabProps) {
-  const seasonQuery = useQuery(tmdbTVSeasonQueryOptions(tmdbId, seasonNumber));
+  const seasonQuery = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
 
   return (
     <Query

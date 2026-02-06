@@ -10,7 +10,7 @@ import { AlertCircle, Play, RefreshCw, Star, Tv } from 'lucide-react';
 
 import type { DiscoverShow } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { tmdbTVTrendingQueryOptions } from '@/options/queries/tmdb/tmdb-tv-discover';
+import { trendingShowsQueryOptions } from '@/options/queries/shows/discover';
 
 import { Query } from '@/components/query';
 import { Button } from '@/components/ui/button';
@@ -306,7 +306,7 @@ function FeaturedShowCarousel({ shows }: FeaturedShowCarouselProps) {
 // ============================================================================
 
 function FeaturedShow() {
-  const trendingQuery = useQuery(tmdbTVTrendingQueryOptions());
+  const trendingQuery = useQuery(trendingShowsQueryOptions());
 
   return (
     <Query

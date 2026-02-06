@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Hash, Loader2, Search, Tv } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { tmdbSearchKeywordsQueryOptions } from '@/options/queries/tmdb';
+import { keywordSearchQueryOptions } from '@/options/queries/search';
 
 import { Input } from '@/components/ui/input';
 
@@ -78,7 +78,7 @@ function SmartSearch({ value, onSearchChange, onAddKeyword, existingKeywords, cl
   const isQueryActive = debouncedQuery.length >= 2;
 
   const keywordsQuery = useQuery({
-    ...tmdbSearchKeywordsQueryOptions(debouncedQuery),
+    ...keywordSearchQueryOptions(debouncedQuery),
     enabled: isQueryActive,
   });
 

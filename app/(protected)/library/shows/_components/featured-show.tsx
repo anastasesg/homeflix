@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, Calendar, Clock, Play, Star, Tv2 } from 'lucide-react';
 
 import { ShowItem } from '@/api/entities';
-import { featuredShowQuery } from '@/options/queries/shows';
+import { featuredShowQueryOptions } from '@/options/queries/shows/library';
 import { formatRuntime } from '@/utilities';
 
 import { Query } from '@/components/query';
@@ -223,7 +223,7 @@ function FeaturedShowContent({ show }: { show: ShowItem }) {
 }
 
 function FeaturedShow() {
-  const featuredQuery = useQuery(featuredShowQuery());
+  const featuredQuery = useQuery(featuredShowQueryOptions());
 
   return (
     <Query

@@ -9,7 +9,8 @@ import { Calendar, ChevronLeft, ChevronRight, Clock, Film, Star, Tv } from 'luci
 import type { SeasonDetail, ShowBasic, ShowLibraryInfo } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
 import { cn } from '@/lib/utils';
-import { sonarrLookupQueryOptions, tmdbTVSeasonQueryOptions, tmdbTVShowQueryOptions } from '@/options/queries/tmdb';
+import { showDetailQueryOptions, showSeasonQueryOptions } from '@/options/queries/shows/detail';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -308,9 +309,9 @@ interface SeasonHeaderProps {
 }
 
 function SeasonHeader({ tmdbId, seasonNumber }: SeasonHeaderProps) {
-  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
-  const seasonQuery = useQuery(tmdbTVSeasonQueryOptions(tmdbId, seasonNumber));
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
+  const seasonQuery = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Queries

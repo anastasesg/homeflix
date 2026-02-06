@@ -6,7 +6,7 @@ import { AlertCircle, CheckCircle2, Clock, Download, Film } from 'lucide-react';
 import { MovieItemsResponse } from '@/api/functions';
 import { MediaStatus } from '@/api/types';
 import { useMovieFilters } from '@/hooks/filters';
-import { moviesQueryOptions } from '@/options/queries/movies';
+import { movieItemsQueryOptions } from '@/options/queries/movies/library';
 
 import { MediaGrid, type StatusConfig } from '@/components/media';
 import { Query } from '@/components/query';
@@ -200,7 +200,7 @@ function MoviesGrid({}: MoviesGridProps) {
   const { filters } = useMovieFilters();
 
   const moviesQuery = useQuery(
-    moviesQueryOptions({
+    movieItemsQueryOptions({
       status: filters.tab,
       search: filters.q,
       genres: filters.genres,

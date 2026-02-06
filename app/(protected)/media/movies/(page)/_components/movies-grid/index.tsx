@@ -7,10 +7,10 @@ import { Film, Loader2 } from 'lucide-react';
 
 import { useDiscoverFilters } from '@/hooks/filters';
 import {
-  tmdbDiscoverInfiniteQueryOptions,
-  tmdbGenresQueryOptions,
-  tmdbSearchInfiniteQueryOptions,
-} from '@/options/queries/tmdb';
+  filteredMoviesInfiniteQueryOptions,
+  searchMoviesInfiniteQueryOptions,
+} from '@/options/queries/movies/discover';
+import { movieGenresQueryOptions } from '@/options/queries/movies/metadata';
 
 import { MediaGrid } from '@/components/media';
 
@@ -100,12 +100,12 @@ function MoviesGrid() {
   const isSearch = search.length > 0;
 
   const searchQuery = useInfiniteQuery({
-    ...tmdbSearchInfiniteQueryOptions(search),
+    ...searchMoviesInfiniteQueryOptions(search),
     enabled: isSearch,
   });
 
   const discoverQuery = useInfiniteQuery({
-    ...tmdbDiscoverInfiniteQueryOptions({
+    ...filteredMoviesInfiniteQueryOptions({
       genres: genres.length > 0 ? genres : undefined,
       yearMin: yearMin ?? undefined,
       yearMax: yearMax ?? undefined,
@@ -126,7 +126,7 @@ function MoviesGrid() {
     enabled: !isSearch,
   });
 
-  const genresQuery = useQuery(tmdbGenresQueryOptions());
+  const genresQuery = useQuery(movieGenresQueryOptions());
   const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
 
   const activeQuery = isSearch ? searchQuery : discoverQuery;

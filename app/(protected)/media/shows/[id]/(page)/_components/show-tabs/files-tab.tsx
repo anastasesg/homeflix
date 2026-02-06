@@ -21,7 +21,7 @@ import {
 
 import type { EpisodeFile } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrEpisodeFilesQueryOptions, sonarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { showEpisodeFilesQueryOptions, showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -376,10 +376,10 @@ interface FilesTabProps {
 }
 
 function FilesTab({ tmdbId }: FilesTabProps) {
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
   const sonarrId = libraryQuery.data?.sonarrId;
   const filesQuery = useQuery({
-    ...sonarrEpisodeFilesQueryOptions(sonarrId ?? 0),
+    ...showEpisodeFilesQueryOptions(sonarrId ?? 0),
     enabled: sonarrId != null,
   });
 

@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Languages, Radio, Sparkles, Tag } from 'lucide-react';
 
 import { type ShowBasic, type ShowKeywords } from '@/api/entities';
-import { tmdbTVKeywordsQueryOptions } from '@/options/queries/tmdb';
+import { showKeywordsQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +63,7 @@ interface KeywordsInlineProps {
 }
 
 function KeywordsInline({ tmdbId }: KeywordsInlineProps) {
-  const query = useQuery(tmdbTVKeywordsQueryOptions(tmdbId));
+  const query = useQuery(showKeywordsQueryOptions(tmdbId));
 
   return (
     <Query

@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Maximize2, X } fro
 
 import { type MovieImages } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { tmdbImagesQueryOptions } from '@/options/queries/tmdb';
+import { movieImagesQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -365,7 +365,7 @@ interface GallerySectionProps {
 }
 
 function GallerySection({ tmdbId, movieTitle }: GallerySectionProps) {
-  const query = useQuery(tmdbImagesQueryOptions(tmdbId));
+  const query = useQuery(movieImagesQueryOptions(tmdbId));
 
   return (
     <Query

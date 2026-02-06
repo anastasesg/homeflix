@@ -10,7 +10,7 @@ import { AlertCircle, Film, Play, RefreshCw, Star } from 'lucide-react';
 
 import type { DiscoverMovie } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { tmdbTrendingQueryOptions } from '@/options/queries/tmdb';
+import { trendingMoviesQueryOptions } from '@/options/queries/movies/discover';
 
 import { Query } from '@/components/query';
 import { Button } from '@/components/ui/button';
@@ -306,7 +306,7 @@ function FeaturedMovieCarousel({ movies }: FeaturedMovieCarouselProps) {
 // ============================================================================
 
 function FeaturedMovie() {
-  const trendingQuery = useQuery(tmdbTrendingQueryOptions());
+  const trendingQuery = useQuery(trendingMoviesQueryOptions());
 
   return (
     <Query

@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { type MovieBasic } from '@/api/entities';
-import { tmdbMovieQueryOptions } from '@/options/queries/tmdb';
+import { movieDetailQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -82,7 +82,7 @@ interface OverviewTabProps {
 }
 
 function OverviewTab({ tmdbId }: OverviewTabProps) {
-  const movieQuery = useQuery(tmdbMovieQueryOptions(tmdbId));
+  const movieQuery = useQuery(movieDetailQueryOptions(tmdbId));
 
   return (
     <Query

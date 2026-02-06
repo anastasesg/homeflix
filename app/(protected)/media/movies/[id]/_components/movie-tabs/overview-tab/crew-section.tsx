@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Film } from 'lucide-react';
 
 import { type MovieCredits } from '@/api/entities';
-import { tmdbCreditsQueryOptions } from '@/options/queries/tmdb';
+import { movieCreditsQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -200,7 +200,7 @@ interface CrewSectionProps {
 }
 
 function CrewSection({ tmdbId }: CrewSectionProps) {
-  const query = useQuery(tmdbCreditsQueryOptions(tmdbId));
+  const query = useQuery(movieCreditsQueryOptions(tmdbId));
 
   return (
     <Query

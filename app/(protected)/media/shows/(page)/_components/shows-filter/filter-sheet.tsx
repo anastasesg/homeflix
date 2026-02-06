@@ -9,10 +9,10 @@ import { ChevronDown, Filter, Globe, Hash, Radio, Star, Timer, Tv } from 'lucide
 
 import { cn } from '@/lib/utils';
 import {
-  tmdbTVGenresQueryOptions,
-  tmdbTVNetworksQueryOptions,
-  tmdbTVWatchProvidersQueryOptions,
-} from '@/options/queries/tmdb/tmdb-tv-discover';
+  showGenresQueryOptions,
+  showNetworksQueryOptions,
+  showWatchProvidersQueryOptions,
+} from '@/options/queries/shows/metadata';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -164,9 +164,9 @@ function FilterSheet({
   const [localVoteCount, setLocalVoteCount] = useState(voteCountMin ?? 0);
 
   // Data queries
-  const genresQuery = useQuery(tmdbTVGenresQueryOptions());
-  const providersQuery = useQuery(tmdbTVWatchProvidersQueryOptions(region));
-  const networksQuery = useQuery(tmdbTVNetworksQueryOptions());
+  const genresQuery = useQuery(showGenresQueryOptions());
+  const providersQuery = useQuery(showWatchProvidersQueryOptions(region));
+  const networksQuery = useQuery(showNetworksQueryOptions());
 
   const availableGenres = genresQuery.data ?? [];
   const availableProviders = providersQuery.data ?? [];

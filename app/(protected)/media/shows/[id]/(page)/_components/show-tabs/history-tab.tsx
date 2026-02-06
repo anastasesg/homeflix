@@ -15,7 +15,7 @@ import {
 
 import type { ShowHistoryEvent } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrHistoryQueryOptions, sonarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { showHistoryQueryOptions, showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -368,10 +368,10 @@ interface HistoryTabProps {
 }
 
 function HistoryTab({ tmdbId }: HistoryTabProps) {
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
   const sonarrId = libraryQuery.data?.sonarrId;
   const historyQuery = useQuery({
-    ...sonarrHistoryQueryOptions(sonarrId ?? 0),
+    ...showHistoryQueryOptions(sonarrId ?? 0),
     enabled: sonarrId != null,
   });
 

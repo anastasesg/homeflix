@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 
 import { type ShowCredits } from '@/api/entities';
-import { tmdbTVCreditsQueryOptions } from '@/options/queries/tmdb';
+import { showCreditsQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -155,7 +155,7 @@ interface CastSectionProps {
 }
 
 function CastSection({ tmdbId }: CastSectionProps) {
-  const query = useQuery(tmdbTVCreditsQueryOptions(tmdbId));
+  const query = useQuery(showCreditsQueryOptions(tmdbId));
 
   return (
     <Query

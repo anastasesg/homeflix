@@ -9,7 +9,7 @@ import { ChevronLeft, ChevronRight, Film, Maximize2, X } from 'lucide-react';
 
 import type { EpisodeImages } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { tmdbTVEpisodeImagesQueryOptions } from '@/options/queries/tmdb';
+import { showEpisodeImagesQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -290,7 +290,7 @@ interface EpisodeGalleryProps {
 }
 
 function EpisodeGallery({ tmdbId, seasonNumber, episodeNumber, episodeName }: EpisodeGalleryProps) {
-  const query = useQuery(tmdbTVEpisodeImagesQueryOptions(tmdbId, seasonNumber, episodeNumber));
+  const query = useQuery(showEpisodeImagesQueryOptions(tmdbId, seasonNumber, episodeNumber));
 
   return (
     <Query

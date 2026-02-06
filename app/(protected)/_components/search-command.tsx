@@ -2,9 +2,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-import { Book, Calendar, Film, Gauge, Headphones, Search, Settings, Tv } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Book, Calendar, Film, Gauge, Globe, Headphones, Search, Settings, Tv } from 'lucide-react';
+
+import { movieItemsQueryOptions } from '@/options/queries/movies/library';
+import { showItemsQueryOptions } from '@/options/queries/shows/library';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +25,22 @@ import {
 
 function SearchCommand() {
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const router = useRouter();
+
+  // Fetch movies and shows data
+  const { data: movies = [] } = useQuery({
+    ...movieItemsQueryOptions({ search: search.trim() ? search : undefined }),
+    select: (data) => data.movies.slice(0, 5), // Limit to top 5 results for performance
+    enabled: open && search.trim() !== '', // Only fetch when dialog is open and search is not empty
+  });
+  const { data: shows = [] } = useQuery({
+    ...showItemsQueryOptions({ search: search.trim() ? search : undefined }),
+    select: (data) => data.shows.slice(0, 5), // Limit to top 5 results for performance
+    enabled: open && search.trim() !== '', // Only fetch when dialog is open and search is not empty
+  });
+
+  const hasSearchResults = search.trim() !== '' && (movies.length > 0 || shows.length > 0);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -34,10 +54,20 @@ function SearchCommand() {
     return () => document.removeEventListener('keydown', down);
   }, []);
 
-  const runCommand = useCallback((command: () => void) => {
-    setOpen(false);
-    command();
+  const handleOpenChange = useCallback((isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      setSearch('');
+    }
   }, []);
+
+  const runCommand = useCallback(
+    (command: () => void) => {
+      handleOpenChange(false);
+      command();
+    },
+    [handleOpenChange]
+  );
 
   return (
     <>
@@ -67,23 +97,90 @@ function SearchCommand() {
 
       <CommandDialog
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={handleOpenChange}
         title="Search"
-        description="Search for content, pages, and actions"
+        description="Search for movies, shows, and more"
       >
-        <CommandInput placeholder="Type to search..." />
+        <CommandInput placeholder="Search movies, shows..." value={search} onValueChange={setSearch} />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
 
+          {/* Movie Search Results */}
+          {search.trim() !== '' && movies.length > 0 && (
+            <CommandGroup heading="Movies">
+              {movies.map((movie) => (
+                <CommandItem
+                  key={`movie-${movie.id}`}
+                  value={`movie-${movie.title}`}
+                  onSelect={() => runCommand(() => router.push(`/media/movies/${movie.tmdbId}`))}
+                  className="flex items-center gap-3"
+                >
+                  <div className="relative size-10 shrink-0 overflow-hidden rounded bg-muted">
+                    {movie.posterUrl ? (
+                      <Image src={movie.posterUrl} alt={movie.title} fill className="object-cover" sizes="40px" />
+                    ) : (
+                      <div className="flex size-full items-center justify-center">
+                        <Film className="size-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="truncate font-medium">{movie.title}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {movie.year} · {movie.genres?.slice(0, 2).join(', ')}
+                    </span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+
+          {/* Show Search Results */}
+          {search.trim() !== '' && shows.length > 0 && (
+            <CommandGroup heading="Shows">
+              {shows.map((show) => (
+                <CommandItem
+                  key={`show-${show.id}`}
+                  value={`show-${show.title}`}
+                  onSelect={() => runCommand(() => router.push(`/media/shows/${show.id}`))}
+                  className="flex items-center gap-3"
+                >
+                  <div className="relative size-10 shrink-0 overflow-hidden rounded bg-muted">
+                    {show.posterUrl ? (
+                      <Image src={show.posterUrl} alt={show.title} fill className="object-cover" sizes="40px" />
+                    ) : (
+                      <div className="flex size-full items-center justify-center">
+                        <Tv className="size-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col overflow-hidden">
+                    <span className="truncate font-medium">{show.title}</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {show.year} · {show.network ?? show.genres?.slice(0, 2).join(', ')}
+                    </span>
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+
+          {hasSearchResults && <CommandSeparator />}
+
           <CommandGroup heading="Quick Actions">
-            <CommandItem onSelect={() => runCommand(() => router.push('/system/dashboard'))}>
-              <Gauge className="mr-2 size-4" />
-              Go to Dashboard
+            <CommandItem onSelect={() => runCommand(() => router.push('/browse'))}>
+              <Globe className="mr-2 size-4" />
+              Browse Content
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => router.push('/discover/search'))}>
               <Search className="mr-2 size-4" />
-              Search Content
+              Discover New Content
               <CommandShortcut>⌘S</CommandShortcut>
+            </CommandItem>
+            <CommandItem onSelect={() => runCommand(() => router.push('/system/dashboard'))}>
+              <Gauge className="mr-2 size-4" />
+              Go To Dashboard
+              <CommandShortcut>⌘L</CommandShortcut>
             </CommandItem>
           </CommandGroup>
 

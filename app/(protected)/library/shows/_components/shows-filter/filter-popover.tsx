@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Filter } from 'lucide-react';
 
-import { showsQueryOptions } from '@/options/queries/shows';
+import { showItemsQueryOptions } from '@/options/queries/shows/library';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,7 @@ function FilterPopover({
   const [open, setOpen] = useState(false);
 
   // Fetch all shows to extract available filter options
-  const showsQuery = useQuery(showsQueryOptions({}));
+  const showsQuery = useQuery(showItemsQueryOptions({}));
   const allShows = showsQuery.data?.shows ?? [];
 
   // Extract available genres from shows

@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Clapperboard, Tv, Users } from 'lucide-react';
 
 import type { EpisodeBasic } from '@/api/entities';
-import { tmdbTVEpisodeQueryOptions } from '@/options/queries/tmdb';
+import { showEpisodeQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -257,7 +257,7 @@ interface EpisodeInfoProps {
 }
 
 function EpisodeInfo({ tmdbId, seasonNumber, episodeNumber }: EpisodeInfoProps) {
-  const episodeQuery = useQuery(tmdbTVEpisodeQueryOptions(tmdbId, seasonNumber, episodeNumber));
+  const episodeQuery = useQuery(showEpisodeQueryOptions(tmdbId, seasonNumber, episodeNumber));
 
   return (
     <Query

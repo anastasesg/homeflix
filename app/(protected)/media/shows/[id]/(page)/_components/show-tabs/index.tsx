@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { sonarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -143,7 +143,7 @@ interface ShowTabsProps {
 }
 
 function ShowTabs({ tmdbId }: ShowTabsProps) {
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

@@ -8,7 +8,8 @@ import { Calendar, Layers, Tv } from 'lucide-react';
 
 import { type ShowBasic, type ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrLookupQueryOptions, tmdbTVShowQueryOptions } from '@/options/queries/tmdb';
+import { showDetailQueryOptions } from '@/options/queries/shows/detail';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -145,8 +146,8 @@ interface SeasonsSectionProps {
 }
 
 function SeasonsSection({ tmdbId }: SeasonsSectionProps) {
-  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
-  const libraryQuery = useQuery({ ...sonarrLookupQueryOptions(tmdbId), retry: false });
+  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
+  const libraryQuery = useQuery({ ...showLibraryInfoQueryOptions(tmdbId), retry: false });
 
   return (
     <Queries

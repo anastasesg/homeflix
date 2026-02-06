@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useDiscoverFilters } from '@/hooks/filters';
-import { tmdbGenresQueryOptions, tmdbWatchProvidersQueryOptions } from '@/options/queries/tmdb';
+import { movieGenresQueryOptions, movieWatchProvidersQueryOptions } from '@/options/queries/movies/metadata';
 
 import { Button } from '@/components/ui/button';
 
@@ -59,10 +59,10 @@ function ActiveFilters() {
     clearFilters,
   } = useDiscoverFilters();
 
-  const genresQuery = useQuery(tmdbGenresQueryOptions());
+  const genresQuery = useQuery(movieGenresQueryOptions());
   const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
 
-  const providersQuery = useQuery(tmdbWatchProvidersQueryOptions(filters.region));
+  const providersQuery = useQuery(movieWatchProvidersQueryOptions(filters.region));
   const providerMap = useMemo(
     () => new Map(providersQuery.data?.map((p) => [p.id, p.name]) ?? []),
     [providersQuery.data]

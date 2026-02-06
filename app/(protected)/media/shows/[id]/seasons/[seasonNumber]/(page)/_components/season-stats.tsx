@@ -5,7 +5,8 @@ import { CheckCircle2, Clock, Film, HardDrive, Layers, Star, Tv } from 'lucide-r
 
 import type { SeasonDetail, ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrLookupQueryOptions, tmdbTVSeasonQueryOptions } from '@/options/queries/tmdb';
+import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -214,8 +215,8 @@ interface SeasonStatsProps {
 }
 
 function SeasonStats({ tmdbId, seasonNumber }: SeasonStatsProps) {
-  const seasonQuery = useQuery(tmdbTVSeasonQueryOptions(tmdbId, seasonNumber));
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const seasonQuery = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Queries

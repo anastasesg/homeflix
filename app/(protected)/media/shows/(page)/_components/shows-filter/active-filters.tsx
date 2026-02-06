@@ -6,10 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useTVDiscoverFilters } from '@/hooks/filters/use-tv-discover-filters';
 import {
-  tmdbTVGenresQueryOptions,
-  tmdbTVNetworksQueryOptions,
-  tmdbTVWatchProvidersQueryOptions,
-} from '@/options/queries/tmdb/tmdb-tv-discover';
+  showGenresQueryOptions,
+  showNetworksQueryOptions,
+  showWatchProvidersQueryOptions,
+} from '@/options/queries/shows/metadata';
 
 import { Button } from '@/components/ui/button';
 
@@ -71,16 +71,16 @@ function ActiveFilters() {
     clearFilters,
   } = useTVDiscoverFilters();
 
-  const genresQuery = useQuery(tmdbTVGenresQueryOptions());
+  const genresQuery = useQuery(showGenresQueryOptions());
   const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
 
-  const providersQuery = useQuery(tmdbTVWatchProvidersQueryOptions(filters.region));
+  const providersQuery = useQuery(showWatchProvidersQueryOptions(filters.region));
   const providerMap = useMemo(
     () => new Map(providersQuery.data?.map((p) => [p.id, p.name]) ?? []),
     [providersQuery.data]
   );
 
-  const networksQuery = useQuery(tmdbTVNetworksQueryOptions());
+  const networksQuery = useQuery(showNetworksQueryOptions());
   const networkMap = useMemo(() => new Map(networksQuery.data?.map((n) => [n.id, n.name]) ?? []), [networksQuery.data]);
 
   if (!hasActiveFilters) return null;

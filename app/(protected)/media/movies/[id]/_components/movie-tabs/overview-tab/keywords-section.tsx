@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 
 import { type MovieKeywords } from '@/api/entities';
-import { tmdbKeywordsQueryOptions } from '@/options/queries/tmdb';
+import { movieKeywordsQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -68,7 +68,7 @@ interface KeywordsSectionProps {
 }
 
 function KeywordsSection({ tmdbId }: KeywordsSectionProps) {
-  const query = useQuery(tmdbKeywordsQueryOptions(tmdbId));
+  const query = useQuery(movieKeywordsQueryOptions(tmdbId));
 
   return (
     <Query

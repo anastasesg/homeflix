@@ -5,7 +5,7 @@ import { CheckCircle2, Clock, Film, HardDrive, Layers, Plus } from 'lucide-react
 
 import { type ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -75,7 +75,7 @@ interface LibraryStatusBadgeProps {
 }
 
 function LibraryStatusBadge({ tmdbId }: LibraryStatusBadgeProps) {
-  const query = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const query = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

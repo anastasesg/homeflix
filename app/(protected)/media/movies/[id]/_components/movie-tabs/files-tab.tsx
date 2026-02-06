@@ -20,7 +20,7 @@ import {
 
 import { type MovieFile } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { radarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -356,7 +356,7 @@ interface FilesTabProps {
 }
 
 function FilesTab({ tmdbId }: FilesTabProps) {
-  const libraryQuery = useQuery(radarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(movieLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

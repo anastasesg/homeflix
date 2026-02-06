@@ -22,7 +22,7 @@ import {
 
 import type { EpisodeFile as EpisodeFileType, ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrEpisodeFilesQueryOptions, sonarrLookupQueryOptions } from '@/options/queries/tmdb';
+import { showEpisodeFilesQueryOptions, showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -389,7 +389,7 @@ interface EpisodeFilesInnerProps {
 }
 
 function EpisodeFilesInner({ sonarrId, seasonNumber, episodeNumber }: EpisodeFilesInnerProps) {
-  const filesQuery = useQuery(sonarrEpisodeFilesQueryOptions(sonarrId));
+  const filesQuery = useQuery(showEpisodeFilesQueryOptions(sonarrId));
 
   return (
     <Query
@@ -418,7 +418,7 @@ interface EpisodeFileProps {
 }
 
 function EpisodeFile({ tmdbId, seasonNumber, episodeNumber }: EpisodeFileProps) {
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

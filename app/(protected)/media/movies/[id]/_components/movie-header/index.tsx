@@ -7,7 +7,7 @@ import { Clock, Play, Star } from 'lucide-react';
 
 import { type MovieBasic, type MovieVideos } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
-import { tmdbMovieQueryOptions, tmdbVideosQueryOptions } from '@/options/queries/tmdb';
+import { movieDetailQueryOptions, movieVideosQueryOptions } from '@/options/queries/movies/detail';
 import { formatRuntime } from '@/utilities';
 
 import { Queries } from '@/components/query';
@@ -217,8 +217,8 @@ interface MovieHeaderProps {
 }
 
 function MovieHeader({ tmdbId }: MovieHeaderProps) {
-  const movieQuery = useQuery(tmdbMovieQueryOptions(tmdbId));
-  const videosQuery = useQuery(tmdbVideosQueryOptions(tmdbId));
+  const movieQuery = useQuery(movieDetailQueryOptions(tmdbId));
+  const videosQuery = useQuery(movieVideosQueryOptions(tmdbId));
 
   return (
     <Queries

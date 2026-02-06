@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Shuffle, Star } from 'lucide-react';
 
 import { type ShowRecommendation } from '@/api/entities';
-import { tmdbTVSimilarQueryOptions } from '@/options/queries/tmdb';
+import { similarShowsQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -119,7 +119,7 @@ interface SimilarSectionProps {
 }
 
 function SimilarSection({ tmdbId }: SimilarSectionProps) {
-  const query = useQuery(tmdbTVSimilarQueryOptions(tmdbId));
+  const query = useQuery(similarShowsQueryOptions(tmdbId));
 
   return (
     <Query

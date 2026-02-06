@@ -9,10 +9,10 @@ import { ChevronDown, Filter, Globe, Hash, Shield, Star, Timer, Tv } from 'lucid
 
 import { cn } from '@/lib/utils';
 import {
-  tmdbCertificationsQueryOptions,
-  tmdbGenresQueryOptions,
-  tmdbWatchProvidersQueryOptions,
-} from '@/options/queries/tmdb';
+  movieCertificationsQueryOptions,
+  movieGenresQueryOptions,
+  movieWatchProvidersQueryOptions,
+} from '@/options/queries/movies/metadata';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -153,9 +153,9 @@ function FilterSheet({
   const [localVoteCount, setLocalVoteCount] = useState(voteCountMin ?? 0);
 
   // Data queries
-  const genresQuery = useQuery(tmdbGenresQueryOptions());
-  const providersQuery = useQuery(tmdbWatchProvidersQueryOptions(region));
-  const certificationsQuery = useQuery(tmdbCertificationsQueryOptions());
+  const genresQuery = useQuery(movieGenresQueryOptions());
+  const providersQuery = useQuery(movieWatchProvidersQueryOptions(region));
+  const certificationsQuery = useQuery(movieCertificationsQueryOptions());
 
   const availableGenres = genresQuery.data ?? [];
   const availableProviders = providersQuery.data ?? [];

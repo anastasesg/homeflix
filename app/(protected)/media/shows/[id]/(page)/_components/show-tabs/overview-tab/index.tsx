@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { type ShowBasic } from '@/api/entities';
-import { tmdbTVShowQueryOptions } from '@/options/queries/tmdb';
+import { showDetailQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -90,7 +90,7 @@ interface OverviewTabProps {
 }
 
 function OverviewTab({ tmdbId }: OverviewTabProps) {
-  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
+  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
 
   return (
     <Query

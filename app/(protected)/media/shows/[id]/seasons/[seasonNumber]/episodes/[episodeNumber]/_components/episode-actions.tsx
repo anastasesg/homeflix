@@ -18,10 +18,10 @@ import {
 import type { EpisodeFile, ShowHistoryEvent, ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import {
-  sonarrEpisodeFilesQueryOptions,
-  sonarrHistoryQueryOptions,
-  sonarrLookupQueryOptions,
-} from '@/options/queries/tmdb';
+  showEpisodeFilesQueryOptions,
+  showHistoryQueryOptions,
+  showLibraryInfoQueryOptions,
+} from '@/options/queries/shows/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -242,8 +242,8 @@ interface EpisodeActionsInnerProps {
 }
 
 function EpisodeActionsInner({ sonarrId, seasonNumber, episodeNumber }: EpisodeActionsInnerProps) {
-  const historyQuery = useQuery(sonarrHistoryQueryOptions(sonarrId));
-  const filesQuery = useQuery(sonarrEpisodeFilesQueryOptions(sonarrId));
+  const historyQuery = useQuery(showHistoryQueryOptions(sonarrId));
+  const filesQuery = useQuery(showEpisodeFilesQueryOptions(sonarrId));
 
   const isLoading = historyQuery.isLoading || filesQuery.isLoading;
   if (isLoading) return <EpisodeActionsLoading />;
@@ -298,7 +298,7 @@ interface EpisodeActionsProps {
 }
 
 function EpisodeActions({ tmdbId, seasonNumber, episodeNumber }: EpisodeActionsProps) {
-  const libraryQuery = useQuery(sonarrLookupQueryOptions(tmdbId));
+  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Query

@@ -15,7 +15,7 @@ import {
 
 import type { ShowHistoryEvent } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { sonarrHistoryQueryOptions } from '@/options/queries/tmdb';
+import { showHistoryQueryOptions } from '@/options/queries/shows/library';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -380,7 +380,7 @@ interface HistoryTabProps {
 }
 
 function HistoryTab({ sonarrId, seasonNumber }: HistoryTabProps) {
-  const historyQuery = useQuery(sonarrHistoryQueryOptions(sonarrId));
+  const historyQuery = useQuery(showHistoryQueryOptions(sonarrId));
 
   return (
     <Query

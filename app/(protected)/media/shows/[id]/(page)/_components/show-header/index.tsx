@@ -8,10 +8,10 @@ import { Clock, Play, Star, Tv } from 'lucide-react';
 import { type ShowBasic, type ShowContentRating, type ShowVideos } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
 import {
-  tmdbTVContentRatingsQueryOptions,
-  tmdbTVShowQueryOptions,
-  tmdbTVVideosQueryOptions,
-} from '@/options/queries/tmdb';
+  showContentRatingsQueryOptions,
+  showDetailQueryOptions,
+  showVideosQueryOptions,
+} from '@/options/queries/shows/detail';
 
 import { Queries } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -277,9 +277,9 @@ interface ShowHeaderProps {
 }
 
 function ShowHeader({ tmdbId }: ShowHeaderProps) {
-  const showQuery = useQuery(tmdbTVShowQueryOptions(tmdbId));
-  const videosQuery = useQuery(tmdbTVVideosQueryOptions(tmdbId));
-  const contentRatingsQuery = useQuery(tmdbTVContentRatingsQueryOptions(tmdbId));
+  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
+  const videosQuery = useQuery(showVideosQueryOptions(tmdbId));
+  const contentRatingsQuery = useQuery(showContentRatingsQueryOptions(tmdbId));
 
   return (
     <Queries
