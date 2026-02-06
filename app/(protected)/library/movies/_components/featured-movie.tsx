@@ -243,7 +243,7 @@ function FeaturedMovieSuccess({ movie }: FeaturedMovieSuccessProps) {
             {/* Actions */}
             <div className="flex items-center gap-3 pt-1 sm:pt-2">
               <Button asChild size="default" className="gap-2 shadow-lg shadow-primary/20 sm:size-lg">
-                <Link href={`/movies/${movie.tmdbId}`}>
+                <Link href={`/media/movies/${movie.tmdbId}`}>
                   <Play className="size-4 fill-current" />
                   <span className="hidden sm:inline">View Details</span>
                   <span className="sm:hidden">Details</span>

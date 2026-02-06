@@ -1,5 +1,6 @@
 'use client';
 
+import { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -14,9 +15,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import type { StatusConfig } from './types';
 
-interface MediaCardProps {
+interface MediaCardProps<TRoute extends string = string> {
   /** Navigation href */
-  href: string;
+  href: Route<TRoute>;
   /** Media title (used for alt text and placeholder) */
   title: string;
   /** Poster image URL */
@@ -41,7 +42,7 @@ interface MediaCardProps {
   overlaySlot?: ReactNode;
 }
 
-function MediaCard({
+function MediaCard<TRoute extends string = string>({
   href,
   title,
   posterUrl,
@@ -54,7 +55,7 @@ function MediaCard({
   children,
   animationDelay,
   overlaySlot,
-}: MediaCardProps) {
+}: MediaCardProps<TRoute>) {
   const StatusIcon = status.icon;
 
   return (

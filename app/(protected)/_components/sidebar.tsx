@@ -6,12 +6,15 @@ import { usePathname } from 'next/navigation';
 import {
   Book,
   Calendar,
+  Clapperboard,
   Clock,
   Download,
   Film,
   Gauge,
+  Globe,
   Hand,
   Headphones,
+  MonitorPlay,
   Search,
   Server,
   Settings,
@@ -34,33 +37,32 @@ import {
 
 // Navigation structure from UI plan
 const navigation = {
-  main: [
-    {
-      title: 'Dashboard',
-      url: '/dashboard',
-      icon: Gauge,
-    },
-  ],
-  library: [
-    { title: 'Movies', url: '/library/movies', icon: Film },
-    { title: 'Shows', url: '/library/shows', icon: Tv },
-    { title: 'Music', url: '/library/music', icon: Headphones },
-    { title: 'Books', url: '/library/books', icon: Book },
-  ],
+  main: [{ title: 'Browse', url: '/browse', icon: Globe }],
   discover: [
     { title: 'Search', url: '/discover/search', icon: Search },
     { title: 'Calendar', url: '/discover/calendar', icon: Calendar },
     { title: 'Requests', url: '/discover/requests', icon: Hand },
+  ],
+  media: [
+    { title: 'Movies', url: '/media/movies', icon: Film },
+    { title: 'Shows', url: '/media/shows', icon: Tv },
+  ],
+  library: [
+    { title: 'Movies', url: '/library/movies', icon: Clapperboard },
+    { title: 'Shows', url: '/library/shows', icon: MonitorPlay },
+    { title: 'Music', url: '/library/music', icon: Headphones },
+    { title: 'Books', url: '/library/books', icon: Book },
   ],
   activity: [
     { title: 'Downloads', url: '/activity/downloads', icon: Download },
     { title: 'History', url: '/activity/history', icon: Clock },
   ],
   system: [
+    { title: 'Dashboard', url: '/system/dashboard', icon: Gauge },
     { title: 'Services', url: '/system/services', icon: Server },
     { title: 'Settings', url: '/system/settings', icon: Settings },
   ],
-};
+} as const;
 
 type SidebarProps = object;
 
@@ -74,7 +76,7 @@ function Sidebar({}: SidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href="/browse">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Film className="size-4" />
                 </div>
@@ -109,12 +111,12 @@ function Sidebar({}: SidebarProps) {
 
         {/* <SidebarSeparator /> */}
 
-        {/* Library section */}
+        {/* Discover section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Library</SidebarGroupLabel>
+          <SidebarGroupLabel>Discover</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.library.map((item) => (
+              {navigation.discover.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={pathname.startsWith(item.url)} tooltip={item.title}>
                     <Link href={item.url}>
@@ -128,12 +130,31 @@ function Sidebar({}: SidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Discover section */}
+        {/* Media section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Discover</SidebarGroupLabel>
+          <SidebarGroupLabel>Media</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.discover.map((item) => (
+              {navigation.media.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.url)} tooltip={item.title}>
+                    <Link href={item.url}>
+                      <item.icon className="size-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Library section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Library</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigation.library.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild isActive={pathname.startsWith(item.url)} tooltip={item.title}>
                     <Link href={item.url}>

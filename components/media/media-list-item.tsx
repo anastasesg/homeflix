@@ -1,5 +1,6 @@
 'use client';
 
+import { Route } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -13,9 +14,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import type { StatusConfig } from './types';
 
-interface MediaListItemProps {
+interface MediaListItemProps<TRoute extends string = string> {
   /** Navigation href */
-  href: string;
+  href: Route<TRoute>;
   /** Media title */
   title: string;
   /** Year of release */
@@ -36,7 +37,7 @@ interface MediaListItemProps {
   badgesSlot?: ReactNode;
 }
 
-function MediaListItem({
+function MediaListItem<TRoute extends string = string>({
   href,
   title,
   year,
@@ -47,7 +48,7 @@ function MediaListItem({
   extraSlot,
   statsSlot,
   badgesSlot,
-}: MediaListItemProps) {
+}: MediaListItemProps<TRoute>) {
   const StatusIcon = status.icon;
 
   return (

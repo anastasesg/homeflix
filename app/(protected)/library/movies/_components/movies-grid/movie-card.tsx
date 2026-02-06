@@ -17,7 +17,7 @@ function MovieCard({ movie, status }: MovieCardProps) {
   return (
     <MediaCard
       key={movie.id}
-      href={movie.tmdbId ? `/movies/${movie.tmdbId}` : `/library/movies/${movie.id}`}
+      href={`/media/movies/${movie.tmdbId}`}
       title={movie.title}
       posterUrl={movie.posterUrl}
       status={status}

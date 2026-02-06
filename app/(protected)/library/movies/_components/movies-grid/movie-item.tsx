@@ -17,7 +17,7 @@ function MovieItem({ movie, status }: MovieItemProps) {
   return (
     <MediaListItem
       key={movie.id}
-      href={`/movies/${movie.tmdbId}`}
+      href={`/media/movies/${movie.tmdbId}`}
       title={movie.title}
       year={movie.year}
       posterUrl={movie.posterUrl}

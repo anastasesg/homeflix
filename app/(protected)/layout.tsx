@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
       <SidebarInset>
         <BreadcrumbProvider>
           <Header />
-          <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 pt-0">{children}</div>
+          <div className="flex min-w-0 flex-1 flex-col gap-4 p-4 pt-0 pb-32">{children}</div>
         </BreadcrumbProvider>
       </SidebarInset>
     </SidebarProvider>
