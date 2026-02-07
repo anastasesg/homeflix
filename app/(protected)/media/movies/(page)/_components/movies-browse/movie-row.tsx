@@ -3,7 +3,7 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 
-import type { DiscoverMovie } from '@/api/entities';
+import type { MovieItem } from '@/api/entities';
 
 import { MediaRow, MediaRowError, MediaRowLoading } from '@/components/media';
 import { Query } from '@/components/query';
@@ -13,7 +13,7 @@ import { Query } from '@/components/query';
 // ============================================================================
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DiscoverQueryOptions = UseQueryOptions<DiscoverMovie[], Error, DiscoverMovie[], any>;
+type DiscoverQueryOptions = UseQueryOptions<MovieItem[], Error, MovieItem[], any>;
 
 type MovieRowSize = 'default' | 'lg';
 

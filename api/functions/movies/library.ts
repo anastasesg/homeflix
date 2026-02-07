@@ -1,5 +1,6 @@
-import { type components, createRadarrClient } from '@/api/clients/radarr';
+import { type components, createRadarrClient, MovieResource } from '@/api/clients/radarr';
 import type { HistoryEvent, LibraryInfo, MovieFile, MovieItem } from '@/api/entities';
+import { radarrToMovieItem } from '@/api/mappers';
 import { MediaStatus, SortDirection, SortField } from '@/api/types';
 import {
   filterByGenres,
@@ -7,11 +8,9 @@ import {
   filterBySearch,
   filterByStatus,
   filterByYearRange,
-  mapToMovieItem,
   sortMovies,
 } from '@/api/utils';
 
-type MovieResource = components['schemas']['MovieResource'];
 type MovieFileResource = components['schemas']['MovieFileResource'];
 type HistoryResource = components['schemas']['HistoryResource'];
 
@@ -111,7 +110,7 @@ export async function fetchMovieItems(props: MovieItemsRequest): Promise<MovieIt
     throw new Error(`Failed to fetch movies from Radarr: ${errorMessage}`);
   }
 
-  const movies = data.map(mapToMovieItem);
+  const movies = data.map(radarrToMovieItem);
   return {
     stats: {
       all: movies.length,
@@ -130,7 +129,7 @@ export async function fetchMovieItems(props: MovieItemsRequest): Promise<MovieIt
   };
 }
 
-export async function fetchFeaturedMovie(): Promise<MovieItem | undefined> {
+export async function fetchFeaturedMovie(): Promise<MovieItem[]> {
   const client = createRadarrClient();
   const { data, error } = await client.GET('/api/v3/movie');
 
@@ -142,7 +141,11 @@ export async function fetchFeaturedMovie(): Promise<MovieItem | undefined> {
     throw new Error(`Failed to fetch movies from Radarr: ${errorMessage}`);
   }
 
-  return data.map(mapToMovieItem).filter(filterByStatus('downloaded')).sort(sortMovies('rating', 'desc')).at(0);
+  return data
+    .map(radarrToMovieItem)
+    .filter(filterByStatus('downloaded'))
+    .sort(sortMovies('rating', 'desc'))
+    .slice(0, 5);
 }
 
 export async function fetchMovieLibraryInfo(tmdbId: number): Promise<LibraryInfo> {

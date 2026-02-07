@@ -7,6 +7,7 @@ import Link from 'next/link';
 
 import { AlertCircle, Film, Play, RefreshCw, Star, Tv } from 'lucide-react';
 
+import { MovieItem, ShowItem } from '@/api/entities';
 import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
@@ -17,14 +18,7 @@ import { Button } from '@/components/ui/button';
 
 type MediaType = 'movie' | 'show';
 
-interface FeaturedMediaItem {
-  id: number;
-  title: string;
-  overview: string;
-  year: number;
-  rating: number;
-  backdropUrl?: string;
-}
+type FeaturedMediaItem = MovieItem | ShowItem;
 
 // ============================================================================
 // Constants
@@ -208,7 +202,7 @@ function FeaturedMediaSlide({ item, basePath, isActive }: FeaturedMediaSlideProp
           {/* Actions */}
           <div className="flex items-center gap-3 pt-1 sm:pt-2">
             <Button asChild size="default" className="gap-2 shadow-lg shadow-primary/20">
-              <Link href={`${basePath}/${item.id}` as never}>
+              <Link href={`${basePath}/${item.tmdbId}` as never}>
                 <Play className="size-4 fill-current" />
                 <span className="hidden sm:inline">View Details</span>
                 <span className="sm:hidden">Details</span>
@@ -320,7 +314,7 @@ function FeaturedMediaCarousel({ type, items }: FeaturedMediaCarouselProps) {
     >
       <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] md:aspect-[2/1] xl:aspect-[2.4/1]">
         {slides.map((item, i) => (
-          <FeaturedMediaSlide key={item.id} item={item} basePath={basePath} isActive={i === activeIndex} />
+          <FeaturedMediaSlide key={item.tmdbId} item={item} basePath={basePath} isActive={i === activeIndex} />
         ))}
 
         <CarouselDots count={slides.length} activeIndex={activeIndex} onSelect={goToSlide} />

@@ -6,9 +6,11 @@ import { useWindowVirtualizer } from '@tanstack/react-virtual';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
+import { MovieItem, ShowItem } from '@/api/entities';
+
 import { GridEmpty } from './grid-empty';
 import { GridSkeleton } from './grid-skeleton';
-import type { BaseMediaItem, ViewMode } from './types';
+import type { ViewMode } from './types';
 
 function getColumnsForWidth(width: number): number {
   if (width >= 1280) return 6;
@@ -20,7 +22,9 @@ function getColumnsForWidth(width: number): number {
 
 const GAP = 16;
 
-interface MediaGridProps<T extends BaseMediaItem> {
+type MediaItem = MovieItem | ShowItem;
+
+interface MediaGridProps<T extends MovieItem | ShowItem> {
   /** Array of media items to display */
   items: T[];
   /** Current view mode */
@@ -43,7 +47,7 @@ interface MediaGridProps<T extends BaseMediaItem> {
   virtualizeThreshold?: number;
 }
 
-function MediaGrid<T extends BaseMediaItem>({
+function MediaGrid<T extends MediaItem>({
   items,
   viewMode = 'grid',
   isLoading,
@@ -118,7 +122,7 @@ function MediaGrid<T extends BaseMediaItem>({
 }
 
 // Separate component for virtualized grid to use hooks properly
-function VirtualizedGrid<T extends BaseMediaItem>({
+function VirtualizedGrid<T extends MediaItem>({
   items,
   columns,
   scrollMargin,

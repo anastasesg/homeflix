@@ -3,7 +3,7 @@
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
 
-import type { DiscoverShow } from '@/api/entities';
+import type { ShowItem } from '@/api/entities';
 
 import { MediaRow, MediaRowError, MediaRowLoading } from '@/components/media';
 import { Query } from '@/components/query';
@@ -13,7 +13,7 @@ import { Query } from '@/components/query';
 // ============================================================================
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DiscoverShowQueryOptions = UseQueryOptions<DiscoverShow[], Error, DiscoverShow[], any>;
+type DiscoverShowQueryOptions = UseQueryOptions<ShowItem[], Error, ShowItem[], any>;
 
 type ShowRowSize = 'default' | 'lg';
 

@@ -1,6 +1,10 @@
 import createClient from 'openapi-fetch';
 
-import type { paths } from './sonarr-client.d';
+import type { components, paths } from './sonarr-client.d';
+
+export type SeriesResource = components['schemas']['SeriesResource'];
+export type EpisodeResource = components['schemas']['EpisodeResource'];
+export type HistoryResource = components['schemas']['HistoryResource'];
 
 /**
  * Creates a Sonarr API client that routes through our Next.js proxy.

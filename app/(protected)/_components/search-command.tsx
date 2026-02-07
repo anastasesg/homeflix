@@ -110,7 +110,7 @@ function SearchCommand() {
             <CommandGroup heading="Movies">
               {movies.map((movie) => (
                 <CommandItem
-                  key={`movie-${movie.id}`}
+                  key={`movie-${movie.tmdbId}`}
                   value={`movie-${movie.title}`}
                   onSelect={() => runCommand(() => router.push(`/media/movies/${movie.tmdbId}`))}
                   className="flex items-center gap-3"
@@ -126,9 +126,7 @@ function SearchCommand() {
                   </div>
                   <div className="flex flex-col overflow-hidden">
                     <span className="truncate font-medium">{movie.title}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {movie.year} · {movie.genres?.slice(0, 2).join(', ')}
-                    </span>
+                    <span className="truncate text-xs text-muted-foreground">{movie.year}</span>
                   </div>
                 </CommandItem>
               ))}
@@ -140,9 +138,9 @@ function SearchCommand() {
             <CommandGroup heading="Shows">
               {shows.map((show) => (
                 <CommandItem
-                  key={`show-${show.id}`}
+                  key={`show-${show.tmdbId}`}
                   value={`show-${show.title}`}
-                  onSelect={() => runCommand(() => router.push(`/media/shows/${show.id}`))}
+                  onSelect={() => runCommand(() => router.push(`/media/shows/${show.tmdbId}`))}
                   className="flex items-center gap-3"
                 >
                   <div className="relative size-10 shrink-0 overflow-hidden rounded bg-muted">
@@ -156,9 +154,7 @@ function SearchCommand() {
                   </div>
                   <div className="flex flex-col overflow-hidden">
                     <span className="truncate font-medium">{show.title}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {show.year} · {show.network ?? show.genres?.slice(0, 2).join(', ')}
-                    </span>
+                    <span className="truncate text-xs text-muted-foreground">{show.year}</span>
                   </div>
                 </CommandItem>
               ))}

@@ -7,19 +7,23 @@ import type { NetworkItem, TMDBGenreItem, WatchProviderItem } from '@/api/entiti
 
 export async function fetchShowGenres(): Promise<TMDBGenreItem[]> {
   const client = createTMDBClient();
-  const res = await client.getTVGenres();
-  return res.genres;
+  const { data, error } = await client.GET('/3/genre/tv/list');
+  if (error || !data) throw new Error('Failed to fetch show genres from TMDB');
+  return (data.genres ?? []).map((g) => ({ id: g.id ?? 0, name: g.name ?? '' }));
 }
 
 export async function fetchShowWatchProviders(region: string = 'US'): Promise<WatchProviderItem[]> {
   const client = createTMDBClient();
-  const res = await client.getTVWatchProviders(region);
-  return res.results
-    .sort((a, b) => a.display_priority - b.display_priority)
+  const { data, error } = await client.GET('/3/watch/providers/tv', {
+    params: { query: { watch_region: region } },
+  });
+  if (error || !data) throw new Error('Failed to fetch show watch providers from TMDB');
+  return (data.results ?? [])
+    .sort((a, b) => (a.display_priority ?? 0) - (b.display_priority ?? 0))
     .slice(0, 30)
     .map((p) => ({
-      id: p.provider_id,
-      name: p.provider_name,
+      id: p.provider_id ?? 0,
+      name: p.provider_name ?? '',
       logoUrl: getTMDBImageUrl(p.logo_path, 'w92'),
     }));
 }

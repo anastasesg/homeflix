@@ -1,5 +1,6 @@
 import { type components, createSonarrClient } from '@/api/clients/sonarr';
 import type { EpisodeFile, ShowHistoryEvent, ShowItem, ShowLibraryInfo } from '@/api/entities';
+import { sonarrToShowItem } from '@/api/mappers';
 import { SortDirection } from '@/api/types';
 import {
   filterByTab,
@@ -8,13 +9,11 @@ import {
   filterShowsByRating,
   filterShowsBySearch,
   filterShowsByYearRange,
-  mapToShowItem,
   ShowSortField,
   ShowTabValue,
   sortShows,
 } from '@/api/utils';
 
-type SeriesResource = components['schemas']['SeriesResource'];
 type EpisodeFileResource = components['schemas']['EpisodeFileResource'];
 type HistoryResource = components['schemas']['HistoryResource'];
 
@@ -58,7 +57,7 @@ function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-function deriveShowStatus(series: SeriesResource): ShowLibraryInfo['status'] {
+function deriveShowStatus(series: components['schemas']['SeriesResource']): ShowLibraryInfo['status'] {
   const stats = series.statistics;
   if (!stats) return 'missing';
   const total = stats.episodeCount ?? 0;
@@ -134,10 +133,10 @@ export async function fetchShowItems(props: ShowItemsRequest): Promise<ShowItems
     throw new Error(`Failed to fetch shows from Sonarr: ${errorMessage}`);
   }
 
-  const shows = (data ?? []).map(mapToShowItem);
+  const shows = (data ?? []).map(sonarrToShowItem);
 
-  const totalEpisodes = shows.reduce((sum, s) => sum + s.totalEpisodes, 0);
-  const downloadedEpisodes = shows.reduce((sum, s) => sum + s.downloadedEpisodes, 0);
+  const totalEpisodes = shows.reduce((sum, s) => sum + (s.totalEpisodes ?? 0), 0);
+  const downloadedEpisodes = shows.reduce((sum, s) => sum + (s.downloadedEpisodes ?? 0), 0);
 
   return {
     stats: {
@@ -159,7 +158,7 @@ export async function fetchShowItems(props: ShowItemsRequest): Promise<ShowItems
   };
 }
 
-export async function fetchFeaturedShow(): Promise<ShowItem | undefined> {
+export async function fetchFeaturedShow(): Promise<ShowItem[]> {
   const client = createSonarrClient();
   const { data, error } = await client.GET('/api/v3/series', {});
 
@@ -172,10 +171,10 @@ export async function fetchFeaturedShow(): Promise<ShowItem | undefined> {
   }
 
   return (data ?? [])
-    .map(mapToShowItem)
+    .map(sonarrToShowItem)
     .filter((s) => s.showStatus === 'continuing' && s.backdropUrl)
     .sort(sortShows('rating', 'desc'))
-    .at(0);
+    .slice(0, 5);
 }
 
 export async function fetchShowLibraryInfo(tmdbId: number): Promise<ShowLibraryInfo> {

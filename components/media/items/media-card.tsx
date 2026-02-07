@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 import { Film, LucideIcon, Star, Tv } from 'lucide-react';
 
-import type { DiscoverMovie, DiscoverShow } from '@/api/entities';
+import type { MovieItem, ShowItem } from '@/api/entities';
 import { cn } from '@/lib/utils';
 
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -32,13 +32,13 @@ const DISCOVER_STATUS: Record<'movie' | 'show', StatusConfig> = {
 
 interface MovieCardProps {
   type: 'movie';
-  data: DiscoverMovie;
+  data: MovieItem;
   index: number;
 }
 
 interface ShowCardProps {
   type: 'show';
-  data: DiscoverShow;
+  data: ShowItem;
   index: number;
 }
 
@@ -223,7 +223,7 @@ function MediaCard<TRoute extends string>(props: MediaCardProps | GenericMediaCa
 
   return (
     <GenericCardContent
-      href={`/media/${isMovie ? 'movies' : 'shows'}/${props.data.id}` as Route}
+      href={`/media/${isMovie ? 'movies' : 'shows'}/${props.data.tmdbId}` as Route}
       title={props.data.title}
       posterUrl={props.data.posterUrl}
       status={DISCOVER_STATUS[props.type]}

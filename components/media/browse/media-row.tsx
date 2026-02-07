@@ -2,7 +2,7 @@
 
 import { AlertCircle, ChevronRight, RefreshCw } from 'lucide-react';
 
-import type { DiscoverMovie, DiscoverShow } from '@/api/entities';
+import type { MovieItem, ShowItem } from '@/api/entities';
 import { cn } from '@/lib/utils';
 
 import { MediaCard } from '@/components/media/items';
@@ -17,12 +17,12 @@ type MediaRowSize = 'default' | 'lg';
 
 interface MediaMovieRowProps {
   type: 'movie';
-  media: DiscoverMovie[];
+  media: MovieItem[];
 }
 
 interface MediaShowRowProps {
   type: 'show';
-  media: DiscoverShow[];
+  media: ShowItem[];
 }
 
 type MediaRowProps = {
@@ -130,8 +130,12 @@ function MediaRow({ type, size, title, media, onSeeAll }: MediaRowProps) {
           style={{ scrollSnapType: 'x mandatory' }}
         >
           {media.map((item, index) => (
-            <div key={item.id} className={cn('shrink-0', cardWidthClass[size])} style={{ scrollSnapAlign: 'start' }}>
-              <MediaCard type={type} data={item as DiscoverMovie & DiscoverShow} index={index} />
+            <div
+              key={item.tmdbId}
+              className={cn('shrink-0', cardWidthClass[size])}
+              style={{ scrollSnapAlign: 'start' }}
+            >
+              <MediaCard type={type} data={item as MovieItem & ShowItem} index={index} />
             </div>
           ))}
         </div>

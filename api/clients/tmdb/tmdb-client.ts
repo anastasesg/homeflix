@@ -1,283 +1,87 @@
-// TMDB API types - manually defined for key endpoints
-export interface TMDBMovie {
-  id: number;
-  title: string;
-  original_title: string;
-  overview: string;
-  tagline: string;
-  release_date: string;
-  runtime: number;
-  budget: number;
-  revenue: number;
-  vote_average: number;
-  vote_count: number;
-  popularity: number;
-  poster_path: string | null;
-  backdrop_path: string | null;
-  genres: Array<{ id: number; name: string }>;
-  production_companies: Array<{ id: number; name: string; logo_path: string | null; origin_country: string }>;
-  spoken_languages: Array<{ iso_639_1: string; name: string; english_name: string }>;
-  status: string;
-  imdb_id: string | null;
-  homepage: string | null;
-}
+import createClient, { type Middleware } from 'openapi-fetch';
 
-export interface TMDBCredits {
-  id: number;
-  cast: Array<{
-    id: number;
-    name: string;
-    character: string;
-    profile_path: string | null;
-    order: number;
-  }>;
-  crew: Array<{
-    id: number;
-    name: string;
-    job: string;
-    department: string;
-    profile_path: string | null;
-  }>;
-}
+import type { operations, paths } from './tmdb-client.d';
 
-export interface TMDBImages {
-  id: number;
-  backdrops: Array<{ file_path: string; width: number; height: number }>;
-  posters: Array<{ file_path: string; width: number; height: number }>;
-}
+// ============================================================================
+// Client
+// ============================================================================
 
-export interface TMDBEpisodeImages {
-  id: number;
-  stills: Array<{ file_path: string; width: number; height: number }>;
-}
+export function createTMDBClient() {
+  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
+  if (!apiKey) throw new Error('TMDB API Key is not defined');
 
-export interface TMDBVideos {
-  id: number;
-  results: Array<{
-    id: string;
-    key: string;
-    name: string;
-    site: string;
-    type: string;
-  }>;
-}
+  const authMiddleware: Middleware = {
+    async onRequest({ request }) {
+      const url = new URL(request.url);
+      url.searchParams.set('api_key', apiKey);
+      return new Request(url, request);
+    },
+  };
 
-export interface TMDBKeywords {
-  id: number;
-  keywords: Array<{ id: number; name: string }>;
-}
+  const client = createClient<paths>({ baseUrl: 'https://api.themoviedb.org' });
+  client.use(authMiddleware);
 
-export interface TMDBReleaseDatesResponse {
-  id: number;
-  results: Array<{
-    iso_3166_1: string;
-    release_dates: Array<{
-      certification: string;
-      release_date: string;
-      type: number;
-    }>;
-  }>;
-}
-
-export interface TMDBMovieListItem {
-  id: number;
-  title: string;
-  overview: string;
-  release_date: string;
-  vote_average: number;
-  vote_count: number;
-  popularity: number;
-  poster_path: string | null;
-  backdrop_path: string | null;
-  genre_ids: number[];
-}
-
-export interface TMDBMovieListResponse {
-  page: number;
-  results: TMDBMovieListItem[];
-  total_pages: number;
-  total_results: number;
-}
-
-export interface TMDBGenre {
-  id: number;
-  name: string;
-}
-
-export interface TMDBGenreListResponse {
-  genres: TMDBGenre[];
-}
-
-export interface TMDBWatchProvider {
-  provider_id: number;
-  provider_name: string;
-  logo_path: string;
-  display_priority: number;
-}
-
-export interface TMDBWatchProvidersResponse {
-  results: TMDBWatchProvider[];
-}
-
-export interface TMDBCertification {
-  certification: string;
-  meaning: string;
-  order: number;
-}
-
-export interface TMDBCertificationsResponse {
-  certifications: Record<string, TMDBCertification[]>;
-}
-
-export interface TMDBKeywordSearchItem {
-  id: number;
-  name: string;
-}
-
-export interface TMDBKeywordSearchResponse {
-  page: number;
-  results: TMDBKeywordSearchItem[];
-  total_pages: number;
-  total_results: number;
-}
-
-export interface TMDBPersonSearchItem {
-  id: number;
-  name: string;
-  known_for_department: string;
-  profile_path: string | null;
-  popularity: number;
-}
-
-export interface TMDBPersonSearchResponse {
-  page: number;
-  results: TMDBPersonSearchItem[];
-  total_pages: number;
-  total_results: number;
+  return client;
 }
 
 // ============================================================================
-// TV Types
+// Image Utility
 // ============================================================================
 
-export interface TMDBTVListItem {
-  id: number;
-  name: string;
-  original_name: string;
-  overview: string;
-  first_air_date: string;
-  vote_average: number;
-  vote_count: number;
-  popularity: number;
-  poster_path: string | null;
-  backdrop_path: string | null;
-  genre_ids: number[];
-  origin_country: string[];
-  original_language: string;
-}
+const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p';
 
-export interface TMDBTVListResponse {
-  page: number;
-  results: TMDBTVListItem[];
-  total_pages: number;
-  total_results: number;
-}
-
-export interface TMDBTV {
-  id: number;
-  name: string;
-  original_name: string;
-  overview: string;
-  tagline: string;
-  first_air_date: string;
-  last_air_date: string;
-  number_of_seasons: number;
-  number_of_episodes: number;
-  episode_run_time: number[];
-  vote_average: number;
-  vote_count: number;
-  popularity: number;
-  poster_path: string | null;
-  backdrop_path: string | null;
-  genres: Array<{ id: number; name: string }>;
-  networks: Array<{ id: number; name: string; logo_path: string | null; origin_country: string }>;
-  production_companies: Array<{ id: number; name: string; logo_path: string | null; origin_country: string }>;
-  created_by: Array<{ id: number; name: string; profile_path: string | null }>;
-  spoken_languages: Array<{ iso_639_1: string; name: string; english_name: string }>;
-  seasons: Array<{
-    id: number;
-    name: string;
-    overview: string;
-    season_number: number;
-    episode_count: number;
-    air_date: string | null;
-    poster_path: string | null;
-  }>;
-  status: string;
-  type: string;
-  homepage: string | null;
-  in_production: boolean;
-  external_ids?: { imdb_id?: string | null; tvdb_id?: number | null };
-}
-
-export interface TMDBTVSeason {
-  id: number;
-  name: string;
-  overview: string;
-  season_number: number;
-  air_date: string | null;
-  poster_path: string | null;
-  episodes: Array<{
-    id: number;
-    name: string;
-    overview: string;
-    episode_number: number;
-    season_number: number;
-    air_date: string | null;
-    runtime: number | null;
-    still_path: string | null;
-    vote_average: number;
-    vote_count: number;
-    crew: Array<{ id: number; name: string; job: string; department: string; profile_path: string | null }>;
-    guest_stars: Array<{ id: number; name: string; character: string; profile_path: string | null; order: number }>;
-  }>;
-}
-
-export interface TMDBTVEpisode {
-  id: number;
-  name: string;
-  overview: string;
-  episode_number: number;
-  season_number: number;
-  air_date: string | null;
-  runtime: number | null;
-  still_path: string | null;
-  vote_average: number;
-  vote_count: number;
-  crew: Array<{ id: number; name: string; job: string; department: string; profile_path: string | null }>;
-  guest_stars: Array<{ id: number; name: string; character: string; profile_path: string | null; order: number }>;
-}
-
-export interface DiscoverTVParams {
-  genres?: number[];
-  yearMin?: number;
-  yearMax?: number;
-  ratingMin?: number;
-  runtimeMin?: number;
-  runtimeMax?: number;
-  language?: string;
-  voteCountMin?: number;
-  networks?: number[];
-  status?: string[];
-  watchProviders?: number[];
-  watchRegion?: string;
-  keywords?: number[];
-  sortBy?: string;
-  page?: number;
+export function getTMDBImageUrl(
+  path: string | null | undefined,
+  size: 'w92' | 'w185' | 'w342' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500'
+): string | undefined {
+  if (!path) return undefined;
+  return `${TMDB_IMAGE_BASE}/${size}${path}`;
 }
 
 // ============================================================================
-// Movie Params
+// Response Type Helpers
+// ============================================================================
+
+type OpResponse<K extends keyof operations> = operations[K] extends {
+  responses: { 200: { content: { 'application/json': infer R } } };
+}
+  ? R
+  : never;
+
+export type TMDBMovie = OpResponse<'movie-details'>;
+export type TMDBCredits = OpResponse<'movie-credits'>;
+export type TMDBImages = OpResponse<'movie-images'>;
+export type TMDBVideos = OpResponse<'movie-videos'>;
+export type TMDBKeywords = OpResponse<'movie-keywords'>;
+export type TMDBReleaseDatesResponse = OpResponse<'movie-release-dates'>;
+export type TMDBMovieListResponse = OpResponse<'discover-movie'>;
+export type TMDBMovieListItem = NonNullable<TMDBMovieListResponse['results']>[number];
+
+export type TMDBTV = OpResponse<'tv-series-details'>;
+export type TMDBTVAggregateCredits = OpResponse<'tv-series-aggregate-credits'>;
+export type TMDBTVImages = OpResponse<'tv-series-images'>;
+export type TMDBTVVideos = OpResponse<'tv-series-videos'>;
+export type TMDBTVKeywords = OpResponse<'tv-series-keywords'>;
+export type TMDBTVListResponse = OpResponse<'discover-tv'>;
+export type TMDBTVListItem = NonNullable<TMDBTVListResponse['results']>[number];
+export type TMDBTVSeason = OpResponse<'tv-season-details'>;
+export type TMDBTVEpisode = OpResponse<'tv-episode-details'>;
+export type TMDBTVContentRatings = OpResponse<'tv-series-content-ratings'>;
+export type TMDBTVEpisodeImages = OpResponse<'tv-episode-images'>;
+export type TMDBTVRecommendations = OpResponse<'tv-series-recommendations'>;
+
+export type TMDBGenreListResponse = OpResponse<'genre-movie-list'>;
+export type TMDBWatchProvidersResponse = OpResponse<'watch-providers-movie-list'>;
+export type TMDBCertificationsResponse = OpResponse<'certification-movie-list'>;
+export type TMDBKeywordSearchResponse = OpResponse<'search-keyword'>;
+export type TMDBPersonSearchResponse = OpResponse<'search-person'>;
+export type TMDBMovieSearchResponse = OpResponse<'search-movie'>;
+export type TMDBTVSearchResponse = OpResponse<'search-tv'>;
+export type TMDBDiscoverMovieResponse = OpResponse<'discover-movie'>;
+export type TMDBDiscoverTVResponse = OpResponse<'discover-tv'>;
+
+// ============================================================================
+// Discover Param Types (app-level abstractions)
 // ============================================================================
 
 export interface DiscoverMovieParams {
@@ -300,336 +104,66 @@ export interface DiscoverMovieParams {
   page?: number;
 }
 
-const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p';
-
-export function getTMDBImageUrl(
-  path: string | null,
-  size: 'w92' | 'w185' | 'w342' | 'w500' | 'w780' | 'w1280' | 'original' = 'w500'
-): string | undefined {
-  if (!path) return undefined;
-  return `${TMDB_IMAGE_BASE}/${size}${path}`;
+export interface DiscoverTVParams {
+  genres?: number[];
+  yearMin?: number;
+  yearMax?: number;
+  ratingMin?: number;
+  runtimeMin?: number;
+  runtimeMax?: number;
+  language?: string;
+  voteCountMin?: number;
+  networks?: number[];
+  status?: string[];
+  watchProviders?: number[];
+  watchRegion?: string;
+  keywords?: number[];
+  sortBy?: string;
+  page?: number;
 }
 
-export function createTMDBClient() {
-  const apiKey = process.env.NEXT_PUBLIC_TMDB_API_KEY;
-  if (!apiKey) throw new Error('TMDB API Key is not defined');
+// ============================================================================
+// Discover Query Builders
+// ============================================================================
 
-  const baseUrl = 'https://api.themoviedb.org/3';
-
+export function buildDiscoverMovieQuery(params: DiscoverMovieParams) {
   return {
-    async getMovie(movieId: number): Promise<TMDBMovie> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
+    with_genres: params.genres?.length ? params.genres.join(',') : undefined,
+    'primary_release_date.gte': params.yearMin ? `${params.yearMin}-01-01` : undefined,
+    'primary_release_date.lte': params.yearMax ? `${params.yearMax}-12-31` : undefined,
+    'vote_average.gte': params.ratingMin,
+    'with_runtime.gte': params.runtimeMin,
+    'with_runtime.lte': params.runtimeMax,
+    with_original_language: params.language,
+    certification: params.certifications?.length ? params.certifications.join('|') : undefined,
+    certification_country: params.certifications?.length ? (params.certificationCountry ?? 'US') : undefined,
+    with_watch_providers: params.watchProviders?.length ? params.watchProviders.join('|') : undefined,
+    watch_region: params.watchProviders?.length ? (params.watchRegion ?? 'US') : undefined,
+    with_keywords: params.keywords?.length ? params.keywords.join(',') : undefined,
+    with_cast: params.castIds?.length ? params.castIds.join(',') : undefined,
+    with_crew: params.crewIds?.length ? params.crewIds.join(',') : undefined,
+    sort_by: (params.sortBy ?? 'popularity.desc') as 'popularity.desc',
+    'vote_count.gte': params.voteCountMin ?? 50,
+    page: params.page,
+  };
+}
 
-    async getCredits(movieId: number): Promise<TMDBCredits> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}/credits?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getImages(movieId: number): Promise<TMDBImages> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}/images?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getVideos(movieId: number): Promise<TMDBVideos> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}/videos?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getKeywords(movieId: number): Promise<TMDBKeywords> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}/keywords?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTrending(): Promise<TMDBMovieListResponse> {
-      const res = await fetch(`${baseUrl}/trending/movie/week?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTopRated(): Promise<TMDBMovieListResponse> {
-      const res = await fetch(`${baseUrl}/movie/top_rated?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getNowPlaying(): Promise<TMDBMovieListResponse> {
-      const res = await fetch(`${baseUrl}/movie/now_playing?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getUpcoming(): Promise<TMDBMovieListResponse> {
-      const res = await fetch(`${baseUrl}/movie/upcoming?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getGenres(): Promise<TMDBGenreListResponse> {
-      const res = await fetch(`${baseUrl}/genre/movie/list?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async discoverByGenre(genreId: number): Promise<TMDBMovieListResponse> {
-      const res = await fetch(
-        `${baseUrl}/discover/movie?api_key=${apiKey}&with_genres=${genreId}&sort_by=popularity.desc&vote_count.gte=50`
-      );
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async discoverMovies(params: DiscoverMovieParams): Promise<TMDBMovieListResponse> {
-      const searchParams = new URLSearchParams({ api_key: apiKey });
-      if (params.genres?.length) searchParams.set('with_genres', params.genres.join(','));
-      if (params.yearMin) searchParams.set('primary_release_date.gte', `${params.yearMin}-01-01`);
-      if (params.yearMax) searchParams.set('primary_release_date.lte', `${params.yearMax}-12-31`);
-      if (params.ratingMin) searchParams.set('vote_average.gte', String(params.ratingMin));
-      if (params.runtimeMin) searchParams.set('with_runtime.gte', String(params.runtimeMin));
-      if (params.runtimeMax) searchParams.set('with_runtime.lte', String(params.runtimeMax));
-      if (params.language) searchParams.set('with_original_language', params.language);
-      if (params.certifications?.length) {
-        searchParams.set('certification', params.certifications.join('|'));
-        searchParams.set('certification_country', params.certificationCountry ?? 'US');
-      }
-      if (params.watchProviders?.length) {
-        searchParams.set('with_watch_providers', params.watchProviders.join('|'));
-        searchParams.set('watch_region', params.watchRegion ?? 'US');
-      }
-      if (params.keywords?.length) searchParams.set('with_keywords', params.keywords.join(','));
-      if (params.castIds?.length) searchParams.set('with_cast', params.castIds.join(','));
-      if (params.crewIds?.length) searchParams.set('with_crew', params.crewIds.join(','));
-      searchParams.set('sort_by', params.sortBy ?? 'popularity.desc');
-      searchParams.set('vote_count.gte', String(params.voteCountMin ?? 50));
-      if (params.page) searchParams.set('page', String(params.page));
-      const res = await fetch(`${baseUrl}/discover/movie?${searchParams}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async searchMovies(query: string, page?: number): Promise<TMDBMovieListResponse> {
-      const searchParams = new URLSearchParams({ api_key: apiKey, query });
-      if (page) searchParams.set('page', String(page));
-      const res = await fetch(`${baseUrl}/search/movie?${searchParams}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getWatchProviders(region: string = 'US'): Promise<TMDBWatchProvidersResponse> {
-      const res = await fetch(`${baseUrl}/watch/providers/movie?api_key=${apiKey}&watch_region=${region}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getCertifications(): Promise<TMDBCertificationsResponse> {
-      const res = await fetch(`${baseUrl}/certification/movie/list?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async searchKeywords(query: string): Promise<TMDBKeywordSearchResponse> {
-      const searchParams = new URLSearchParams({ api_key: apiKey, query });
-      const res = await fetch(`${baseUrl}/search/keyword?${searchParams}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async searchPeople(query: string): Promise<TMDBPersonSearchResponse> {
-      const searchParams = new URLSearchParams({ api_key: apiKey, query });
-      const res = await fetch(`${baseUrl}/search/person?${searchParams}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getMovieRecommendations(movieId: number): Promise<TMDBMovieListResponse> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}/recommendations?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getMovieSimilar(movieId: number): Promise<TMDBMovieListResponse> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}/similar?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getMovieReleaseDates(movieId: number): Promise<TMDBReleaseDatesResponse> {
-      const res = await fetch(`${baseUrl}/movie/${movieId}/release_dates?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    // ==================================================================
-    // TV Methods
-    // ==================================================================
-
-    async getTVTrending(): Promise<TMDBTVListResponse> {
-      const res = await fetch(`${baseUrl}/trending/tv/week?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVTopRated(): Promise<TMDBTVListResponse> {
-      const res = await fetch(`${baseUrl}/tv/top_rated?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVOnTheAir(): Promise<TMDBTVListResponse> {
-      const res = await fetch(`${baseUrl}/tv/on_the_air?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVAiringToday(): Promise<TMDBTVListResponse> {
-      const res = await fetch(`${baseUrl}/tv/airing_today?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVGenres(): Promise<TMDBGenreListResponse> {
-      const res = await fetch(`${baseUrl}/genre/tv/list?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async discoverByTVGenre(genreId: number): Promise<TMDBTVListResponse> {
-      const res = await fetch(
-        `${baseUrl}/discover/tv?api_key=${apiKey}&with_genres=${genreId}&sort_by=popularity.desc&vote_count.gte=50`
-      );
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async discoverTV(params: DiscoverTVParams): Promise<TMDBTVListResponse> {
-      const searchParams = new URLSearchParams({ api_key: apiKey });
-      if (params.genres?.length) searchParams.set('with_genres', params.genres.join(','));
-      if (params.yearMin) searchParams.set('first_air_date.gte', `${params.yearMin}-01-01`);
-      if (params.yearMax) searchParams.set('first_air_date.lte', `${params.yearMax}-12-31`);
-      if (params.ratingMin) searchParams.set('vote_average.gte', String(params.ratingMin));
-      if (params.runtimeMin) searchParams.set('with_runtime.gte', String(params.runtimeMin));
-      if (params.runtimeMax) searchParams.set('with_runtime.lte', String(params.runtimeMax));
-      if (params.language) searchParams.set('with_original_language', params.language);
-      if (params.networks?.length) searchParams.set('with_networks', params.networks.join('|'));
-      if (params.status?.length) searchParams.set('with_status', params.status.join('|'));
-      if (params.watchProviders?.length) {
-        searchParams.set('with_watch_providers', params.watchProviders.join('|'));
-        searchParams.set('watch_region', params.watchRegion ?? 'US');
-      }
-      if (params.keywords?.length) searchParams.set('with_keywords', params.keywords.join(','));
-      searchParams.set('sort_by', params.sortBy ?? 'popularity.desc');
-      searchParams.set('vote_count.gte', String(params.voteCountMin ?? 50));
-      if (params.page) searchParams.set('page', String(params.page));
-      const res = await fetch(`${baseUrl}/discover/tv?${searchParams}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async searchTV(query: string, page?: number): Promise<TMDBTVListResponse> {
-      const searchParams = new URLSearchParams({ api_key: apiKey, query });
-      if (page) searchParams.set('page', String(page));
-      const res = await fetch(`${baseUrl}/search/tv?${searchParams}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVWatchProviders(region: string = 'US'): Promise<TMDBWatchProvidersResponse> {
-      const res = await fetch(`${baseUrl}/watch/providers/tv?api_key=${apiKey}&watch_region=${region}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVShow(tvId: number): Promise<TMDBTV> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}?api_key=${apiKey}&append_to_response=external_ids`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVCredits(tvId: number): Promise<TMDBCredits> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/aggregate_credits?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      const data = await res.json();
-      return {
-        id: data.id,
-        cast: data.cast.map((c: Record<string, unknown>) => ({
-          id: c.id,
-          name: c.name,
-          character: ((c.roles as Array<{ character: string }>) ?? [])[0]?.character ?? '',
-          profile_path: c.profile_path,
-          order: c.order,
-        })),
-        crew: data.crew.map((c: Record<string, unknown>) => ({
-          id: c.id,
-          name: c.name,
-          job: ((c.jobs as Array<{ job: string }>) ?? [])[0]?.job ?? '',
-          department: c.department,
-          profile_path: c.profile_path,
-        })),
-      };
-    },
-
-    async getTVImages(tvId: number): Promise<TMDBImages> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/images?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVVideos(tvId: number): Promise<TMDBVideos> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/videos?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVKeywords(tvId: number): Promise<{ id: number; results: Array<{ id: number; name: string }> }> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/keywords?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVSeason(tvId: number, seasonNumber: number): Promise<TMDBTVSeason> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/season/${seasonNumber}?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVEpisode(tvId: number, seasonNumber: number, episodeNumber: number): Promise<TMDBTVEpisode> {
-      const res = await fetch(
-        `${baseUrl}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${apiKey}`
-      );
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVRecommendations(tvId: number): Promise<TMDBTVListResponse> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/recommendations?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVSimilar(tvId: number): Promise<TMDBTVListResponse> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/similar?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVContentRatings(tvId: number): Promise<{ results: Array<{ iso_3166_1: string; rating: string }> }> {
-      const res = await fetch(`${baseUrl}/tv/${tvId}/content_ratings?api_key=${apiKey}`);
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
-
-    async getTVEpisodeImages(tvId: number, seasonNumber: number, episodeNumber: number): Promise<TMDBEpisodeImages> {
-      const res = await fetch(
-        `${baseUrl}/tv/${tvId}/season/${seasonNumber}/episode/${episodeNumber}/images?api_key=${apiKey}`
-      );
-      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-      return res.json();
-    },
+export function buildDiscoverTVQuery(params: DiscoverTVParams) {
+  return {
+    with_genres: params.genres?.length ? params.genres.join(',') : undefined,
+    'first_air_date.gte': params.yearMin ? `${params.yearMin}-01-01` : undefined,
+    'first_air_date.lte': params.yearMax ? `${params.yearMax}-12-31` : undefined,
+    'vote_average.gte': params.ratingMin,
+    'with_runtime.gte': params.runtimeMin,
+    'with_runtime.lte': params.runtimeMax,
+    with_original_language: params.language,
+    with_networks: params.networks?.length ? (params.networks[0] as number) : undefined,
+    with_status: params.status?.length ? params.status.join('|') : undefined,
+    with_watch_providers: params.watchProviders?.length ? params.watchProviders.join('|') : undefined,
+    watch_region: params.watchProviders?.length ? (params.watchRegion ?? 'US') : undefined,
+    with_keywords: params.keywords?.length ? params.keywords.join(',') : undefined,
+    sort_by: (params.sortBy ?? 'popularity.desc') as 'popularity.desc',
+    'vote_count.gte': params.voteCountMin ?? 50,
+    page: params.page,
   };
 }

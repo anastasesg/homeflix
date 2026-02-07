@@ -1,16 +1,3 @@
-export interface DiscoverMovie {
-  id: number;
-  title: string;
-  overview: string;
-  year: number;
-  rating: number;
-  voteCount: number;
-  popularity: number;
-  posterUrl?: string;
-  backdropUrl?: string;
-  genreIds: number[];
-}
-
 export interface TMDBGenreItem {
   id: number;
   name: string;

@@ -1,33 +1,26 @@
+import type { Genre } from '@/api/mappers';
+
 export type ShowStatus = 'continuing' | 'ended' | 'upcoming';
 export type DisplayStatus = 'complete' | 'partial' | 'downloading' | 'missing' | 'wanted';
 
 export interface ShowItem {
-  id: string | number;
-  tmdbId: number | undefined;
+  tmdbId: number;
   title: string;
-  year?: number;
-  endYear?: number;
-  type: 'show';
-  status: DisplayStatus;
-  showStatus: ShowStatus;
+  overview: string;
+  year: number;
+  rating: number;
+  voteCount: number;
+  popularity: number;
   posterUrl?: string;
   backdropUrl?: string;
-  quality?: string;
-  rating?: number;
-  runtime?: number;
-  genres?: string[];
-  tagline?: string;
-  overview?: string;
+  genres: Genre[];
+  originCountry: string[];
+  // Library-only (present when sourced from Sonarr)
+  status?: DisplayStatus;
+  showStatus?: ShowStatus;
+  totalEpisodes?: number;
+  downloadedEpisodes?: number;
+  seasonCount?: number;
   network?: string;
-  // Episode tracking
-  totalEpisodes: number;
-  downloadedEpisodes: number;
-  seasonCount: number;
-  // Next episode info
-  nextEpisode?: {
-    seasonNumber: number;
-    episodeNumber: number;
-    title: string;
-    airDate?: string;
-  };
+  dateAdded?: string;
 }

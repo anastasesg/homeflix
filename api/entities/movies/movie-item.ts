@@ -1,18 +1,18 @@
-import { MediaStatus } from '@/api/types';
+import type { Genre } from '@/api/mappers';
+import type { MediaStatus } from '@/api/types';
 
 export interface MovieItem {
-  id: string | number;
-  tmdbId?: number;
+  tmdbId: number;
   title: string;
-  year?: number;
-  type: 'movie';
-  status: MediaStatus;
+  overview: string;
+  year: number;
+  rating: number;
+  voteCount: number;
+  popularity: number;
   posterUrl?: string;
   backdropUrl?: string;
-  quality?: string;
-  rating?: number;
-  runtime?: number;
-  genres?: string[];
-  tagline?: string;
-  overview?: string;
+  genres: Genre[];
+  // Library-only (present when sourced from Radarr)
+  status?: MediaStatus;
+  dateAdded?: string;
 }

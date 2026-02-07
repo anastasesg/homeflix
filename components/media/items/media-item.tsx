@@ -8,7 +8,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Film, Star, Tv } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-import type { DiscoverMovie, DiscoverShow } from '@/api/entities';
+import type { MovieItem, ShowItem } from '@/api/entities';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '@/components/ui/badge';
@@ -29,19 +29,17 @@ const DISCOVER_STATUS: Record<'movie' | 'show', StatusConfig> = {
 // Types
 // ============================================================================
 
-interface DiscoverMovieItemProps {
+interface MovieItemProps {
   type: 'movie';
-  data: DiscoverMovie;
-  genreMap: Map<number, string>;
+  data: MovieItem;
 }
 
-interface DiscoverShowItemProps {
+interface ShowItemProps {
   type: 'show';
-  data: DiscoverShow;
-  genreMap: Map<number, string>;
+  data: ShowItem;
 }
 
-type DiscoverMediaItemProps = DiscoverMovieItemProps | DiscoverShowItemProps;
+type MediaItemProps = MovieItemProps | ShowItemProps;
 
 interface GenericMediaItemProps<TRoute extends string = string> {
   /** Navigation href */
@@ -65,8 +63,6 @@ interface GenericMediaItemProps<TRoute extends string = string> {
   /** Slot for badges/actions on the far right (quality badge, etc.) */
   badgesSlot?: ReactNode;
 }
-
-type MediaItemProps<TRoute extends string = string> = DiscoverMediaItemProps | GenericMediaItemProps<TRoute>;
 
 // ============================================================================
 // Loading
@@ -117,20 +113,17 @@ function MediaItemError({ type, error }: MediaItemErrorProps) {
 }
 
 // ============================================================================
-// Sub-components: Discover Item
+// Sub-components:  Item
 // ============================================================================
 
-function DiscoverItemContent({ type, data, genreMap }: DiscoverMediaItemProps) {
+function ItemContent({ type, data }: MediaItemProps) {
   const isMovie = type === 'movie';
   const Icon = isMovie ? Film : Tv;
-  const genreNames = data.genreIds
-    .map((id) => genreMap.get(id))
-    .filter(Boolean)
-    .slice(0, 3);
+  const genreNames = data.genres.map((g) => g.label).slice(0, 3);
 
   return (
     <GenericItemContent
-      href={`/media/${isMovie ? 'movies' : 'shows'}/${data.id}` as Route}
+      href={`/media/${isMovie ? 'movies' : 'shows'}/${data.tmdbId}` as Route}
       title={data.title}
       year={data.year > 0 ? data.year : undefined}
       posterUrl={data.posterUrl}
@@ -230,18 +223,10 @@ function GenericItemContent<TRoute extends string = string>({
   );
 }
 
-function MediaItem<TRoute extends string = string>(props: MediaItemProps<TRoute>) {
-  if ('type' in props) {
-    return <DiscoverItemContent {...props} />;
-  }
+function MediaItem<TRoute extends string = string>(props: MediaItemProps | GenericMediaItemProps<TRoute>) {
+  if ('type' in props) return <ItemContent {...props} />;
   return <GenericItemContent {...props} />;
 }
 
-export type {
-  DiscoverMediaItemProps,
-  GenericMediaItemProps,
-  MediaItemErrorProps,
-  MediaItemLoadingProps,
-  MediaItemProps,
-};
+export type { MediaItemErrorProps, MediaItemLoadingProps, MediaItemProps };
 export { MediaItem, MediaItemError, MediaItemLoading };

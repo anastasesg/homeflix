@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Film, Loader2 } from 'lucide-react';
 
 import { useDiscoverFilters } from '@/hooks/filters';
@@ -10,7 +10,6 @@ import {
   filteredMoviesInfiniteQueryOptions,
   searchMoviesInfiniteQueryOptions,
 } from '@/options/queries/movies/discover';
-import { movieGenresQueryOptions } from '@/options/queries/movies/metadata';
 
 import { MediaCard, MediaCardError, MediaGrid, MediaItem } from '@/components/media';
 
@@ -123,9 +122,6 @@ function MoviesGrid() {
     enabled: !isSearch,
   });
 
-  const genresQuery = useQuery(movieGenresQueryOptions());
-  const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
-
   const activeQuery = isSearch ? searchQuery : discoverQuery;
 
   const movies = useMemo(() => activeQuery.data?.pages.flatMap((p) => p.movies) ?? [], [activeQuery.data]);
@@ -162,8 +158,8 @@ function MoviesGrid() {
         emptyIcon={Film}
         emptyTitle="No movies found"
         emptyDescription="Try adjusting your filters or search terms"
-        renderCard={(movie, index) => <MediaCard key={movie.id} type="movie" data={movie} index={index} />}
-        renderListItem={(movie) => <MediaItem key={movie.id} type="movie" data={movie} genreMap={genreMap} />}
+        renderCard={(movie, index) => <MediaCard type="movie" data={movie} index={index} />}
+        renderListItem={(movie) => <MediaItem type="movie" data={movie} />}
       />
 
       <LoadMoreTrigger

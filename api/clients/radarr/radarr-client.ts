@@ -1,6 +1,10 @@
 import createClient from 'openapi-fetch';
 
-import type { paths } from './radarr-client.d';
+import type { components, paths } from './radarr-client.d';
+
+export type MovieResource = components['schemas']['MovieResource'];
+export type MovieFileResource = components['schemas']['MovieFileResource'];
+export type HistoryResource = components['schemas']['HistoryResource'];
 
 export function createRadarrClient() {
   const radarrApiUrl = process.env.NEXT_PUBLIC_RADARR_API_URL;

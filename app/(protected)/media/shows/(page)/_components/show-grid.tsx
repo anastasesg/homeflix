@@ -2,12 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Loader2, Tv } from 'lucide-react';
 
 import { useTVDiscoverFilters } from '@/hooks/filters/use-tv-discover-filters';
 import { filteredShowsInfiniteQueryOptions, searchShowsInfiniteQueryOptions } from '@/options/queries/shows/discover';
-import { showGenresQueryOptions } from '@/options/queries/shows/metadata';
 
 import { MediaCard, MediaCardError, MediaGrid, MediaItem } from '@/components/media';
 
@@ -116,9 +115,6 @@ function ShowsGrid() {
     enabled: !isSearch,
   });
 
-  const genresQuery = useQuery(showGenresQueryOptions());
-  const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
-
   const activeQuery = isSearch ? searchQuery : discoverQuery;
 
   const shows = useMemo(() => activeQuery.data?.pages.flatMap((p) => p.shows) ?? [], [activeQuery.data]);
@@ -155,8 +151,8 @@ function ShowsGrid() {
         emptyIcon={Tv}
         emptyTitle="No shows found"
         emptyDescription="Try adjusting your filters or search terms"
-        renderCard={(show, index) => <MediaCard key={show.id} type="show" data={show} index={index} />}
-        renderListItem={(show) => <MediaItem key={show.id} type="show" data={show} genreMap={genreMap} />}
+        renderCard={(show, index) => <MediaCard key={show.tmdbId} type="show" data={show} index={index} />}
+        renderListItem={(show) => <MediaItem key={show.tmdbId} type="show" data={show} />}
       />
 
       <LoadMoreTrigger
