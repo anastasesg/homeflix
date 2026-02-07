@@ -1,5 +1,6 @@
 'use client';
 
+import { useTVDiscoverFilters } from '@/hooks/filters';
 import {
   airingTodayShowsQueryOptions,
   hiddenGemShowsQueryOptions,
@@ -29,18 +30,22 @@ const FEATURED_ROWS: FeaturedRowConfig[] = [
 // Main Component
 // ============================================================================
 
-interface ShowsBrowseProps {
-  onApplyGenreFilter?: (genreId: number) => void;
-}
+type ShowsBrowseProps = object;
 
-function ShowsBrowse({ onApplyGenreFilter }: ShowsBrowseProps) {
+function ShowsBrowse(_props: ShowsBrowseProps) {
+  const { setGenres } = useTVDiscoverFilters();
+
+  const handleApplyGenreFilter = (genreId: number) => {
+    setGenres([genreId]);
+  };
+
   return (
     <MediaBrowse
       type="show"
       featuredRows={FEATURED_ROWS}
       genresQueryOptions={showGenresQueryOptions()}
       byGenreQueryOptions={showsByGenreQueryOptions}
-      onApplyGenreFilter={onApplyGenreFilter}
+      onApplyGenreFilter={handleApplyGenreFilter}
     />
   );
 }

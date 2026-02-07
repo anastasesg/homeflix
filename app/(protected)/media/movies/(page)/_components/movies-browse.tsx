@@ -1,5 +1,6 @@
 'use client';
 
+import { useDiscoverFilters } from '@/hooks/filters';
 import {
   hiddenGemMoviesQueryOptions,
   moviesByGenreQueryOptions,
@@ -29,18 +30,22 @@ const FEATURED_ROWS: FeaturedRowConfig[] = [
 // Main Component
 // ============================================================================
 
-interface MoviesBrowseProps {
-  onApplyGenreFilter?: (genreId: number) => void;
-}
+type MoviesBrowseProps = object;
 
-function MoviesBrowse({ onApplyGenreFilter }: MoviesBrowseProps) {
+function MoviesBrowse(_props: MoviesBrowseProps) {
+  const { setGenres } = useDiscoverFilters();
+
+  const handleApplyGenreFilter = (genreId: number) => {
+    setGenres([genreId]);
+  };
+
   return (
     <MediaBrowse
       type="movie"
       featuredRows={FEATURED_ROWS}
       genresQueryOptions={movieGenresQueryOptions()}
       byGenreQueryOptions={moviesByGenreQueryOptions}
-      onApplyGenreFilter={onApplyGenreFilter}
+      onApplyGenreFilter={handleApplyGenreFilter}
     />
   );
 }
