@@ -75,7 +75,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    ignores: ['./components/ui/*.tsx', './hooks/use-mobile.ts', './lib/utils.ts'],
+    ignores: ['./components/ui/*.tsx', './hooks/use-mobile.ts', './lib/utils.ts', '**/*.d.ts', '.worktrees/'],
   },
 ]);
 
