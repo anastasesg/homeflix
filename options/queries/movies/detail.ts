@@ -47,3 +47,50 @@ export function movieKeywordsQueryOptions(tmdbId: number) {
     staleTime: 10 * 60 * 1000,
   });
 }
+
+// ============================================================================
+// Select-based views into movieDetailQueryOptions (shared cache, typed slices)
+// ============================================================================
+
+export function movieOverviewQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...movieDetailQueryOptions(tmdbId),
+    select: (movie) => movie.overview,
+  });
+}
+
+export function movieTitleQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...movieDetailQueryOptions(tmdbId),
+    select: (movie) => movie.title,
+  });
+}
+
+export function movieDetailGenresQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...movieDetailQueryOptions(tmdbId),
+    select: (movie) => movie.genres,
+  });
+}
+
+export function movieProductionQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...movieDetailQueryOptions(tmdbId),
+    select: (movie) => ({
+      budget: movie.budget,
+      revenue: movie.revenue,
+      productionCompanies: movie.productionCompanies,
+    }),
+  });
+}
+
+export function movieExternalLinksQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...movieDetailQueryOptions(tmdbId),
+    select: (movie) => ({
+      imdbId: movie.imdbId,
+      tmdbId: movie.tmdbId,
+      homepage: movie.homepage,
+    }),
+  });
+}

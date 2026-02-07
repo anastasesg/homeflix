@@ -9,9 +9,9 @@ import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Maximize2, X } fro
 
 import { type MovieImages } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { movieImagesQueryOptions } from '@/options/queries/movies/detail';
+import { movieImagesQueryOptions, movieTitleQueryOptions } from '@/options/queries/movies/detail';
 
-import { Query } from '@/components/query';
+import { Queries } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -361,19 +361,19 @@ function GallerySectionContent({ images, movieTitle }: GallerySectionContentProp
 
 interface GallerySectionProps {
   tmdbId: number;
-  movieTitle: string;
 }
 
-function GallerySection({ tmdbId, movieTitle }: GallerySectionProps) {
-  const query = useQuery(movieImagesQueryOptions(tmdbId));
+function GallerySection({ tmdbId }: GallerySectionProps) {
+  const imagesQuery = useQuery(movieImagesQueryOptions(tmdbId));
+  const titleQuery = useQuery(movieTitleQueryOptions(tmdbId));
 
   return (
-    <Query
-      result={query}
+    <Queries
+      results={[imagesQuery, titleQuery]}
       callbacks={{
         loading: GallerySectionLoading,
         error: () => null,
-        success: (images) => <GallerySectionContent images={images} movieTitle={movieTitle} />,
+        success: ([images, title]) => <GallerySectionContent images={images} movieTitle={title} />,
       }}
     />
   );
