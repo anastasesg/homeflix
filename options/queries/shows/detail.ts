@@ -156,3 +156,14 @@ export function showContentRatingsQueryOptions(tmdbId: number) {
     staleTime: 10 * 60 * 1000,
   });
 }
+
+// ============================================================================
+// Select-based views into showSeasonQueryOptions (shared cache, no extra fetch)
+// ============================================================================
+
+export function seasonOverviewQueryOptions(tmdbId: number, seasonNumber: number) {
+  return queryOptions({
+    ...showSeasonQueryOptions(tmdbId, seasonNumber),
+    select: (season) => season.overview,
+  });
+}

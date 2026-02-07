@@ -4,10 +4,13 @@ import { useMemo, useState } from 'react';
 
 import Image from 'next/image';
 
+import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Film } from 'lucide-react';
 
 import type { SeasonDetail } from '@/api/entities';
+import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
+import { Query } from '@/components/query';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { SectionHeader } from './section-header';
@@ -133,16 +136,16 @@ function CrewCard({ person }: CrewCardProps) {
 }
 
 // ============================================================================
-// Main
+// Content
 // ============================================================================
 
 const COLLAPSED_DEPARTMENT_LIMIT = 2;
 
-interface CrewSectionProps {
+interface CrewSectionContentProps {
   season: SeasonDetail;
 }
 
-function CrewSection({ season }: CrewSectionProps) {
+function CrewSectionContent({ season }: CrewSectionContentProps) {
   const departments = useMemo(() => aggregateCrew(season), [season]);
   const [expanded, setExpanded] = useState(false);
 
@@ -202,6 +205,30 @@ function CrewSection({ season }: CrewSectionProps) {
         </button>
       )}
     </section>
+  );
+}
+
+// ============================================================================
+// Main
+// ============================================================================
+
+interface CrewSectionProps {
+  tmdbId: number;
+  seasonNumber: number;
+}
+
+function CrewSection({ tmdbId, seasonNumber }: CrewSectionProps) {
+  const query = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
+
+  return (
+    <Query
+      result={query}
+      callbacks={{
+        loading: () => null,
+        error: () => null,
+        success: (season) => <CrewSectionContent season={season} />,
+      }}
+    />
   );
 }
 

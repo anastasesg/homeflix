@@ -4,10 +4,13 @@ import { useMemo } from 'react';
 
 import Image from 'next/image';
 
+import { useQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 
 import type { SeasonDetail } from '@/api/entities';
+import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
+import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -134,14 +137,14 @@ function CastCard({ person, index }: CastCardProps) {
 }
 
 // ============================================================================
-// Main
+// Content
 // ============================================================================
 
-interface CastSectionProps {
+interface CastSectionContentProps {
   season: SeasonDetail;
 }
 
-function CastSection({ season }: CastSectionProps) {
+function CastSectionContent({ season }: CastSectionContentProps) {
   const aggregated = useMemo(() => aggregateGuestStars(season), [season]);
 
   if (aggregated.length === 0) return null;
@@ -161,6 +164,30 @@ function CastSection({ season }: CastSectionProps) {
         <CarouselNext className="right-2 size-8 border-border bg-background/80 backdrop-blur-sm hover:bg-background" />
       </Carousel>
     </section>
+  );
+}
+
+// ============================================================================
+// Main
+// ============================================================================
+
+interface CastSectionProps {
+  tmdbId: number;
+  seasonNumber: number;
+}
+
+function CastSection({ tmdbId, seasonNumber }: CastSectionProps) {
+  const query = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
+
+  return (
+    <Query
+      result={query}
+      callbacks={{
+        loading: () => null,
+        error: () => null,
+        success: (season) => <CastSectionContent season={season} />,
+      }}
+    />
   );
 }
 

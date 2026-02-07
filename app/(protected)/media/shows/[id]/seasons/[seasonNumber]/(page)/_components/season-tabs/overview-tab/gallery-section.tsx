@@ -4,11 +4,14 @@ import { useCallback, useEffect, useState } from 'react';
 
 import Image from 'next/image';
 
+import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Film, Maximize2, X } from 'lucide-react';
 
 import type { SeasonDetail } from '@/api/entities';
 import { cn } from '@/lib/utils';
+import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
+import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
@@ -215,14 +218,14 @@ function GalleryItem({ still, onClick }: GalleryItemProps) {
 }
 
 // ============================================================================
-// Main
+// Content
 // ============================================================================
 
-interface GallerySectionProps {
+interface GallerySectionContentProps {
   season: SeasonDetail;
 }
 
-function GallerySection({ season }: GallerySectionProps) {
+function GallerySectionContent({ season }: GallerySectionContentProps) {
   const stills = extractStills(season);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -256,6 +259,30 @@ function GallerySection({ season }: GallerySectionProps) {
         onOpenChange={setLightboxOpen}
       />
     </section>
+  );
+}
+
+// ============================================================================
+// Main
+// ============================================================================
+
+interface GallerySectionProps {
+  tmdbId: number;
+  seasonNumber: number;
+}
+
+function GallerySection({ tmdbId, seasonNumber }: GallerySectionProps) {
+  const query = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
+
+  return (
+    <Query
+      result={query}
+      callbacks={{
+        loading: () => null,
+        error: () => null,
+        success: (season) => <GallerySectionContent season={season} />,
+      }}
+    />
   );
 }
 
