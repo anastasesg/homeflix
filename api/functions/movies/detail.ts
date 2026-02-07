@@ -1,5 +1,13 @@
 import { createTMDBClient, getTMDBImageUrl, type TMDBMovie } from '@/api/clients/tmdb';
-import type { MovieBasic, MovieCredits, MovieImages, MovieKeywords, MovieVideos } from '@/api/entities';
+import type {
+  MovieBasic,
+  MovieContentRating,
+  MovieCredits,
+  MovieImages,
+  MovieKeywords,
+  MovieRecommendation,
+  MovieVideos,
+} from '@/api/entities';
 
 // ============================================================================
 // Mappers
@@ -105,4 +113,45 @@ export async function fetchMovieKeywords(tmdbId: number): Promise<MovieKeywords>
   return {
     keywords: keywords.keywords.map((k) => k.name),
   };
+}
+
+export async function fetchMovieRecommendations(tmdbId: number): Promise<MovieRecommendation[]> {
+  const client = createTMDBClient();
+  const data = await client.getMovieRecommendations(tmdbId);
+  return data.results.slice(0, 20).map((item) => ({
+    id: item.id,
+    title: item.title,
+    posterUrl: getTMDBImageUrl(item.poster_path, 'w342'),
+    rating: item.vote_average,
+    year: item.release_date ? parseInt(item.release_date.substring(0, 4), 10) : 0,
+    overview: item.overview || undefined,
+  }));
+}
+
+export async function fetchSimilarMovies(tmdbId: number): Promise<MovieRecommendation[]> {
+  const client = createTMDBClient();
+  const data = await client.getMovieSimilar(tmdbId);
+  return data.results.slice(0, 20).map((item) => ({
+    id: item.id,
+    title: item.title,
+    posterUrl: getTMDBImageUrl(item.poster_path, 'w342'),
+    rating: item.vote_average,
+    year: item.release_date ? parseInt(item.release_date.substring(0, 4), 10) : 0,
+    overview: item.overview || undefined,
+  }));
+}
+
+export async function fetchMovieContentRating(tmdbId: number): Promise<MovieContentRating[]> {
+  const client = createTMDBClient();
+  const data = await client.getMovieReleaseDates(tmdbId);
+  return data.results
+    .flatMap((entry) =>
+      entry.release_dates
+        .filter((rd) => rd.certification !== '')
+        .map((rd) => ({
+          country: entry.iso_3166_1,
+          rating: rd.certification,
+        }))
+    )
+    .filter((v, i, arr) => arr.findIndex((x) => x.country === v.country && x.rating === v.rating) === i);
 }

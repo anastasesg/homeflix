@@ -3,11 +3,15 @@
 import Image from 'next/image';
 
 import { useQuery } from '@tanstack/react-query';
-import { Clock, Play, Star } from 'lucide-react';
+import { Clock, Play, Shield, Star } from 'lucide-react';
 
 import { type MovieBasic, type MovieVideos } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
-import { movieDetailQueryOptions, movieVideosQueryOptions } from '@/options/queries/movies/detail';
+import {
+  movieContentRatingQueryOptions,
+  movieDetailQueryOptions,
+  movieVideosQueryOptions,
+} from '@/options/queries/movies/detail';
 import { formatRuntime } from '@/utilities';
 
 import { Queries } from '@/components/query';
@@ -17,6 +21,28 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { LibraryStatusBadge } from './library-status-badge';
+
+// ============================================================================
+// Content Rating Badge (query-autonomous)
+// ============================================================================
+
+interface ContentRatingBadgeProps {
+  tmdbId: number;
+}
+
+function ContentRatingBadge({ tmdbId }: ContentRatingBadgeProps) {
+  const { data: ratings } = useQuery(movieContentRatingQueryOptions(tmdbId));
+  const usRating = ratings?.find((r) => r.country === 'US')?.rating;
+
+  if (!usRating) return null;
+
+  return (
+    <span className="flex items-center gap-1 rounded-md border border-border/60 px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+      <Shield className="size-3" />
+      {usRating}
+    </span>
+  );
+}
 
 // ============================================================================
 // Error
@@ -78,6 +104,7 @@ function MovieHeaderLoading() {
             {/* Metadata row */}
             <div className="mt-3 flex items-center gap-3">
               <Skeleton className="h-8 w-16 rounded-lg" />
+              <Skeleton className="h-6 w-12 rounded-md" />
               <Skeleton className="h-4 w-px" />
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-4 w-px" />
@@ -175,6 +202,8 @@ function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) 
                   <span className="font-semibold tabular-nums">{movie.rating.toFixed(1)}</span>
                 </div>
               )}
+
+              <ContentRatingBadge tmdbId={tmdbId} />
 
               <Separator orientation="vertical" className="h-4 bg-foreground/20" />
 

@@ -5,6 +5,8 @@ import { ExternalLinksSection } from './external-links-section';
 import { GallerySection } from './gallery-section';
 import { OverviewSection } from './overview-section';
 import { ProductionSection } from './production-section';
+import { RecommendationsSection } from './recommendations-section';
+import { SimilarSection } from './similar-section';
 
 // ============================================================================
 // Main
@@ -21,6 +23,8 @@ function OverviewTab({ tmdbId }: OverviewTabProps) {
       <GallerySection tmdbId={tmdbId} />
       <CastSection tmdbId={tmdbId} />
       <CrewSection tmdbId={tmdbId} />
+      <RecommendationsSection tmdbId={tmdbId} />
+      <SimilarSection tmdbId={tmdbId} />
       <DetailsSection tmdbId={tmdbId} />
       <ProductionSection tmdbId={tmdbId} />
       <ExternalLinksSection tmdbId={tmdbId} />

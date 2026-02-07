@@ -40,3 +40,17 @@ export interface MovieVideos {
 export interface MovieKeywords {
   keywords: string[];
 }
+
+export interface MovieRecommendation {
+  id: number;
+  title: string;
+  posterUrl?: string;
+  rating: number;
+  year: number;
+  overview?: string;
+}
+
+export interface MovieContentRating {
+  country: string;
+  rating: string;
+}

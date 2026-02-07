@@ -67,6 +67,18 @@ export interface TMDBKeywords {
   keywords: Array<{ id: number; name: string }>;
 }
 
+export interface TMDBReleaseDatesResponse {
+  id: number;
+  results: Array<{
+    iso_3166_1: string;
+    release_dates: Array<{
+      certification: string;
+      release_date: string;
+      type: number;
+    }>;
+  }>;
+}
+
 export interface TMDBMovieListItem {
   id: number;
   title: string;
@@ -431,6 +443,24 @@ export function createTMDBClient() {
     async searchPeople(query: string): Promise<TMDBPersonSearchResponse> {
       const searchParams = new URLSearchParams({ api_key: apiKey, query });
       const res = await fetch(`${baseUrl}/search/person?${searchParams}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getMovieRecommendations(movieId: number): Promise<TMDBMovieListResponse> {
+      const res = await fetch(`${baseUrl}/movie/${movieId}/recommendations?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getMovieSimilar(movieId: number): Promise<TMDBMovieListResponse> {
+      const res = await fetch(`${baseUrl}/movie/${movieId}/similar?api_key=${apiKey}`);
+      if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
+      return res.json();
+    },
+
+    async getMovieReleaseDates(movieId: number): Promise<TMDBReleaseDatesResponse> {
+      const res = await fetch(`${baseUrl}/movie/${movieId}/release_dates?api_key=${apiKey}`);
       if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
       return res.json();
     },

@@ -1,11 +1,14 @@
 import { queryOptions } from '@tanstack/react-query';
 
 import {
+  fetchMovieContentRating,
   fetchMovieCredits,
   fetchMovieDetail,
   fetchMovieImages,
   fetchMovieKeywords,
+  fetchMovieRecommendations,
   fetchMovieVideos,
+  fetchSimilarMovies,
 } from '@/api/functions';
 
 export function movieDetailQueryOptions(tmdbId: number) {
@@ -44,6 +47,30 @@ export function movieKeywordsQueryOptions(tmdbId: number) {
   return queryOptions({
     queryKey: ['movies', 'detail', tmdbId, 'keywords'] as const,
     queryFn: () => fetchMovieKeywords(tmdbId),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function movieRecommendationsQueryOptions(tmdbId: number) {
+  return queryOptions({
+    queryKey: ['movies', 'detail', tmdbId, 'recommendations'] as const,
+    queryFn: () => fetchMovieRecommendations(tmdbId),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function similarMoviesQueryOptions(tmdbId: number) {
+  return queryOptions({
+    queryKey: ['movies', 'detail', tmdbId, 'similar'] as const,
+    queryFn: () => fetchSimilarMovies(tmdbId),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function movieContentRatingQueryOptions(tmdbId: number) {
+  return queryOptions({
+    queryKey: ['movies', 'detail', tmdbId, 'content-rating'] as const,
+    queryFn: () => fetchMovieContentRating(tmdbId),
     staleTime: 10 * 60 * 1000,
   });
 }
