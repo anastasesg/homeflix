@@ -5,7 +5,7 @@ import { Film, Star } from 'lucide-react';
 import { MovieItem } from '@/api/entities';
 import { formatRuntime } from '@/utilities';
 
-import { MediaCard, StatusConfig } from '@/components/media';
+import { MediaCard, type StatusConfig } from '@/components/media';
 import { Badge } from '@/components/ui/badge';
 
 type MovieCardProps = {

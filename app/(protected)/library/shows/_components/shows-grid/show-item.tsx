@@ -4,7 +4,7 @@ import { Calendar, Star, Tv2 } from 'lucide-react';
 
 import { ShowItem as ShowItemType } from '@/api/entities';
 
-import { MediaListItem, type StatusConfig } from '@/components/media';
+import { MediaItem, type StatusConfig } from '@/components/media';
 import { Progress } from '@/components/ui/progress';
 
 interface ShowItemProps {
@@ -17,7 +17,7 @@ function ShowItem({ show, status }: ShowItemProps) {
   const isPartial = show.status === 'partial';
 
   return (
-    <MediaListItem
+    <MediaItem
       href={`/media/shows/${show.tmdbId}`}
       title={show.title}
       year={show.year}

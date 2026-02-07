@@ -5,7 +5,7 @@ import { Film, Star } from 'lucide-react';
 import { MovieItem as MovieItemEntity } from '@/api/entities';
 import { formatRuntime } from '@/utilities';
 
-import { MediaListItem, StatusConfig } from '@/components/media';
+import { MediaItem, type StatusConfig } from '@/components/media';
 import { Badge } from '@/components/ui/badge';
 
 type MovieItemProps = {
@@ -15,7 +15,7 @@ type MovieItemProps = {
 
 function MovieItem({ movie, status }: MovieItemProps) {
   return (
-    <MediaListItem
+    <MediaItem
       key={movie.id}
       href={`/media/movies/${movie.tmdbId}`}
       title={movie.title}

@@ -3,19 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { Film, Loader2 } from 'lucide-react';
+import { Loader2, Tv } from 'lucide-react';
 
-import { useDiscoverFilters } from '@/hooks/filters';
-import {
-  filteredMoviesInfiniteQueryOptions,
-  searchMoviesInfiniteQueryOptions,
-} from '@/options/queries/movies/discover';
-import { movieGenresQueryOptions } from '@/options/queries/movies/metadata';
+import { useTVDiscoverFilters } from '@/hooks/filters/use-tv-discover-filters';
+import { filteredShowsInfiniteQueryOptions, searchShowsInfiniteQueryOptions } from '@/options/queries/shows/discover';
+import { showGenresQueryOptions } from '@/options/queries/shows/metadata';
 
-import { MediaGrid } from '@/components/media';
-
-import { DiscoverMovieCard } from './movie-card';
-import { DiscoverMovieItem } from './movie-item';
+import { MediaCard, MediaCardError, MediaGrid, MediaItem } from '@/components/media';
 
 // ============================================================================
 // Utilities
@@ -23,10 +17,9 @@ import { DiscoverMovieItem } from './movie-item';
 
 function getSortBy(sort: string, dir: string): string {
   const sortMap: Record<string, string> = {
-    title: 'original_title',
+    name: 'name',
     rating: 'vote_average',
-    release_date: 'primary_release_date',
-    revenue: 'revenue',
+    first_air_date: 'first_air_date',
     popularity: 'popularity',
   };
   return `${sortMap[sort] ?? sort}.${dir}`;
@@ -74,8 +67,8 @@ function LoadMoreTrigger({ hasNextPage, isFetchingNextPage, fetchNextPage }: Loa
 // Main Component
 // ============================================================================
 
-function MoviesGrid() {
-  const { filters } = useDiscoverFilters();
+function ShowsGrid() {
+  const { filters } = useTVDiscoverFilters();
   const {
     q: search,
     sort,
@@ -89,23 +82,22 @@ function MoviesGrid() {
     runtimeMax,
     language,
     voteCountMin,
-    certifications,
     providers,
     keywords,
-    cast,
-    crew,
+    networks,
+    status,
     region,
   } = filters;
 
   const isSearch = search.length > 0;
 
   const searchQuery = useInfiniteQuery({
-    ...searchMoviesInfiniteQueryOptions(search),
+    ...searchShowsInfiniteQueryOptions(search),
     enabled: isSearch,
   });
 
   const discoverQuery = useInfiniteQuery({
-    ...filteredMoviesInfiniteQueryOptions({
+    ...filteredShowsInfiniteQueryOptions({
       genres: genres.length > 0 ? genres : undefined,
       yearMin: yearMin ?? undefined,
       yearMax: yearMax ?? undefined,
@@ -114,24 +106,22 @@ function MoviesGrid() {
       runtimeMax: runtimeMax ?? undefined,
       language: language || undefined,
       voteCountMin: voteCountMin ?? undefined,
-      certifications: certifications.length > 0 ? certifications : undefined,
-      certificationCountry: certifications.length > 0 ? 'US' : undefined,
+      networks: networks.length > 0 ? networks : undefined,
+      status: status.length > 0 ? status : undefined,
       watchProviders: providers.length > 0 ? providers : undefined,
       watchRegion: providers.length > 0 ? region : undefined,
       keywords: keywords.length > 0 ? keywords : undefined,
-      castIds: cast.length > 0 ? cast : undefined,
-      crewIds: crew.length > 0 ? crew : undefined,
       sortBy: getSortBy(sort, dir),
     }),
     enabled: !isSearch,
   });
 
-  const genresQuery = useQuery(movieGenresQueryOptions());
+  const genresQuery = useQuery(showGenresQueryOptions());
   const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
 
   const activeQuery = isSearch ? searchQuery : discoverQuery;
 
-  const movies = useMemo(() => activeQuery.data?.pages.flatMap((p) => p.movies) ?? [], [activeQuery.data]);
+  const shows = useMemo(() => activeQuery.data?.pages.flatMap((p) => p.shows) ?? [], [activeQuery.data]);
 
   const totalResults = activeQuery.data?.pages[0]?.totalResults ?? 0;
 
@@ -141,7 +131,7 @@ function MoviesGrid() {
         items={[]}
         viewMode={view}
         isLoading
-        emptyIcon={Film}
+        emptyIcon={Tv}
         renderCard={() => null}
         renderListItem={() => null}
       />
@@ -149,12 +139,7 @@ function MoviesGrid() {
   }
 
   if (activeQuery.isError) {
-    return (
-      <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center">
-        <h2 className="text-lg font-semibold text-destructive">Failed to load movies</h2>
-        <p className="mt-2 text-sm text-muted-foreground">{activeQuery.error.message}</p>
-      </div>
-    );
+    return <MediaCardError type="show" error={activeQuery.error} />;
   }
 
   return (
@@ -165,13 +150,13 @@ function MoviesGrid() {
       </p>
 
       <MediaGrid
-        items={movies}
+        items={shows}
         viewMode={view}
-        emptyIcon={Film}
-        emptyTitle="No movies found"
+        emptyIcon={Tv}
+        emptyTitle="No shows found"
         emptyDescription="Try adjusting your filters or search terms"
-        renderCard={(movie, index) => <DiscoverMovieCard key={movie.id} movie={movie} index={index} />}
-        renderListItem={(movie) => <DiscoverMovieItem key={movie.id} movie={movie} genreMap={genreMap} />}
+        renderCard={(show, index) => <MediaCard key={show.id} type="show" data={show} index={index} />}
+        renderListItem={(show) => <MediaItem key={show.id} type="show" data={show} genreMap={genreMap} />}
       />
 
       <LoadMoreTrigger
@@ -183,4 +168,4 @@ function MoviesGrid() {
   );
 }
 
-export { MoviesGrid };
+export { ShowsGrid };
