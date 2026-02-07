@@ -5,9 +5,9 @@ import { Suspense } from 'react';
 import { useTVDiscoverFilters } from '@/hooks/filters/use-tv-discover-filters';
 
 import { FeaturedShow } from './_components/featured-show';
-import { ShowsGrid } from './_components/show-grid';
 import { ShowsBrowse } from './_components/shows-browse';
 import { ShowsFilter } from './_components/shows-filter';
+import { ShowsGrid } from './_components/shows-grid';
 
 // ============================================================================
 // Sub-components
