@@ -94,6 +94,61 @@ export function similarShowsQueryOptions(tmdbId: number) {
   });
 }
 
+// ============================================================================
+// Select-based views into showDetailQueryOptions (shared cache, no extra fetch)
+// ============================================================================
+
+export function showOverviewQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => show.overview,
+  });
+}
+
+export function showCreatedByQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => show.createdBy,
+  });
+}
+
+export function showDetailsInfoQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => ({
+      genres: show.genres,
+      networks: show.networks,
+      languages: show.languages,
+    }),
+  });
+}
+
+export function showProductionQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => show.productionCompanies,
+  });
+}
+
+export function showExternalLinksQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => ({
+      tmdbId: show.tmdbId,
+      imdbId: show.imdbId,
+      tvdbId: show.tvdbId,
+      homepage: show.homepage,
+    }),
+  });
+}
+
+export function showTitleQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => show.name,
+  });
+}
+
 export function showContentRatingsQueryOptions(tmdbId: number) {
   return queryOptions({
     queryKey: ['shows', 'detail', tmdbId, 'content-ratings'] as const,

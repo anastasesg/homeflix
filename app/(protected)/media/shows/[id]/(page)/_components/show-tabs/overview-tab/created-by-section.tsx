@@ -1,9 +1,14 @@
+'use client';
+
 import Image from 'next/image';
 
+import { useQuery } from '@tanstack/react-query';
 import { PenTool } from 'lucide-react';
 
-import { type ShowBasic } from '@/api/entities';
+import { showCreatedByQueryOptions } from '@/options/queries/shows/detail';
 
+import { Query } from '@/components/query';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { SectionHeader } from './section-header';
@@ -64,25 +69,64 @@ function CreatorCard({ name, profileUrl }: CreatorCardProps) {
 }
 
 // ============================================================================
+// Loading
+// ============================================================================
+
+function CreatedBySectionLoading() {
+  return (
+    <section>
+      <div className="mb-4 flex items-center gap-2">
+        <Skeleton className="size-4 rounded" />
+        <Skeleton className="h-4 w-20" />
+      </div>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 rounded-lg border border-border/60 p-2.5">
+            <Skeleton className="size-10 shrink-0 rounded-full" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-3.5 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ============================================================================
 // Main
 // ============================================================================
 
 interface CreatedBySectionProps {
-  creators: ShowBasic['createdBy'];
+  tmdbId: number;
 }
 
-function CreatedBySection({ creators }: CreatedBySectionProps) {
-  if (creators.length === 0) return null;
+function CreatedBySection({ tmdbId }: CreatedBySectionProps) {
+  const query = useQuery(showCreatedByQueryOptions(tmdbId));
 
   return (
-    <section>
-      <SectionHeader icon={PenTool} title="Created By" />
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
-        {creators.map((creator) => (
-          <CreatorCard key={creator.name} name={creator.name} profileUrl={creator.profileUrl} />
-        ))}
-      </div>
-    </section>
+    <Query
+      result={query}
+      callbacks={{
+        loading: CreatedBySectionLoading,
+        error: () => null,
+        success: (creators) => {
+          if (creators.length === 0) return null;
+
+          return (
+            <section>
+              <SectionHeader icon={PenTool} title="Created By" />
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
+                {creators.map((creator) => (
+                  <CreatorCard key={creator.name} name={creator.name} profileUrl={creator.profileUrl} />
+                ))}
+              </div>
+            </section>
+          );
+        },
+      }}
+    />
   );
 }
 

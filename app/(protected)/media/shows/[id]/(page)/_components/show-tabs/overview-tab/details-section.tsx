@@ -3,10 +3,9 @@
 import Image from 'next/image';
 
 import { useQuery } from '@tanstack/react-query';
-import { Languages, Radio, Sparkles, Tag } from 'lucide-react';
+import { Languages, Radio, Tag } from 'lucide-react';
 
-import { type ShowBasic, type ShowKeywords } from '@/api/entities';
-import { showKeywordsQueryOptions } from '@/options/queries/shows/detail';
+import { showDetailsInfoQueryOptions, showKeywordsQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { SectionHeader } from './section-header';
 
 // ============================================================================
-// Keywords Sub-section
+// Keywords Sub-section (autonomous — own query)
 // ============================================================================
 
 function KeywordsSectionLoading() {
@@ -28,30 +27,6 @@ function KeywordsSectionLoading() {
       <div className="flex flex-wrap gap-1.5">
         {Array.from({ length: 8 }).map((_, i) => (
           <Skeleton key={i} className="h-7 w-16 rounded-full" style={{ animationDelay: `${i * 50}ms` }} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-interface KeywordsSectionContentProps {
-  data: ShowKeywords;
-}
-
-function KeywordsSectionContent({ data }: KeywordsSectionContentProps) {
-  if (data.keywords.length === 0) return null;
-
-  return (
-    <div className="flex-1">
-      <SectionHeader icon={Sparkles} title="Keywords" />
-      <div className="flex flex-wrap gap-1.5">
-        {data.keywords.slice(0, 15).map((keyword) => (
-          <span
-            key={keyword}
-            className="rounded-full border border-border/40 bg-muted/20 px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-border hover:text-foreground"
-          >
-            {keyword}
-          </span>
         ))}
       </div>
     </div>
@@ -71,7 +46,25 @@ function KeywordsInline({ tmdbId }: KeywordsInlineProps) {
       callbacks={{
         loading: KeywordsSectionLoading,
         error: () => null,
-        success: (data) => <KeywordsSectionContent data={data} />,
+        success: (data) => {
+          if (data.keywords.length === 0) return null;
+
+          return (
+            <div className="flex-1">
+              <SectionHeader icon={Tag} title="Keywords" />
+              <div className="flex flex-wrap gap-1.5">
+                {data.keywords.slice(0, 15).map((keyword) => (
+                  <span
+                    key={keyword}
+                    className="rounded-full border border-border/40 bg-muted/20 px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+          );
+        },
       }}
     />
   );
@@ -82,7 +75,7 @@ function KeywordsInline({ tmdbId }: KeywordsInlineProps) {
 // ============================================================================
 
 interface NetworkInfoProps {
-  networks: ShowBasic['networks'];
+  networks: Array<{ name: string; logoUrl?: string }>;
 }
 
 function NetworkInfo({ networks }: NetworkInfoProps) {
@@ -119,56 +112,91 @@ function NetworkInfo({ networks }: NetworkInfoProps) {
 }
 
 // ============================================================================
+// Loading
+// ============================================================================
+
+function DetailsSectionLoading() {
+  return (
+    <section className="space-y-6">
+      <div className="flex flex-col gap-6 sm:flex-row sm:gap-12">
+        <div className="flex-1">
+          <div className="mb-4 flex items-center gap-2">
+            <Skeleton className="size-4 rounded" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-8 w-20 rounded-md" />
+            ))}
+          </div>
+        </div>
+        <KeywordsSectionLoading />
+      </div>
+    </section>
+  );
+}
+
+// ============================================================================
 // Main
 // ============================================================================
 
 interface DetailsSectionProps {
-  show: ShowBasic;
   tmdbId: number;
 }
 
-function DetailsSection({ show, tmdbId }: DetailsSectionProps) {
+function DetailsSection({ tmdbId }: DetailsSectionProps) {
+  const query = useQuery(showDetailsInfoQueryOptions(tmdbId));
+
   return (
-    <section className="space-y-6">
-      {/* Genres + Keywords row */}
-      <div className="flex flex-col gap-6 sm:flex-row sm:gap-12">
-        <div className="flex-1">
-          <SectionHeader icon={Tag} title="Genres" />
-          <div className="flex flex-wrap gap-2">
-            {show.genres.map((genre) => (
-              <Badge
-                key={genre}
-                variant="secondary"
-                className="border border-border/40 bg-muted/20 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/40"
-              >
-                {genre}
-              </Badge>
-            ))}
-          </div>
-        </div>
-        <KeywordsInline tmdbId={tmdbId} />
-      </div>
+    <Query
+      result={query}
+      callbacks={{
+        loading: DetailsSectionLoading,
+        error: () => null,
+        success: (details) => (
+          <section className="space-y-6">
+            {/* Genres + Keywords row */}
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-12">
+              <div className="flex-1">
+                <SectionHeader icon={Tag} title="Genres" />
+                <div className="flex flex-wrap gap-2">
+                  {details.genres.map((genre) => (
+                    <Badge
+                      key={genre}
+                      variant="secondary"
+                      className="border border-border/40 bg-muted/20 px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted/40"
+                    >
+                      {genre}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <KeywordsInline tmdbId={tmdbId} />
+            </div>
 
-      {/* Network info */}
-      <NetworkInfo networks={show.networks} />
+            {/* Network info */}
+            <NetworkInfo networks={details.networks} />
 
-      {/* Languages */}
-      {show.languages.length > 0 && (
-        <div className="flex-1">
-          <SectionHeader icon={Languages} title="Languages" />
-          <div className="flex flex-wrap gap-1.5">
-            {show.languages.map((language) => (
-              <span
-                key={language}
-                className="rounded-full border border-border/40 bg-muted/20 px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-border hover:text-foreground"
-              >
-                {language}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-    </section>
+            {/* Languages */}
+            {details.languages.length > 0 && (
+              <div className="flex-1">
+                <SectionHeader icon={Languages} title="Languages" />
+                <div className="flex flex-wrap gap-1.5">
+                  {details.languages.map((language) => (
+                    <span
+                      key={language}
+                      className="rounded-full border border-border/40 bg-muted/20 px-2.5 py-1 text-[11px] text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+                    >
+                      {language}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        ),
+      }}
+    />
   );
 }
 

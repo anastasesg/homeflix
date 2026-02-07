@@ -9,9 +9,9 @@ import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Maximize2, X } fro
 
 import { type ShowImages } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { showImagesQueryOptions } from '@/options/queries/shows/detail';
+import { showImagesQueryOptions, showTitleQueryOptions } from '@/options/queries/shows/detail';
 
-import { Query } from '@/components/query';
+import { Queries } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -361,19 +361,19 @@ function GallerySectionContent({ images, showTitle }: GallerySectionContentProps
 
 interface GallerySectionProps {
   tmdbId: number;
-  showTitle: string;
 }
 
-function GallerySection({ tmdbId, showTitle }: GallerySectionProps) {
-  const query = useQuery(showImagesQueryOptions(tmdbId));
+function GallerySection({ tmdbId }: GallerySectionProps) {
+  const imagesQuery = useQuery(showImagesQueryOptions(tmdbId));
+  const titleQuery = useQuery(showTitleQueryOptions(tmdbId));
 
   return (
-    <Query
-      result={query}
+    <Queries
+      results={[imagesQuery, titleQuery] as const}
       callbacks={{
         loading: GallerySectionLoading,
         error: () => null,
-        success: (images) => <GallerySectionContent images={images} showTitle={showTitle} />,
+        success: ([images, showTitle]) => <GallerySectionContent images={images} showTitle={showTitle} />,
       }}
     />
   );
