@@ -13,6 +13,29 @@ Guide the user through a structured discussion to understand what they want to b
 - **User's description**: The original intent (from /work arguments)
 - **STATUS.md**: Already created by /work command with type, slug, timestamps
 
+## Skills Integration
+
+Before starting the discussion, invoke these skills to inform your exploration:
+
+### Always invoke
+- **`brainstorming`** (superpowers) — Use this to explore the solution space before narrowing scope. Present 2-3 creative approaches to the user during discussion.
+
+### Invoke based on work type
+
+**Project skills** (from `.claude/skills/`):
+- **`page-building`** — If the work involves creating or modifying pages, invoke to understand the page architecture patterns (listing vs. detail vs. browse).
+- **`component-architecture`** — If the work involves new or restructured components, invoke to understand file organization, composition, and prop design patterns.
+- **`data-fetching`** — If the work involves API data, invoke to understand the query pipeline (API client → function → query options → Query wrapper).
+- **`styling-design`** — If the work involves visual changes, invoke to understand the color system, animation patterns, and responsive approach.
+- **`query-autonomy`** — If the work involves refactoring prop passthrough into independent queries.
+
+**Plugin skills/tools:**
+- **`frontend-design`** (plugin) — If the work involves building new UI with significant visual design. Use to inform bold aesthetic direction and avoid generic AI aesthetics.
+- **`feature-dev:code-explorer`** (agent) — Spawn this agent to deeply analyze existing features before discussing changes. It traces execution paths and maps architecture layers.
+- **`context7`** (MCP tools) — **CRITICAL: Never assume library APIs.** Use `resolve-library-id` + `query-docs` to look up current documentation for Next.js, TanStack Query, Radix/shadcn, nuqs, or any library used in this project. Do this during discussion when API behavior matters for a decision.
+
+Reference the relevant skills when asking questions — e.g., "Based on our page-building patterns, this would follow the Detail Page structure (Header + Stats + Tabs). Does that match your intent?"
+
 ## Process
 
 ### 1. Understand the intent
@@ -23,7 +46,7 @@ Focus areas:
 - What exactly needs to happen?
 - What are the constraints?
 - What's in scope vs out of scope?
-- Are there existing patterns to follow?
+- Are there existing patterns to follow? (consult relevant project skills)
 - What does "done" look like?
 
 ### 2. Explore the codebase
@@ -31,7 +54,7 @@ Focus areas:
 As the discussion progresses, proactively explore relevant code:
 - Search for existing implementations the work relates to
 - Identify files that will likely be affected
-- Note patterns the implementation should follow
+- Note patterns the implementation should follow (reference specific skills)
 
 ### 3. Capture in DISCUSSION.md
 
@@ -58,6 +81,12 @@ Write/update `.working/{type}/{slug}/DISCUSSION.md` as the conversation progress
 ## Relevant Code
 - `path/to/file.ts` — {Why it's relevant}
 - `path/to/other.ts` — {Pattern to follow}
+
+## Applicable Skills
+- `component-architecture` — {Why this skill applies}
+- `data-fetching` — {Why this skill applies}
+- `styling-design` — {Why this skill applies}
+- (only list skills that are relevant to this work)
 
 ## Open Questions
 - {Any unresolved questions}

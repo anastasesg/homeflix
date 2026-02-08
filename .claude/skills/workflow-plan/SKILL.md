@@ -14,12 +14,44 @@ Decompose the design into atomic, narrowly-scoped implementation tasks.
 
 If prerequisites aren't met, tell the user which phase to complete first.
 
+## Skills Integration
+
+### Skill tagging is mandatory
+
+Every task MUST include an `## Applicable Skills` section listing which project skills the task-implementer agent should consult. This is the **primary mechanism** for ensuring agents follow project patterns.
+
+### Available skills for tagging
+
+**Project skills** (from `.claude/skills/` — agent reads these files directly):
+
+| Skill | Tag when... |
+|---|---|
+| `code-style` | **Always** — every task gets this |
+| `component-architecture` | Task creates or modifies React components |
+| `data-fetching` | Task involves queries, API calls, or Query/Queries wrappers |
+| `styling-design` | Task involves Tailwind CSS, visual design, loading states |
+| `new-component` | Task creates a new React component from scratch |
+| `page-building` | Task creates a new page or page-level component |
+| `query-autonomy` | Task refactors prop passthrough into select-based queries |
+
+**Plugin skills/tools** (agent uses via Skill tool or MCP tools):
+
+| Skill | Tag when... |
+|---|---|
+| `frontend-design` | Task involves building distinctive new UI (not just structural changes) |
+| `context7` | Task uses library APIs that must be verified — **tag with specific libraries to look up** (e.g., "context7: TanStack Query select option, nuqs parseAsArrayOf") |
+| `systematic-debugging` | Task involves fixing bugs or unexpected behavior |
+
+### Read applicable skills from DESIGN.md
+
+The design's `## Applicable Skills` section tells you which skills are relevant to this workspace. Distribute them to individual tasks based on what each task does.
+
 ## Process
 
 ### 1. Read inputs
 
 Read these files from the workspace:
-- `DESIGN.md` — architecture, component breakdown, file changes
+- `DESIGN.md` — architecture, component breakdown, file changes, **applicable skills**
 - `DISCUSSION.md` — original context and scope
 - `ASSUMPTIONS.md` — if it exists
 
@@ -58,11 +90,11 @@ Create `.working/{type}/{slug}/plan/PLAN.md`:
 
 ## Task Overview
 
-| # | Title | Depends On | Blocks | Batch |
-|---|-------|-----------|--------|-------|
-| 1 | ... | — | 3, 4 | 1 |
-| 2 | ... | — | 5 | 1 |
-| 3 | ... | 1 | 6 | 2 |
+| # | Title | Depends On | Blocks | Batch | Skills |
+|---|-------|-----------|--------|-------|--------|
+| 1 | ... | — | 3, 4 | 1 | code-style, data-fetching |
+| 2 | ... | — | 5 | 1 | code-style, component-architecture, styling-design |
+| 3 | ... | 1 | 6 | 2 | code-style, data-fetching |
 
 ## Execution Batches
 
@@ -113,6 +145,14 @@ blocks: []
 
 ### Files for reference (read-only)
 - `path/to/file.ts` — Why to read this (pattern to follow, types to use, etc.)
+
+## Applicable Skills
+The task-implementer agent MUST read these skills (from `.claude/skills/`) before writing code:
+- `code-style` — Import ordering, export rules, formatting
+- `component-architecture` — {Why, if applicable}
+- `data-fetching` — {Why, if applicable}
+- `styling-design` — {Why, if applicable}
+(Always include `code-style`. Add others based on what the task does.)
 
 ## Implementation Notes
 - Specific guidance, patterns to follow, gotchas

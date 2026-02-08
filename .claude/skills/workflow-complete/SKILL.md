@@ -7,6 +7,12 @@ description: Use when /complete command is invoked. Squashes all task commits in
 
 Finalize the work — squash, clean up, and close the workspace.
 
+## Skills Integration
+
+### Superpowers
+- **`finishing-a-development-branch`** — Invoke this before squashing/merging. It guides the decision on how to integrate the work (squash merge, rebase, etc.) and ensures nothing is left behind.
+- **`verification-before-completion`** — Final pre-merge verification. Run `bun check` and `bun lint --fix` one last time on the worktree before squashing.
+
 ## Prerequisites
 
 - `STATUS.md` phase must be `review-complete`

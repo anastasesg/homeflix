@@ -14,13 +14,15 @@ You will be given:
 2. **Task report path** — e.g., `.working/feat/my-feature/impl/task/TASK_1.md`
 3. **Worktree path** — Where the code was implemented
 4. **Commit hash** — The commit to review
+5. **Project root** — The main project root for reading skill files
 
 ## Review Process
 
 ### 1. Read context
 
-- Read the task spec (what should have been done)
+- Read the task spec (what should have been done, including **Applicable Skills**)
 - Read the task report (what was actually done)
+- Read the applicable skill files from `{project_root}/.claude/skills/` — these are your review checklists
 
 ### 2. Run automated verification
 
@@ -48,17 +50,25 @@ Review for:
 - Are there logic errors or off-by-one bugs?
 - Are edge cases handled?
 
-**Project conventions:**
+**Project conventions (review against `code-style` + `component-architecture` skills):**
 - Named exports only (no `export default`)
-- Import ordering correct
-- Props defined as `interface {Name}Props`
-- File section separators used (`// ====...====`)
+- Import ordering: 7 groups with blank lines (React → Next.js → external → `@/` internal → `@/components` → parent → sibling)
+- Props defined as `interface {Name}Props` above the component
+- File section separators used (`// ====...====` between Utilities, Sub-components, Loading, Error, Success, Main)
 - `cn()` used for class merging
 - `@/` path alias used consistently
+- `function` declarations for components (not arrow functions)
 
-**Dark/Light mode:**
+**Data fetching (review against `data-fetching` skill, if applicable):**
+- Query options in `options/queries/` (not inline)
+- Using `<Query>` / `<Queries>` wrappers for state handling
+- Loading skeletons mirror success layout
+- Error handling follows the severity pattern (silent for supplementary, visible for primary)
+
+**Dark/Light mode (review against `styling-design` skill):**
 - No hardcoded `text-white`, `bg-white`, `text-black`, `bg-black` (unless on forced background)
-- No `white/[0.xx]` opacity patterns
+- No neutral palette colors (`text-gray-*`, `bg-slate-*`, etc.) for structural styling
+- No raw hex/rgb/hsl values
 - Uses semantic tokens: `bg-muted`, `text-foreground`, `border-border`, etc.
 
 **Security:**
@@ -98,6 +108,10 @@ Append review findings to the task report or write a separate review section:
 1. {File}: {What needs to change}
 2. ...
 ```
+
+**API correctness (if task tagged with `context7`):**
+- Are library APIs used correctly? If unsure, use `resolve-library-id` + `query-docs` MCP tools to verify
+- Are deprecated APIs being used when newer alternatives exist?
 
 ## Severity Levels
 

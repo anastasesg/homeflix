@@ -14,6 +14,17 @@ Present the implementation results for user sign-off before committing.
 
 If prerequisites aren't met, tell the user which phase to complete first.
 
+## Skills Integration
+
+### Superpowers
+- **`requesting-code-review`** — Invoke this skill to frame the review correctly. Present the full diff context, not just summaries.
+- **`verification-before-completion`** — Run full verification (`bun check`, `bun lint --fix`) before declaring the review passed.
+
+### Plugin tools
+- **`code-simplifier`** (agent) — After verification passes, spawn this agent on the changed files to simplify and refine code for clarity and consistency. It preserves all functionality while improving maintainability.
+- **`playwright`** (MCP tools) — If the work involves visible UI changes, use Playwright to take screenshots of affected pages for visual verification. Navigate to `localhost:3000` (start dev server if needed) and screenshot the relevant routes.
+- **`feature-dev:code-reviewer`** (agent) — Spawn for a final confidence-scored review of the full diff. It reports only high-priority issues (confidence >= 80) and references CLAUDE.md guidelines.
+
 ## Process
 
 ### 1. Read implementation report

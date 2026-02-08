@@ -15,6 +15,21 @@ Orchestrate the execution of all planned tasks.
 
 If prerequisites aren't met, tell the user which phase to complete first.
 
+## Skills Integration
+
+### Superpowers
+- **`verification-before-completion`** — After all tasks complete, invoke this before declaring implementation done. Run `bun check` and `bun lint --fix` across the full worktree.
+- **`dispatching-parallel-agents`** — Use this pattern when spawning batch tasks in parallel.
+- **`using-git-worktrees`** — Invoke this when creating the worktree (step 2). Use its safety verification process instead of raw git commands.
+- **`systematic-debugging`** — When a task-implementer fails or reports PARTIAL, invoke this before retrying. Find root cause first, don't just retry blindly.
+
+### Plugin tools
+- **`context7`** (MCP tools) — If a task is tagged with `context7`, include the specific library lookups in the agent prompt. Tell the agent: "Before using {library API}, look up the current docs via context7 MCP tools."
+- **`feature-dev:code-reviewer`** (agent) — For high-risk tasks (many file changes, complex logic), spawn this agent alongside the task-reviewer for a second opinion with confidence-scored findings.
+
+### Skill-aware agent dispatch
+When spawning task-implementer agents, **include the Applicable Skills from each task spec** in the agent prompt. The task-implementer reads those skill files before writing code.
+
 ## Process
 
 ### 1. Read the plan
@@ -23,6 +38,7 @@ Read `plan/PLAN.md` to understand:
 - All tasks and their dependencies
 - Execution batches
 - File impact summary
+- **Skills column** — which skills each task requires
 
 ### 2. Create worktree
 
@@ -63,8 +79,9 @@ For each ready task, spawn a `task-implementer` agent using the Task tool:
 - Pass the task file path
 - Pass the worktree path
 - Pass the project root path
+- **Pass the Applicable Skills list** from the task spec — tell the agent: "Before writing code, read these skill files from `.claude/skills/`: {list}. Follow them strictly."
 
-Use `subagent_type: "general-purpose"` with the task-implementer agent prompt.
+Use `subagent_type: "task-implementer"` with the task-implementer agent prompt.
 
 **Spawn independent tasks in parallel** — use multiple Task tool calls in a single message.
 
