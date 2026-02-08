@@ -1,6 +1,6 @@
 ---
 name: workflow-plan
-description: Use when /plan command is invoked. Reads DESIGN.md and decomposes it into atomic TASK files with dependency tracking. Creates plan/PLAN.md and plan/task/TASK_{N}.md files.
+description: Use when /workflow:plan command is invoked. Reads DESIGN.md and decomposes it into atomic TASK files with dependency tracking. Creates plan/PLAN.md and plan/task/TASK_{N}.md files.
 ---
 
 # Workflow: Plan Phase

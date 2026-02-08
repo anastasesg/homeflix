@@ -82,7 +82,7 @@ If the user requests changes:
 
 If the user approves:
 - Update STATUS.md: `phase: review-complete`
-- Tell them: **"Approved. Run `/complete {slug}` to squash and finalize."**
+- Tell them: **"Approved. Run `/workflow:complete {slug}` to squash and finalize."**
 
 ## Rules
 

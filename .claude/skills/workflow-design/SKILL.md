@@ -1,6 +1,6 @@
 ---
 name: workflow-design
-description: Use when /design command is invoked. Reads DISCUSSION.md and produces a high-level DESIGN.md through iterative user validation. Presents design in 200-300 word sections.
+description: Use when /workflow:design command is invoked. Reads DISCUSSION.md and produces a high-level DESIGN.md through iterative user validation. Presents design in 200-300 word sections.
 ---
 
 # Workflow: Design Phase
@@ -121,7 +121,7 @@ Carried forward from DISCUSSION.md, refined with implementation-specific detail:
 ### 5. Wrap up
 
 1. Present the complete DESIGN.md for final confirmation
-2. Ask: **"Design looks complete. Ready to plan with `/plan {slug}`?"**
+2. Ask: **"Design looks complete. Ready to plan with `/workflow:plan {slug}`?"**
 3. Update STATUS.md: `phase: design-complete`
 
 ## Rules

@@ -1,6 +1,6 @@
 ---
 name: workflow-implement
-description: Use when /implement command is invoked. Orchestrates task execution — creates git worktree, reads the plan, spawns task-implementer and task-reviewer agents respecting dependency order, and aggregates results into IMPLEMENTATION.md.
+description: Use when /workflow:implement command is invoked. Orchestrates task execution — creates git worktree, reads the plan, spawns task-implementer and task-reviewer agents respecting dependency order, and aggregates results into IMPLEMENTATION.md.
 ---
 
 # Workflow: Implementation Phase

@@ -112,7 +112,7 @@ If any assumptions are made during discussion, create/update `.working/{type}/{s
 When the discussion feels complete (scope is clear, decisions are made, no open questions):
 
 1. Present a summary of DISCUSSION.md to the user
-2. Ask: **"Does this capture everything? Ready to move to design with `/design {slug}`?"**
+2. Ask: **"Does this capture everything? Ready to move to design with `/workflow:design {slug}`?"**
 3. Update STATUS.md: `phase: discussion-complete`
 
 ## Rules

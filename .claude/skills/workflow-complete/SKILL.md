@@ -1,6 +1,6 @@
 ---
 name: workflow-complete
-description: Use when /complete command is invoked. Squashes all task commits into one clean commit without co-author info, removes the worktree, and marks the workspace as complete.
+description: Use when /workflow:complete command is invoked. Squashes all task commits into one clean commit without co-author info, removes the worktree, and marks the workspace as complete.
 ---
 
 # Workflow: Complete Phase
