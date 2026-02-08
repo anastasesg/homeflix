@@ -1,5 +1,22 @@
 {
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | grep -qE '\\.env'; then echo 'BLOCKED: Cannot edit .env files — they contain API keys' >&2; exit 2; fi",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | grep -q 'api/openapi'; then echo 'BLOCKED: OpenAPI specs are auto-generated — use bun generate:api instead' >&2; exit 2; fi",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
