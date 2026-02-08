@@ -23,6 +23,9 @@
 # worktrees
 .worktrees/
 
+# workflow system workspace
+.working/
+
 # misc
 .DS_Store
 *.pem
@@ -44,7 +47,5 @@ yarn-error.log*
 next-env.d.ts
 .vscode/
 .idea/
-.claude/
 .ai/
 .worktrees/
-CLAUDE.md
