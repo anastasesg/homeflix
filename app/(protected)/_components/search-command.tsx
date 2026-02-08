@@ -6,19 +6,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { useQuery } from '@tanstack/react-query';
-import {
-  ArrowRight,
-  Book,
-  Calendar,
-  Film,
-  Gauge,
-  Globe,
-  Headphones,
-  Loader2,
-  Search,
-  Settings,
-  Tv,
-} from 'lucide-react';
+import { ArrowRight, Book, Calendar, Film, Gauge, Headphones, Home, Loader2, Search, Settings, Tv } from 'lucide-react';
 import type { Route } from 'next';
 
 import { searchMoviesQueryOptions } from '@/options/queries/movies/discover';
@@ -257,9 +245,9 @@ function SearchCommand() {
           {hasSearchResults && <CommandSeparator />}
 
           <CommandGroup heading="Quick Actions">
-            <CommandItem onSelect={() => runCommand(() => router.push('/browse'))}>
-              <Globe className="mr-2 size-4" />
-              Browse Content
+            <CommandItem onSelect={() => runCommand(() => router.push('/home'))}>
+              <Home className="mr-2 size-4" />
+              Go To Home
             </CommandItem>
             <CommandItem
               onSelect={() =>

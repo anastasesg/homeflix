@@ -13,9 +13,9 @@ import {
   Download,
   Film,
   Gauge,
-  Globe,
   Hand,
   Headphones,
+  Home,
   Library,
   LogOut,
   MonitorPlay,
@@ -62,7 +62,7 @@ const user = {
 
 // Navigation structure from UI plan
 const navigation = {
-  main: [{ title: 'Browse', url: '/browse', icon: Globe }],
+  main: [{ title: 'Home', url: '/home', icon: Home }],
   discover: [
     { title: 'Search', url: '/discover/search', icon: Search },
     { title: 'Calendar', url: '/discover/calendar', icon: Calendar },
@@ -101,7 +101,7 @@ function Sidebar({}: SidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/browse">
+              <Link href="/home">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Film className="size-4" />
                 </div>
