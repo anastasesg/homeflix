@@ -48,13 +48,17 @@ Create a git worktree for this workspace:
 # Create branch
 git branch work/{type}/{slug} HEAD
 
-# Create worktree in parent directory
-git worktree add ../homeflix-frontend-work-{type}-{slug} work/{type}/{slug}
+# Create worktree inside the project
+mkdir -p .worktrees/{type}
+git worktree add .worktrees/{type}/{slug} work/{type}/{slug}
+
+# Copy environment variables so the worktree can run dev server / API calls
+cp .env.local .worktrees/{type}/{slug}/.env.local
 ```
 
 Update STATUS.md with:
 - `branch: work/{type}/{slug}`
-- `worktree: ../homeflix-frontend-work-{type}-{slug}`
+- `worktree: .worktrees/{type}/{slug}`
 - `phase: implementation`
 
 ### 3. Create impl directory structure
@@ -89,7 +93,7 @@ Use `subagent_type: "task-implementer"` with the task-implementer agent prompt.
 
 After each agent completes:
 - Read the task report from `impl/task/TASK_{N}.md`
-- Check if status is COMPLETED
+- Check if status is COMPLETED (changes should be staged, not committed)
 
 #### d. Spawn task-reviewer agent
 
@@ -97,7 +101,9 @@ For each completed task, spawn a `task-reviewer` agent:
 - Pass the task spec path
 - Pass the task report path
 - Pass the worktree path
-- Pass the commit hash (from the task report)
+- Pass the project root path
+
+The reviewer inspects the staged diff (`git diff --cached`), not a commit.
 
 #### e. Handle review results
 
@@ -106,6 +112,17 @@ If review verdict is NEEDS_FIXES:
 - Re-run the reviewer after fixes
 
 If review verdict is APPROVED:
+- **Create the commit** using the suggested message from the task report:
+  ```bash
+  cd {worktree_path}
+  git commit -m "$(cat <<'EOF'
+  {suggested commit message from task report}
+
+  Co-Authored-By: Claude <noreply@anthropic.com>
+  EOF
+  )"
+  ```
+- Record the commit hash in the task report
 - Mark the task as completed
 - Check if any blocked tasks are now unblocked
 - Continue to next batch

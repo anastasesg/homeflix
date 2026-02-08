@@ -78,6 +78,9 @@ git worktree remove {worktree_path}
 
 # Delete branch
 git branch -d work/{type}/{slug}
+
+# Clean up empty parent directory if it exists
+rmdir .worktrees/{type} 2>/dev/null || true
 ```
 
 ### 5. Mark complete
