@@ -5,14 +5,12 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, Filter, Globe, Hash, Shield, Star, Timer, Tv } from 'lucide-react';
+import { ChevronDown, Filter, Globe, Hash, Star, Timer, Tv } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import {
-  movieCertificationsQueryOptions,
-  movieGenresQueryOptions,
-  movieWatchProvidersQueryOptions,
-} from '@/options/queries/movies/metadata';
+import { movieGenresQueryOptions, movieWatchProvidersQueryOptions } from '@/options/queries/movies/metadata';
+import { keywordSearchQueryOptions } from '@/options/queries/search';
+import { showGenresQueryOptions, showWatchProvidersQueryOptions } from '@/options/queries/shows/metadata';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,11 +28,16 @@ import {
 } from '@/components/ui/sheet';
 import { Slider } from '@/components/ui/slider';
 
+import { MovieFilters } from './movie-filters';
+import { SearchSelect } from './search-select';
+import { ShowFilters } from './show-filters';
+
 // ============================================================================
 // Types
 // ============================================================================
 
 interface FilterSheetProps {
+  mediaType: 'all' | 'movies' | 'shows';
   genres: number[];
   yearMin: number | null;
   yearMax: number | null;
@@ -43,17 +46,32 @@ interface FilterSheetProps {
   runtimeMax: number | null;
   language: string;
   voteCountMin: number | null;
-  certifications: string[];
   providers: number[];
+  keywords: number[];
   region: string;
+  // Movie-specific
+  certifications: string[];
+  cast: number[];
+  crew: number[];
+  // Show-specific
+  networks: number[];
+  status: string[];
+  // Callbacks
   onGenresChange: (genres: number[]) => void;
   onYearRangeChange: (min: number | null, max: number | null) => void;
   onRatingMinChange: (rating: number | null) => void;
   onRuntimeRangeChange: (min: number | null, max: number | null) => void;
   onLanguageChange: (language: string) => void;
   onVoteCountMinChange: (count: number | null) => void;
-  onCertificationsChange: (certs: string[]) => void;
   onProvidersChange: (providers: number[]) => void;
+  onKeywordsChange: (keywords: number[]) => void;
+  // Movie callbacks
+  onCertificationsChange: (certs: string[]) => void;
+  onCastChange: (cast: number[]) => void;
+  onCrewChange: (crew: number[]) => void;
+  // Show callbacks
+  onNetworksChange: (networks: number[]) => void;
+  onStatusChange: (status: string[]) => void;
   onClear: () => void;
   activeCount: number;
 }
@@ -62,9 +80,7 @@ interface FilterSheetProps {
 // Constants
 // ============================================================================
 
-const YEAR_MIN = 1900;
 const YEAR_MAX = new Date().getFullYear();
-const RUNTIME_MAX = 300;
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -86,6 +102,18 @@ const LANGUAGES = [
   { code: 'tr', label: 'Turkish' },
   { code: 'ar', label: 'Arabic' },
 ] as const;
+
+// ============================================================================
+// Utilities
+// ============================================================================
+
+function getYearMin(mediaType: 'all' | 'movies' | 'shows') {
+  return mediaType === 'shows' ? 1950 : 1900;
+}
+
+function getRuntimeMax(mediaType: 'all' | 'movies' | 'shows') {
+  return mediaType === 'shows' ? 120 : 300;
+}
 
 // ============================================================================
 // Sub-components
@@ -124,6 +152,7 @@ function FilterSection({ title, icon: Icon, defaultOpen = false, badge, children
 // ============================================================================
 
 function FilterSheet({
+  mediaType,
   genres,
   yearMin,
   yearMax,
@@ -132,34 +161,55 @@ function FilterSheet({
   runtimeMax,
   language,
   voteCountMin,
-  certifications,
   providers,
+  keywords,
   region,
+  certifications,
+  cast,
+  crew,
+  networks,
+  status,
   onGenresChange,
   onYearRangeChange,
   onRatingMinChange,
   onRuntimeRangeChange,
   onLanguageChange,
   onVoteCountMinChange,
-  onCertificationsChange,
   onProvidersChange,
+  onKeywordsChange,
+  onCertificationsChange,
+  onCastChange,
+  onCrewChange,
+  onNetworksChange,
+  onStatusChange,
   onClear,
   activeCount,
 }: FilterSheetProps) {
+  const yearMinBound = getYearMin(mediaType);
+  const runtimeMaxBound = getRuntimeMax(mediaType);
+
   // Local slider state for smooth dragging
-  const [localYearRange, setLocalYearRange] = useState<[number, number]>([yearMin ?? YEAR_MIN, yearMax ?? YEAR_MAX]);
+  const [localYearRange, setLocalYearRange] = useState<[number, number]>([
+    yearMin ?? yearMinBound,
+    yearMax ?? YEAR_MAX,
+  ]);
   const [localRating, setLocalRating] = useState(ratingMin ?? 0);
-  const [localRuntime, setLocalRuntime] = useState<[number, number]>([runtimeMin ?? 0, runtimeMax ?? RUNTIME_MAX]);
+  const [localRuntime, setLocalRuntime] = useState<[number, number]>([runtimeMin ?? 0, runtimeMax ?? runtimeMaxBound]);
   const [localVoteCount, setLocalVoteCount] = useState(voteCountMin ?? 0);
 
-  // Data queries
-  const genresQuery = useQuery(movieGenresQueryOptions());
-  const providersQuery = useQuery(movieWatchProvidersQueryOptions(region));
-  const certificationsQuery = useQuery(movieCertificationsQueryOptions());
+  // Keyword label tracking for SearchSelect
+  const [keywordLabels, setKeywordLabels] = useState<Map<number, string>>(new Map());
 
-  const availableGenres = genresQuery.data ?? [];
-  const availableProviders = providersQuery.data ?? [];
-  const availableCertifications = certificationsQuery.data ?? [];
+  // Data queries — pick genres/providers based on media type
+  const isShows = mediaType === 'shows';
+
+  const movieGenresQuery = useQuery(movieGenresQueryOptions());
+  const showGenresQuery = useQuery(showGenresQueryOptions());
+  const movieProvidersQuery = useQuery(movieWatchProvidersQueryOptions(region));
+  const showProvidersQuery = useQuery(showWatchProvidersQueryOptions(region));
+
+  const availableGenres = (isShows ? showGenresQuery.data : movieGenresQuery.data) ?? [];
+  const availableProviders = (isShows ? showProvidersQuery.data : movieProvidersQuery.data) ?? [];
 
   // Handlers
   const handleGenreToggle = (genreId: number) => {
@@ -168,7 +218,7 @@ function FilterSheet({
 
   const handleYearCommit = (values: number[]) => {
     const [min, max] = values;
-    const isDefault = min === YEAR_MIN && max === YEAR_MAX;
+    const isDefault = min === yearMinBound && max === YEAR_MAX;
     onYearRangeChange(isDefault ? null : min, isDefault ? null : max);
   };
 
@@ -178,18 +228,12 @@ function FilterSheet({
 
   const handleRuntimeCommit = (values: number[]) => {
     const [min, max] = values;
-    const isDefault = min === 0 && max === RUNTIME_MAX;
+    const isDefault = min === 0 && max === runtimeMaxBound;
     onRuntimeRangeChange(isDefault ? null : min, isDefault ? null : max);
   };
 
   const handleVoteCountCommit = (values: number[]) => {
     onVoteCountMinChange(values[0] === 0 ? null : values[0]);
-  };
-
-  const handleCertToggle = (cert: string) => {
-    onCertificationsChange(
-      certifications.includes(cert) ? certifications.filter((c) => c !== cert) : [...certifications, cert]
-    );
   };
 
   const handleProviderToggle = (providerId: number) => {
@@ -198,13 +242,26 @@ function FilterSheet({
     );
   };
 
+  const handleKeywordsChange = (ids: number[], labels: Map<number, string>) => {
+    setKeywordLabels(labels);
+    onKeywordsChange(ids);
+  };
+
   const handleClear = () => {
-    setLocalYearRange([YEAR_MIN, YEAR_MAX]);
+    setLocalYearRange([yearMinBound, YEAR_MAX]);
     setLocalRating(0);
-    setLocalRuntime([0, RUNTIME_MAX]);
+    setLocalRuntime([0, runtimeMaxBound]);
     setLocalVoteCount(0);
+    setKeywordLabels(new Map());
     onClear();
   };
+
+  const descriptionText =
+    mediaType === 'movies'
+      ? 'Refine your movie discovery'
+      : mediaType === 'shows'
+        ? 'Refine your TV show discovery'
+        : 'Refine your discovery';
 
   return (
     <Sheet>
@@ -223,7 +280,7 @@ function FilterSheet({
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
           <SheetTitle>Advanced Filters</SheetTitle>
-          <SheetDescription>Refine your movie discovery</SheetDescription>
+          <SheetDescription>{descriptionText}</SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto px-4 scrollbar-none">
@@ -245,16 +302,20 @@ function FilterSheet({
 
             {/* ─── Year Range ─── */}
             <FilterSection
-              title="Release Year"
+              title={mediaType === 'shows' ? 'First Air Date' : 'Release Year'}
               icon={Timer}
-              badge={yearMin !== null || yearMax !== null ? `${yearMin ?? YEAR_MIN}–${yearMax ?? YEAR_MAX}` : undefined}
+              badge={
+                yearMin !== null || yearMax !== null
+                  ? `${yearMin ?? yearMinBound}\u2013${yearMax ?? YEAR_MAX}`
+                  : undefined
+              }
             >
               <div className="space-y-3 pt-1">
                 <span className="text-xs tabular-nums text-muted-foreground">
                   {localYearRange[0]} – {localYearRange[1]}
                 </span>
                 <Slider
-                  min={YEAR_MIN}
+                  min={yearMinBound}
                   max={YEAR_MAX}
                   step={1}
                   value={localYearRange}
@@ -266,10 +327,14 @@ function FilterSheet({
             </FilterSection>
 
             {/* ─── Rating ─── */}
-            <FilterSection title="Minimum Rating" icon={Star} badge={ratingMin !== null ? `≥${ratingMin}` : undefined}>
+            <FilterSection
+              title="Minimum Rating"
+              icon={Star}
+              badge={ratingMin !== null ? `\u2265${ratingMin}` : undefined}
+            >
               <div className="space-y-3 pt-1">
                 <span className="text-xs tabular-nums text-muted-foreground">
-                  {localRating > 0 ? `≥ ${localRating.toFixed(1)}` : 'Any'}
+                  {localRating > 0 ? `\u2265 ${localRating.toFixed(1)}` : 'Any'}
                 </span>
                 <Slider
                   min={0}
@@ -285,21 +350,22 @@ function FilterSheet({
 
             {/* ─── Runtime ─── */}
             <FilterSection
-              title="Runtime"
+              title={mediaType === 'shows' ? 'Episode Runtime' : 'Runtime'}
               icon={Timer}
               badge={
                 runtimeMin !== null || runtimeMax !== null
-                  ? `${runtimeMin ?? 0}–${runtimeMax ?? RUNTIME_MAX}min`
+                  ? `${runtimeMin ?? 0}\u2013${runtimeMax ?? runtimeMaxBound}min`
                   : undefined
               }
             >
               <div className="space-y-3 pt-1">
                 <span className="text-xs tabular-nums text-muted-foreground">
-                  {localRuntime[0]}min – {localRuntime[1] === RUNTIME_MAX ? `${RUNTIME_MAX}+` : `${localRuntime[1]}min`}
+                  {localRuntime[0]}min –{' '}
+                  {localRuntime[1] === runtimeMaxBound ? `${runtimeMaxBound}+` : `${localRuntime[1]}min`}
                 </span>
                 <Slider
                   min={0}
-                  max={RUNTIME_MAX}
+                  max={runtimeMaxBound}
                   step={5}
                   value={localRuntime}
                   onValueChange={(v) => setLocalRuntime(v as [number, number])}
@@ -335,13 +401,13 @@ function FilterSheet({
             <FilterSection
               title="Minimum Votes"
               icon={Hash}
-              badge={voteCountMin !== null ? `≥${voteCountMin}` : undefined}
+              badge={voteCountMin !== null ? `\u2265${voteCountMin}` : undefined}
             >
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between">
                   <Label className="text-xs text-muted-foreground">Filters out obscure titles with few ratings</Label>
                   <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-                    {localVoteCount > 0 ? `≥ ${localVoteCount}` : 'Default (50)'}
+                    {localVoteCount > 0 ? `\u2265 ${localVoteCount}` : 'Default (50)'}
                   </span>
                 </div>
                 <Slider
@@ -356,26 +422,20 @@ function FilterSheet({
               </div>
             </FilterSection>
 
-            {/* ─── Certification ─── */}
-            <FilterSection title="Content Rating" icon={Shield} badge={certifications.length || undefined}>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {availableCertifications.map((cert) => (
-                  <button
-                    key={cert.certification}
-                    type="button"
-                    onClick={() => handleCertToggle(cert.certification)}
-                    title={cert.meaning}
-                    className={cn(
-                      'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-                      certifications.includes(cert.certification)
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-muted/50 text-muted-foreground hover:bg-muted/50'
-                    )}
-                  >
-                    {cert.certification}
-                  </button>
-                ))}
-                {availableCertifications.length === 0 && <p className="text-xs text-muted-foreground">Loading...</p>}
+            {/* ─── Keywords ─── */}
+            <FilterSection title="Keywords" icon={Hash} badge={keywords.length || undefined}>
+              <div className="pt-1">
+                <SearchSelect
+                  searchQueryFn={(q) => keywordSearchQueryOptions(q)}
+                  mapResults={(data) => {
+                    const items = data as Array<{ id: number; name: string }>;
+                    return items?.map((k) => ({ id: k.id, name: k.name })) ?? [];
+                  }}
+                  selected={keywords}
+                  selectedLabels={keywordLabels}
+                  onChange={handleKeywordsChange}
+                  placeholder="Search keywords..."
+                />
               </div>
             </FilterSection>
 
@@ -406,6 +466,28 @@ function FilterSheet({
                 )}
               </div>
             </FilterSection>
+
+            {/* ─── Movie-specific filters ─── */}
+            {mediaType === 'movies' && (
+              <MovieFilters
+                certifications={certifications}
+                cast={cast}
+                crew={crew}
+                onCertificationsChange={onCertificationsChange}
+                onCastChange={onCastChange}
+                onCrewChange={onCrewChange}
+              />
+            )}
+
+            {/* ─── Show-specific filters ─── */}
+            {mediaType === 'shows' && (
+              <ShowFilters
+                networks={networks}
+                status={status}
+                onNetworksChange={onNetworksChange}
+                onStatusChange={onStatusChange}
+              />
+            )}
           </div>
         </div>
 
@@ -421,5 +503,5 @@ function FilterSheet({
   );
 }
 
-export type { FilterSheetProps };
-export { FilterSheet };
+export type { FilterSectionProps, FilterSheetProps };
+export { FilterSection, FilterSheet };

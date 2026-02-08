@@ -1,3 +1,9 @@
+import { SearchPage } from './_components/search-page';
+
 export default function Page() {
-  return <main></main>;
+  return (
+    <main>
+      <SearchPage />
+    </main>
+  );
 }

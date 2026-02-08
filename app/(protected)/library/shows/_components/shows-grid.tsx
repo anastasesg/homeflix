@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, Tv2 } from 'lucide-react';
 
 import { ShowItemsResponse } from '@/api/functions';
-import { type ShowTabValueType, useShowFilters } from '@/hooks/filters';
+import { useShowFilters } from '@/hooks/filters';
 import { showItemsQueryOptions } from '@/options/queries/shows/library';
 
 import { MediaCard, MediaGrid, MediaItem } from '@/components/media';
@@ -115,7 +115,7 @@ function ShowsGridSuccess({ shows, stats, isRefetching }: ShowsGridSuccessProps)
   const { filters, setTab } = useShowFilters();
 
   return (
-    <Tabs value={filters.tab} onValueChange={(v) => setTab(v as ShowTabValueType)} className="mt-4">
+    <Tabs value={filters.tab} onValueChange={(v) => setTab(v)} className="mt-4">
       <TabsList className="bg-muted/50 max-w-full overflow-y-hidden overflow-x-scroll">
         <TabsTrigger value="all">All ({stats.all})</TabsTrigger>
         <TabsTrigger value="continuing">Continuing ({stats.continuing})</TabsTrigger>
@@ -147,20 +147,7 @@ function ShowsGridSuccess({ shows, stats, isRefetching }: ShowsGridSuccessProps)
 
 function ShowsGrid() {
   const { filters } = useShowFilters();
-
-  const showsQuery = useQuery(
-    showItemsQueryOptions({
-      tab: filters.tab,
-      search: filters.q,
-      genres: filters.genres,
-      networks: filters.networks,
-      yearMin: filters.yearMin,
-      yearMax: filters.yearMax,
-      ratingMin: filters.ratingMin,
-      sortField: filters.sort,
-      sortDirection: filters.dir,
-    })
-  );
+  const showsQuery = useQuery(showItemsQueryOptions({ tab: filters.tab }));
 
   return (
     <Query

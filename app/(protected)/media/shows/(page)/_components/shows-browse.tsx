@@ -1,6 +1,7 @@
 'use client';
 
-import { useTVDiscoverFilters } from '@/hooks/filters';
+import { useRouter } from 'next/navigation';
+
 import {
   airingTodayShowsQueryOptions,
   hiddenGemShowsQueryOptions,
@@ -33,10 +34,10 @@ const FEATURED_ROWS: FeaturedRowConfig[] = [
 type ShowsBrowseProps = object;
 
 function ShowsBrowse(_props: ShowsBrowseProps) {
-  const { setGenres } = useTVDiscoverFilters();
+  const router = useRouter();
 
   const handleApplyGenreFilter = (genreId: number) => {
-    setGenres([genreId]);
+    router.push(`/discover/search?type=shows&genres=${genreId}`);
   };
 
   return (

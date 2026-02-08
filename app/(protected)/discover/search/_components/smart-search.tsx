@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
-import { Hash, Loader2, Search, Tv } from 'lucide-react';
+import { Film, Hash, Loader2, Search, Tv, Users } from 'lucide-react';
 
+import type { SearchMediaType } from '@/hooks/filters';
 import { cn } from '@/lib/utils';
-import { keywordSearchQueryOptions } from '@/options/queries/search';
+import { keywordSearchQueryOptions, peopleSearchQueryOptions } from '@/options/queries/search';
 
 import { Input } from '@/components/ui/input';
 
@@ -17,8 +18,13 @@ import { Input } from '@/components/ui/input';
 interface SmartSearchProps {
   value: string;
   onSearchChange: (value: string) => void;
-  onAddKeyword: (id: number, name: string) => void;
+  onAddCast: (id: number) => void;
+  onAddCrew: (id: number) => void;
+  onAddKeyword: (id: number) => void;
+  existingCast: number[];
+  existingCrew: number[];
   existingKeywords: number[];
+  mediaType: SearchMediaType;
   className?: string;
 }
 
@@ -67,30 +73,113 @@ function ResultItem({ label, detail, onSelect }: ResultItemProps) {
 }
 
 // ============================================================================
+// Hooks
+// ============================================================================
+
+function useDebouncedValue(value: string, delay: number): string {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+// ============================================================================
+// Utilities
+// ============================================================================
+
+function getPlaceholder(mediaType: SearchMediaType): string {
+  switch (mediaType) {
+    case 'movies':
+      return 'Search movies, actors, keywords...';
+    case 'shows':
+      return 'Search shows, keywords...';
+    default:
+      return 'Search movies & shows...';
+  }
+}
+
+function HintIcon({ mediaType }: { mediaType: SearchMediaType }) {
+  switch (mediaType) {
+    case 'movies':
+      return <Film className="mr-1 inline size-3" />;
+    case 'shows':
+      return <Tv className="mr-1 inline size-3" />;
+    default:
+      return <Search className="mr-1 inline size-3" />;
+  }
+}
+
+function getHintText(mediaType: SearchMediaType, value: string): string {
+  switch (mediaType) {
+    case 'movies':
+      return `Press Enter to search movies for "${value}"`;
+    case 'shows':
+      return `Press Enter to search shows for "${value}"`;
+    default:
+      return `Press Enter to search all media for "${value}"`;
+  }
+}
+
+// ============================================================================
 // Main Component
 // ============================================================================
 
-function SmartSearch({ value, onSearchChange, onAddKeyword, existingKeywords, className }: SmartSearchProps) {
+function SmartSearch({
+  value,
+  onSearchChange,
+  onAddCast,
+  onAddCrew,
+  onAddKeyword,
+  existingCast,
+  existingCrew,
+  existingKeywords,
+  mediaType,
+  className,
+}: SmartSearchProps) {
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const debouncedQuery = useDebouncedValue(value, 300);
   const isQueryActive = debouncedQuery.length >= 2;
 
+  const showPeopleSearch = mediaType !== 'shows';
+
+  const peopleQuery = useQuery({
+    ...peopleSearchQueryOptions(debouncedQuery),
+    enabled: isQueryActive && showPeopleSearch,
+  });
+
   const keywordsQuery = useQuery({
     ...keywordSearchQueryOptions(debouncedQuery),
     enabled: isQueryActive,
   });
 
-  const isLoading = isQueryActive && keywordsQuery.isLoading;
+  const isLoading = isQueryActive && (keywordsQuery.isLoading || (showPeopleSearch && peopleQuery.isLoading));
+
+  const people = showPeopleSearch
+    ? (peopleQuery.data ?? []).filter((p) => !existingCast.includes(p.id) && !existingCrew.includes(p.id)).slice(0, 5)
+    : [];
 
   const keywords = (keywordsQuery.data ?? []).filter((k) => !existingKeywords.includes(k.id)).slice(0, 5);
 
-  const hasResults = keywords.length > 0;
+  const hasResults = people.length > 0 || keywords.length > 0;
   const showDropdown = isFocused && isQueryActive && (hasResults || isLoading);
 
+  const handleSelectPerson = (person: { id: number; name: string; department: string }) => {
+    if (person.department === 'Acting') {
+      onAddCast(person.id);
+    } else {
+      onAddCrew(person.id);
+    }
+    onSearchChange('');
+  };
+
   const handleSelectKeyword = (keyword: { id: number; name: string }) => {
-    onAddKeyword(keyword.id, keyword.name);
+    onAddKeyword(keyword.id);
     onSearchChange('');
   };
 
@@ -98,7 +187,7 @@ function SmartSearch({ value, onSearchChange, onAddKeyword, existingKeywords, cl
     <div ref={containerRef} className={cn('relative', className)}>
       <Search className="absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-muted-foreground/60" />
       <Input
-        placeholder="Search shows, keywords..."
+        placeholder={getPlaceholder(mediaType)}
         value={value}
         onChange={(e) => onSearchChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
@@ -114,9 +203,22 @@ function SmartSearch({ value, onSearchChange, onAddKeyword, existingKeywords, cl
         <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-border/60 bg-popover shadow-lg">
           {/* Hint */}
           <div className="border-b border-border/40 px-3 py-1.5 text-[11px] text-muted-foreground">
-            <Tv className="mr-1 inline size-3" />
-            Press Enter to search shows for &ldquo;{value}&rdquo;
+            <HintIcon mediaType={mediaType} />
+            {getHintText(mediaType, value)}
           </div>
+
+          {people.length > 0 && (
+            <ResultGroup label="People" icon={Users}>
+              {people.map((person) => (
+                <ResultItem
+                  key={person.id}
+                  label={person.name}
+                  detail={person.department}
+                  onSelect={() => handleSelectPerson(person)}
+                />
+              ))}
+            </ResultGroup>
+          )}
 
           {keywords.length > 0 && (
             <ResultGroup label="Keywords" icon={Hash}>
@@ -136,21 +238,6 @@ function SmartSearch({ value, onSearchChange, onAddKeyword, existingKeywords, cl
       )}
     </div>
   );
-}
-
-// ============================================================================
-// Hooks
-// ============================================================================
-
-function useDebouncedValue(value: string, delay: number): string {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-
-  return debounced;
 }
 
 export type { SmartSearchProps };

@@ -162,19 +162,7 @@ type MoviesGridProps = object;
 
 function MoviesGrid({}: MoviesGridProps) {
   const { filters } = useMovieFilters();
-
-  const moviesQuery = useQuery(
-    movieItemsQueryOptions({
-      status: filters.tab,
-      search: filters.q,
-      genres: filters.genres,
-      yearMin: filters.yearMin,
-      yearMax: filters.yearMax,
-      ratingMin: filters.ratingMin,
-      sortField: filters.sort,
-      sortDirection: filters.dir,
-    })
-  );
+  const moviesQuery = useQuery(movieItemsQueryOptions({ status: filters.tab }));
 
   return (
     <Query

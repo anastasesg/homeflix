@@ -1,6 +1,7 @@
 'use client';
 
-import { useDiscoverFilters } from '@/hooks/filters';
+import { useRouter } from 'next/navigation';
+
 import {
   hiddenGemMoviesQueryOptions,
   moviesByGenreQueryOptions,
@@ -33,10 +34,10 @@ const FEATURED_ROWS: FeaturedRowConfig[] = [
 type MoviesBrowseProps = object;
 
 function MoviesBrowse(_props: MoviesBrowseProps) {
-  const { setGenres } = useDiscoverFilters();
+  const router = useRouter();
 
   const handleApplyGenreFilter = (genreId: number) => {
-    setGenres([genreId]);
+    router.push(`/discover/search?type=movies&genres=${genreId}`);
   };
 
   return (

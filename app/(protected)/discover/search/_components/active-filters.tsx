@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { useTVDiscoverFilters } from '@/hooks/filters/use-tv-discover-filters';
+import type { SearchFilterState } from '@/hooks/filters';
+import { movieGenresQueryOptions, movieWatchProvidersQueryOptions } from '@/options/queries/movies/metadata';
 import {
   showGenresQueryOptions,
   showNetworksQueryOptions,
@@ -50,43 +51,79 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 // ============================================================================
+// Types
+// ============================================================================
+
+interface ActiveFiltersProps {
+  filters: SearchFilterState;
+  mediaType: 'all' | 'movies' | 'shows';
+  hasActiveFilters: boolean;
+  setSearch: (q: string) => void;
+  setGenres: (genres: number[]) => void;
+  setYearRange: (yearMin: number | null, yearMax: number | null) => void;
+  setRatingMin: (ratingMin: number | null) => void;
+  setRuntimeRange: (runtimeMin: number | null, runtimeMax: number | null) => void;
+  setLanguage: (language: string) => void;
+  setVoteCountMin: (voteCountMin: number | null) => void;
+  setProviders: (providers: number[]) => void;
+  setKeywords: (keywords: number[]) => void;
+  setCertifications: (certifications: string[]) => void;
+  setCast: (cast: number[]) => void;
+  setCrew: (crew: number[]) => void;
+  setNetworks: (networks: number[]) => void;
+  setStatus: (status: string[]) => void;
+  clearFilters: () => void;
+}
+
+// ============================================================================
 // Main Component
 // ============================================================================
 
-function ActiveFilters() {
-  const {
-    filters,
-    hasActiveFilters,
-    setSearch,
-    setGenres,
-    setYearRange,
-    setRatingMin,
-    setRuntimeRange,
-    setLanguage,
-    setVoteCountMin,
-    setNetworks,
-    setStatus,
-    setProviders,
-    setKeywords,
-    clearFilters,
-  } = useTVDiscoverFilters();
+function ActiveFilters({
+  filters,
+  mediaType,
+  hasActiveFilters,
+  setSearch,
+  setGenres,
+  setYearRange,
+  setRatingMin,
+  setRuntimeRange,
+  setLanguage,
+  setVoteCountMin,
+  setProviders,
+  setKeywords,
+  setCertifications,
+  setCast,
+  setCrew,
+  setNetworks,
+  setStatus,
+  clearFilters,
+}: ActiveFiltersProps) {
+  // --- Queries for lookup maps ------------------------------------------------
 
-  const genresQuery = useQuery(showGenresQueryOptions());
-  const genreMap = useMemo(() => new Map(genresQuery.data?.map((g) => [g.id, g.name]) ?? []), [genresQuery.data]);
+  const movieGenresQuery = useQuery(movieGenresQueryOptions());
+  const showGenresQuery = useQuery(showGenresQueryOptions());
+  const genreData = mediaType === 'shows' ? showGenresQuery.data : movieGenresQuery.data;
+  const genreMap = useMemo(() => new Map(genreData?.map((g) => [g.id, g.name]) ?? []), [genreData]);
 
-  const providersQuery = useQuery(showWatchProvidersQueryOptions(filters.region));
-  const providerMap = useMemo(
-    () => new Map(providersQuery.data?.map((p) => [p.id, p.name]) ?? []),
-    [providersQuery.data]
-  );
+  const movieProvidersQuery = useQuery(movieWatchProvidersQueryOptions(filters.region));
+  const showProvidersQuery = useQuery(showWatchProvidersQueryOptions(filters.region));
+  const providerData = mediaType === 'shows' ? showProvidersQuery.data : movieProvidersQuery.data;
+  const providerMap = useMemo(() => new Map(providerData?.map((p) => [p.id, p.name]) ?? []), [providerData]);
 
   const networksQuery = useQuery(showNetworksQueryOptions());
   const networkMap = useMemo(() => new Map(networksQuery.data?.map((n) => [n.id, n.name]) ?? []), [networksQuery.data]);
 
+  // --- Early return -----------------------------------------------------------
+
   if (!hasActiveFilters) return null;
+
+  // --- Derived state ----------------------------------------------------------
 
   const hasYear = filters.yearMin !== null || filters.yearMax !== null;
   const hasRuntime = filters.runtimeMin !== null || filters.runtimeMax !== null;
+
+  // --- Render -----------------------------------------------------------------
 
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -139,20 +176,6 @@ function ActiveFilters() {
         <FilterBadge onRemove={() => setVoteCountMin(null)}>≥{filters.voteCountMin} votes</FilterBadge>
       )}
 
-      {/* Networks */}
-      {filters.networks.map((networkId) => (
-        <FilterBadge key={networkId} onRemove={() => setNetworks(filters.networks.filter((n) => n !== networkId))}>
-          {networkMap.get(networkId) ?? `Network #${networkId}`}
-        </FilterBadge>
-      ))}
-
-      {/* Status */}
-      {filters.status.map((s) => (
-        <FilterBadge key={s} onRemove={() => setStatus(filters.status.filter((v) => v !== s))}>
-          {STATUS_LABELS[s] ?? `Status ${s}`}
-        </FilterBadge>
-      ))}
-
       {/* Watch Providers */}
       {filters.providers.map((providerId) => (
         <FilterBadge key={providerId} onRemove={() => setProviders(filters.providers.filter((p) => p !== providerId))}>
@@ -167,6 +190,42 @@ function ActiveFilters() {
         </FilterBadge>
       )}
 
+      {/* Movie-specific: Certifications */}
+      {mediaType === 'movies' &&
+        filters.certifications.map((cert) => (
+          <FilterBadge key={cert} onRemove={() => setCertifications(filters.certifications.filter((c) => c !== cert))}>
+            Rated {cert}
+          </FilterBadge>
+        ))}
+
+      {/* Movie-specific: Cast */}
+      {mediaType === 'movies' && filters.cast.length > 0 && (
+        <FilterBadge onRemove={() => setCast([])}>
+          {filters.cast.length} actor{filters.cast.length > 1 ? 's' : ''}
+        </FilterBadge>
+      )}
+
+      {/* Movie-specific: Crew */}
+      {mediaType === 'movies' && filters.crew.length > 0 && (
+        <FilterBadge onRemove={() => setCrew([])}>{filters.crew.length} crew</FilterBadge>
+      )}
+
+      {/* Show-specific: Networks */}
+      {mediaType === 'shows' &&
+        filters.networks.map((networkId) => (
+          <FilterBadge key={networkId} onRemove={() => setNetworks(filters.networks.filter((n) => n !== networkId))}>
+            {networkMap.get(networkId) ?? `Network #${networkId}`}
+          </FilterBadge>
+        ))}
+
+      {/* Show-specific: Status */}
+      {mediaType === 'shows' &&
+        filters.status.map((s) => (
+          <FilterBadge key={s} onRemove={() => setStatus(filters.status.filter((v) => v !== s))}>
+            {STATUS_LABELS[s] ?? `Status ${s}`}
+          </FilterBadge>
+        ))}
+
       {/* Clear all */}
       <Button
         variant="ghost"
@@ -180,4 +239,5 @@ function ActiveFilters() {
   );
 }
 
+export type { ActiveFiltersProps };
 export { ActiveFilters };
