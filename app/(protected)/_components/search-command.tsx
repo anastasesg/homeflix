@@ -1,15 +1,28 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { useQuery } from '@tanstack/react-query';
-import { Book, Calendar, Film, Gauge, Globe, Headphones, Search, Settings, Tv } from 'lucide-react';
+import {
+  ArrowRight,
+  Book,
+  Calendar,
+  Film,
+  Gauge,
+  Globe,
+  Headphones,
+  Loader2,
+  Search,
+  Settings,
+  Tv,
+} from 'lucide-react';
+import type { Route } from 'next';
 
-import { movieItemsQueryOptions } from '@/options/queries/movies/library';
-import { showItemsQueryOptions } from '@/options/queries/shows/library';
+import { searchMoviesQueryOptions } from '@/options/queries/movies/discover';
+import { searchShowsQueryOptions } from '@/options/queries/shows/discover';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -27,22 +40,41 @@ function SearchCommand() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const router = useRouter();
+  const pathname = usePathname();
 
-  // Fetch movies and shows data
-  const { data: movies = [] } = useQuery({
-    ...movieItemsQueryOptions({ search: search.trim() ? search : undefined }),
-    select: (data) => data.movies.slice(0, 5), // Limit to top 5 results for performance
-    enabled: open && search.trim() !== '', // Only fetch when dialog is open and search is not empty
+  const isOnSearchPage = pathname === '/discover/search';
+
+  // Debounce search to avoid hammering TMDB API
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const query = debouncedSearch;
+
+  // Search TMDB for movies and shows
+  const movieOptions = useMemo(() => searchMoviesQueryOptions(query), [query]);
+  const showOptions = useMemo(() => searchShowsQueryOptions(query), [query]);
+
+  const { data: movies = [], isFetching: isMoviesFetching } = useQuery({
+    ...movieOptions,
+    select: (data) => data.movies.slice(0, 5),
+    enabled: open && query.length > 0,
   });
-  const { data: shows = [] } = useQuery({
-    ...showItemsQueryOptions({ search: search.trim() ? search : undefined }),
-    select: (data) => data.shows.slice(0, 5), // Limit to top 5 results for performance
-    enabled: open && search.trim() !== '', // Only fetch when dialog is open and search is not empty
+  const { data: shows = [], isFetching: isShowsFetching } = useQuery({
+    ...showOptions,
+    select: (data) => data.shows.slice(0, 5),
+    enabled: open && query.length > 0,
   });
 
-  const hasSearchResults = search.trim() !== '' && (movies.length > 0 || shows.length > 0);
+  const isDebouncing = search.trim() !== '' && search.trim() !== debouncedSearch;
+  const isSearching = isDebouncing || isMoviesFetching || isShowsFetching;
+  const hasSearchResults = query !== '' && (movies.length > 0 || shows.length > 0);
 
   useEffect(() => {
+    if (isOnSearchPage) return;
+
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -52,7 +84,7 @@ function SearchCommand() {
 
     document.addEventListener('keydown', down);
     return () => document.removeEventListener('keydown', down);
-  }, []);
+  }, [isOnSearchPage]);
 
   const handleOpenChange = useCallback((isOpen: boolean) => {
     setOpen(isOpen);
@@ -68,6 +100,8 @@ function SearchCommand() {
     },
     [handleOpenChange]
   );
+
+  if (isOnSearchPage) return null;
 
   return (
     <>
@@ -103,7 +137,66 @@ function SearchCommand() {
       >
         <CommandInput placeholder="Search movies, shows..." value={search} onValueChange={setSearch} />
         <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
+          {!isSearching && <CommandEmpty>No results found.</CommandEmpty>}
+
+          {/* Discover on search page */}
+          {search.trim() !== '' && (
+            <CommandGroup heading="Discover">
+              <CommandItem
+                onSelect={() =>
+                  runCommand(() => router.push(`/discover/search?q=${encodeURIComponent(search.trim())}` as Route))
+                }
+                className="flex items-center gap-2"
+              >
+                <Search className="size-4" />
+                <span className="flex-1 truncate">Discover &ldquo;{search.trim()}&rdquo;</span>
+                <ArrowRight className="size-3.5 text-muted-foreground" />
+              </CommandItem>
+            </CommandGroup>
+          )}
+
+          {/* Loading skeletons — two groups mirror the real Movies/Shows layout */}
+          {isSearching && !hasSearchResults && (
+            <>
+              {(['Movies', 'Shows'] as const).map((group, gi) => (
+                <CommandGroup key={group} heading={group} forceMount>
+                  {[
+                    { title: 'w-36', year: 'w-12' },
+                    { title: 'w-24', year: 'w-10' },
+                  ].map((widths, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 px-2 py-1.5"
+                      style={{ animationDelay: `${(gi * 2 + i) * 100}ms` }}
+                    >
+                      <div
+                        className="size-10 shrink-0 animate-pulse rounded bg-muted/60"
+                        style={{ animationDelay: `${(gi * 2 + i) * 100}ms` }}
+                      />
+                      <div className="flex flex-1 flex-col gap-1.5">
+                        <div
+                          className={`h-3.5 animate-pulse rounded bg-muted/60 ${widths.title}`}
+                          style={{ animationDelay: `${(gi * 2 + i) * 100 + 50}ms` }}
+                        />
+                        <div
+                          className={`h-3 animate-pulse rounded bg-muted/40 ${widths.year}`}
+                          style={{ animationDelay: `${(gi * 2 + i) * 100 + 100}ms` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </CommandGroup>
+              ))}
+            </>
+          )}
+
+          {/* Fetching indicator when refining an existing search */}
+          {isSearching && hasSearchResults && (
+            <div className="flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground">
+              <Loader2 className="size-3 animate-spin" />
+              Updating results...
+            </div>
+          )}
 
           {/* Movie Search Results */}
           {search.trim() !== '' && movies.length > 0 && (
@@ -168,10 +261,17 @@ function SearchCommand() {
               <Globe className="mr-2 size-4" />
               Browse Content
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => router.push('/discover/search'))}>
+            <CommandItem
+              onSelect={() =>
+                runCommand(() => {
+                  const query = search.trim();
+                  const url = (query ? `/discover/search?q=${encodeURIComponent(query)}` : '/discover/search') as Route;
+                  router.push(url);
+                })
+              }
+            >
               <Search className="mr-2 size-4" />
               Discover New Content
-              <CommandShortcut>⌘S</CommandShortcut>
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => router.push('/system/dashboard'))}>
               <Gauge className="mr-2 size-4" />
