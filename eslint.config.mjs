@@ -2,10 +2,13 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTs from 'eslint-config-next/typescript';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
+import boundaries from 'eslint-plugin-boundaries';
 import importPlugin from 'eslint-plugin-import';
 import eslintPluginPrettier from 'eslint-plugin-prettier/recommended';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unusedImports from 'eslint-plugin-unused-imports';
+
+import { buildElements, buildElementTypeRules } from './boundary-spec.mjs';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -72,6 +75,18 @@ const eslintConfig = defineConfig([
           argsIgnorePattern: '^_',
         },
       ],
+    },
+  },
+  // Architectural boundary enforcement
+  {
+    plugins: { boundaries },
+    settings: {
+      'boundaries/elements': buildElements(),
+      'boundaries/ignore': ['components/ui/**'],
+      'import/resolver': { typescript: { alwaysTryTypes: true } },
+    },
+    rules: {
+      'boundaries/element-types': ['error', { default: 'disallow', rules: buildElementTypeRules() }],
     },
   },
   {

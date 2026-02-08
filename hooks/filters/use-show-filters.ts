@@ -2,13 +2,11 @@
 
 import { parseAsStringLiteral, useQueryStates } from 'nuqs';
 
-import type { ShowTabValue } from '@/api/utils';
-
 export const showViewModes = ['grid', 'list'] as const;
 export const showTabValues = ['all', 'continuing', 'complete', 'missing'] as const;
 
 export type ShowViewMode = (typeof showViewModes)[number];
-export type ShowTabValueType = ShowTabValue;
+export type ShowTabValueType = (typeof showTabValues)[number];
 
 export interface ShowFilterState {
   tab: ShowTabValueType;

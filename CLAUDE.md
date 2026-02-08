@@ -30,6 +30,7 @@ Project-specific instructions for Claude Code.
 ### Imports
 - Order: `'use client'` → external libs → `@/api` / `@/options` → `@/components` → local `./`
 - Always use `@/` path alias
+- `hooks/` must not import from `api/` — if a hook needs a type from `api/utils`, derive it locally or move the type to `api/types`
 
 ### Data Fetching
 - **Modular queries** - Each component manages its own query, no god queries that fill the entire page
@@ -90,6 +91,14 @@ Requires `.env.local` with API URLs and keys for four services:
 ## Quality Checks
 
 - This is a TypeScript-first codebase. After any multi-file refactor, always run type checking (`bun check`) and lint (`bun lint --fix`) before considering work complete. Fix all errors before committing.
+
+## Architectural Boundaries
+
+- `eslint-plugin-boundaries` enforces a one-way dependency graph between directories. Defined in `boundary-spec.mjs`.
+- Layers (inner → outer): `api/types` → `api/{entities,mappers,clients}` (peers) → `api/utils` → `api/functions` → `options/queries` → `components/{query,media}` → `app/`
+- `hooks/` and `context/` are isolated — they only import externals (nuqs, react), not internal project modules.
+- Free directories (importable from anywhere, not tracked): `lib/`, `components/ui/`, `components/pwa/`
+- To add a new directory to the boundary system, add it to `boundary-spec.mjs` — rules are auto-generated.
 
 ## Workflow System
 
