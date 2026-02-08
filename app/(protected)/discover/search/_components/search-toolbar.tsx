@@ -2,8 +2,8 @@
 
 import { ArrowDownNarrowWide, ArrowUpNarrowWide, LayoutGrid, List } from 'lucide-react';
 
-import type { SearchFilterState, SearchMediaType, SearchViewMode } from '@/hooks/filters';
-import { searchMovieSortFields, searchShowSortFields } from '@/hooks/filters';
+import type { SearchMediaType, SearchViewMode } from '@/hooks/filters';
+import { searchMovieSortFields, searchShowSortFields, useSearchFilters } from '@/hooks/filters';
 import { cn } from '@/lib/utils';
 
 import { Button } from '@/components/ui/button';
@@ -17,30 +17,7 @@ import { SmartSearch } from './smart-search';
 // Types
 // ============================================================================
 
-interface SearchToolbarProps {
-  filters: SearchFilterState;
-  setSearch: (q: string) => void;
-  setType: (type: SearchMediaType) => void;
-  setSort: (sort: string) => void;
-  toggleSortDirection: () => void;
-  setView: (view: SearchViewMode) => void;
-  setGenres: (genres: number[]) => void;
-  setYearRange: (yearMin: number | null, yearMax: number | null) => void;
-  setRatingMin: (ratingMin: number | null) => void;
-  setRuntimeRange: (runtimeMin: number | null, runtimeMax: number | null) => void;
-  setLanguage: (language: string) => void;
-  setVoteCountMin: (voteCountMin: number | null) => void;
-  setProviders: (providers: number[]) => void;
-  setKeywords: (keywords: number[]) => void;
-  setCertifications: (certifications: string[]) => void;
-  setCast: (cast: number[]) => void;
-  setCrew: (crew: number[]) => void;
-  setNetworks: (networks: number[]) => void;
-  setStatus: (status: string[]) => void;
-  clearFilters: () => void;
-  hasActiveFilters: boolean;
-  activeFilterCount: number;
-}
+type SearchToolbarProps = object;
 
 // ============================================================================
 // Constants
@@ -147,30 +124,32 @@ function ViewToggle({ view, setView }: ViewToggleProps) {
 // Main Component
 // ============================================================================
 
-function SearchToolbar({
-  filters,
-  setSearch,
-  setType,
-  setSort,
-  toggleSortDirection,
-  setView,
-  setGenres,
-  setYearRange,
-  setRatingMin,
-  setRuntimeRange,
-  setLanguage,
-  setVoteCountMin,
-  setProviders,
-  setKeywords,
-  setCertifications,
-  setCast,
-  setCrew,
-  setNetworks,
-  setStatus,
-  clearFilters,
-  hasActiveFilters,
-  activeFilterCount,
-}: SearchToolbarProps) {
+function SearchToolbar({}: SearchToolbarProps) {
+  const {
+    filters,
+    setSearch,
+    setType,
+    setSort,
+    toggleSortDirection,
+    setView,
+    setGenres,
+    setYearRange,
+    setRatingMin,
+    setRuntimeRange,
+    setLanguage,
+    setVoteCountMin,
+    setProviders,
+    setKeywords,
+    setCertifications,
+    setCast,
+    setCrew,
+    setNetworks,
+    setStatus,
+    clearFilters,
+    hasActiveFilters,
+    activeFilterCount,
+  } = useSearchFilters();
+
   return (
     <div className="sticky top-14 z-20 -mx-4 space-y-3 bg-background px-4 pb-4 sm:space-y-4 md:top-16">
       {/* Row 1: Search + Filter */}

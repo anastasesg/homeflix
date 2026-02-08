@@ -2,7 +2,7 @@
 
 import { Film, Tv } from 'lucide-react';
 
-import type { SearchFilterState, SearchMediaType } from '@/hooks/filters';
+import { type SearchFilterState, useSearchFilters } from '@/hooks/filters';
 
 import { SearchGrid } from './search-grid';
 
@@ -10,11 +10,7 @@ import { SearchGrid } from './search-grid';
 // Types
 // ============================================================================
 
-interface SearchResultsProps {
-  mediaType: SearchMediaType;
-  filters: SearchFilterState;
-  setType: (type: SearchMediaType) => void;
-}
+type SearchResultsProps = object;
 
 // ============================================================================
 // Sub-components
@@ -48,8 +44,9 @@ function PreviewSection({
 // Main
 // ============================================================================
 
-function SearchResults({ mediaType, filters, setType }: SearchResultsProps) {
-  if (mediaType === 'all') {
+function SearchResults(_props: SearchResultsProps) {
+  const { filters, setType } = useSearchFilters();
+  if (filters.type === 'all') {
     return (
       <div className="space-y-10">
         <PreviewSection
@@ -70,7 +67,7 @@ function SearchResults({ mediaType, filters, setType }: SearchResultsProps) {
     );
   }
 
-  return <SearchGrid mediaType={mediaType} filters={filters} />;
+  return <SearchGrid mediaType={filters.type} filters={filters} />;
 }
 
 // ============================================================================
