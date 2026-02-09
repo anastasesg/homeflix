@@ -5,12 +5,12 @@ import { Tag } from 'lucide-react';
 
 import { movieDetailGenresQueryOptions } from '@/options/queries/movies/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { KeywordsSection } from './keywords-section';
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Loading

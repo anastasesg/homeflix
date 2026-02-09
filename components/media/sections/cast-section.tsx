@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 
 import { type MediaCredits } from '@/api/entities';
-import { showCreditsQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -14,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { SectionHeader } from './section-header';
+import type { DataQueryOptions } from './types';
 
 // ============================================================================
 // Utilities
@@ -151,11 +151,11 @@ function CastSectionContent({ credits }: { credits: MediaCredits }) {
 // ============================================================================
 
 interface CastSectionProps {
-  tmdbId: number;
+  queryOptions: DataQueryOptions<MediaCredits>;
 }
 
-function CastSection({ tmdbId }: CastSectionProps) {
-  const query = useQuery(showCreditsQueryOptions(tmdbId));
+function CastSection({ queryOptions }: CastSectionProps) {
+  const query = useQuery(queryOptions);
 
   return (
     <Query

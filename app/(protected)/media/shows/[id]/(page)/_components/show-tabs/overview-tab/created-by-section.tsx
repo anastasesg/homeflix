@@ -7,11 +7,10 @@ import { PenTool } from 'lucide-react';
 
 import { showCreatedByQueryOptions } from '@/options/queries/shows/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Utilities

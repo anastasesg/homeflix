@@ -2,10 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 
-import { movieOverviewQueryOptions } from '@/options/queries/movies/detail';
-
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
+
+import type { DataQueryOptions } from './types';
 
 // ============================================================================
 // Loading
@@ -42,11 +42,11 @@ function OverviewSectionSuccess({ overview }: { overview: string }) {
 // ============================================================================
 
 interface OverviewSectionProps {
-  tmdbId: number;
+  queryOptions: DataQueryOptions<string>;
 }
 
-function OverviewSection({ tmdbId }: OverviewSectionProps) {
-  const query = useQuery(movieOverviewQueryOptions(tmdbId));
+function OverviewSection({ queryOptions }: OverviewSectionProps) {
+  const query = useQuery(queryOptions);
 
   return (
     <Query

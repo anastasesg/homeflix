@@ -8,13 +8,13 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Film } from 'lucide-react';
 
 import { type MediaCredits } from '@/api/entities';
-import { movieCreditsQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { SectionHeader } from './section-header';
+import type { DataQueryOptions } from './types';
 
 // ============================================================================
 // Utilities
@@ -32,8 +32,12 @@ function getInitials(name: string): string {
 
 type CrewMember = MediaCredits['crew'][number];
 
-/** Groups crew by department, preserving original order within each group. */
-function groupByDepartment(crew: CrewMember[]): Map<string, CrewMember[]> {
+/**
+ * Groups crew by department.
+ * When priority is provided, matching departments sort first in the specified order.
+ * Otherwise, preserves original insertion order.
+ */
+function groupByDepartment(crew: CrewMember[], priority?: string[]): Map<string, CrewMember[]> {
   const groups = new Map<string, CrewMember[]>();
   for (const person of crew) {
     const dept = person.department || 'Other';
@@ -44,11 +48,30 @@ function groupByDepartment(crew: CrewMember[]): Map<string, CrewMember[]> {
       groups.set(dept, [person]);
     }
   }
-  return groups;
+
+  // If no priority specified, return original insertion order
+  if (!priority || priority.length === 0) {
+    return groups;
+  }
+
+  // Re-order: priority departments first, then the rest in original order
+  const sorted = new Map<string, CrewMember[]>();
+  for (const dept of priority) {
+    const members = groups.get(dept);
+    if (members) {
+      sorted.set(dept, members);
+      groups.delete(dept);
+    }
+  }
+  for (const [dept, members] of groups) {
+    sorted.set(dept, members);
+  }
+
+  return sorted;
 }
 
 // ============================================================================
-// Crew Card
+// Sub-Components
 // ============================================================================
 
 interface CrewCardProps {
@@ -131,8 +154,16 @@ function CrewSectionLoading() {
 
 const COLLAPSED_DEPARTMENT_LIMIT = 2;
 
-function CrewSectionContent({ credits }: { credits: MediaCredits }) {
-  const departments = useMemo(() => groupByDepartment(credits.crew), [credits.crew]);
+interface CrewSectionContentProps {
+  credits: MediaCredits;
+  departmentPriority?: string[];
+}
+
+function CrewSectionContent({ credits, departmentPriority }: CrewSectionContentProps) {
+  const departments = useMemo(
+    () => groupByDepartment(credits.crew, departmentPriority),
+    [credits.crew, departmentPriority]
+  );
   const [expanded, setExpanded] = useState(false);
 
   if (credits.crew.length === 0) return null;
@@ -196,11 +227,12 @@ function CrewSectionContent({ credits }: { credits: MediaCredits }) {
 // ============================================================================
 
 interface CrewSectionProps {
-  tmdbId: number;
+  queryOptions: DataQueryOptions<MediaCredits>;
+  departmentPriority?: string[];
 }
 
-function CrewSection({ tmdbId }: CrewSectionProps) {
-  const query = useQuery(movieCreditsQueryOptions(tmdbId));
+function CrewSection({ queryOptions, departmentPriority }: CrewSectionProps) {
+  const query = useQuery(queryOptions);
 
   return (
     <Query
@@ -208,7 +240,7 @@ function CrewSection({ tmdbId }: CrewSectionProps) {
       callbacks={{
         loading: CrewSectionLoading,
         error: () => null,
-        success: (credits) => <CrewSectionContent credits={credits} />,
+        success: (credits) => <CrewSectionContent credits={credits} departmentPriority={departmentPriority} />,
       }}
     />
   );

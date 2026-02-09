@@ -9,7 +9,6 @@ import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Maximize2, X } fro
 
 import { type MediaImages } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { movieImagesQueryOptions, movieTitleQueryOptions } from '@/options/queries/movies/detail';
 
 import { Queries } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -17,6 +16,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { SectionHeader } from './section-header';
+import type { DataQueryOptions } from './types';
 
 // ============================================================================
 // Loading
@@ -57,13 +57,13 @@ interface GalleryTabToggleProps {
 
 function GalleryTabToggle({ activeTab, onTabChange, backdropCount, posterCount }: GalleryTabToggleProps) {
   return (
-    <div className="flex items-center gap-1 rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5">
+    <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-muted/20 p-0.5">
       <button
         onClick={() => onTabChange('backdrops')}
         className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-200 ${
           activeTab === 'backdrops'
             ? 'bg-amber-500/15 text-amber-400 shadow-sm shadow-amber-500/5'
-            : 'text-muted-foreground hover:bg-white/[0.04] hover:text-white/70'
+            : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground/70'
         }`}
       >
         <Film className="size-3" />
@@ -75,7 +75,7 @@ function GalleryTabToggle({ activeTab, onTabChange, backdropCount, posterCount }
         className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all duration-200 ${
           activeTab === 'posters'
             ? 'bg-amber-500/15 text-amber-400 shadow-sm shadow-amber-500/5'
-            : 'text-muted-foreground hover:bg-white/[0.04] hover:text-white/70'
+            : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground/70'
         }`}
       >
         <ImageIcon className="size-3" />
@@ -93,13 +93,13 @@ function GalleryTabToggle({ activeTab, onTabChange, backdropCount, posterCount }
 interface LightboxProps {
   images: string[];
   initialIndex: number;
-  movieTitle: string;
+  title: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   aspectRatio: 'video' | 'poster';
 }
 
-function Lightbox({ images, initialIndex, movieTitle, open, onOpenChange, aspectRatio }: LightboxProps) {
+function Lightbox({ images, initialIndex, title, open, onOpenChange, aspectRatio }: LightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   useEffect(() => {
@@ -134,20 +134,20 @@ function Lightbox({ images, initialIndex, movieTitle, open, onOpenChange, aspect
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="flex h-[90vh] max-w-[95vw] flex-col gap-0 overflow-hidden border-white/[0.08] bg-black/95 p-0 backdrop-blur-2xl sm:max-w-[95vw]"
+        className="flex h-[90vh] max-w-[95vw] flex-col gap-0 overflow-hidden border-border/40 bg-black/95 p-0 backdrop-blur-2xl sm:max-w-[95vw]"
       >
         <DialogTitle className="sr-only">
-          {movieTitle} — Image {currentIndex + 1} of {images.length}
+          {title} — Image {currentIndex + 1} of {images.length}
         </DialogTitle>
 
         {/* Top bar */}
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5">
-          <span className="text-xs font-medium tabular-nums text-white/50">
+        <div className="flex items-center justify-between border-b border-border/40 px-4 py-2.5">
+          <span className="text-xs font-medium tabular-nums text-muted-foreground">
             {currentIndex + 1} / {images.length}
           </span>
           <button
             onClick={() => onOpenChange(false)}
-            className="rounded-md p-1 text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/80"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
           >
             <X className="size-4" />
           </button>
@@ -159,7 +159,7 @@ function Lightbox({ images, initialIndex, movieTitle, open, onOpenChange, aspect
           {images.length > 1 && (
             <button
               onClick={goToPrevious}
-              className="absolute left-2 z-10 rounded-full border border-white/[0.08] bg-black/60 p-2 text-white/50 backdrop-blur-sm transition-all hover:border-white/15 hover:bg-black/80 hover:text-white/90"
+              className="absolute left-2 z-10 rounded-full border border-border/40 bg-black/60 p-2 text-muted-foreground backdrop-blur-sm transition-all hover:border-border hover:bg-black/80 hover:text-foreground"
             >
               <ChevronLeft className="size-5" />
             </button>
@@ -173,7 +173,7 @@ function Lightbox({ images, initialIndex, movieTitle, open, onOpenChange, aspect
             <Image
               key={images[currentIndex]}
               src={images[currentIndex]}
-              alt={`${movieTitle} — ${currentIndex + 1}`}
+              alt={`${title} — ${currentIndex + 1}`}
               fill
               className="object-contain"
               sizes="95vw"
@@ -185,7 +185,7 @@ function Lightbox({ images, initialIndex, movieTitle, open, onOpenChange, aspect
           {images.length > 1 && (
             <button
               onClick={goToNext}
-              className="absolute right-2 z-10 rounded-full border border-white/[0.08] bg-black/60 p-2 text-white/50 backdrop-blur-sm transition-all hover:border-white/15 hover:bg-black/80 hover:text-white/90"
+              className="absolute right-2 z-10 rounded-full border border-border/40 bg-black/60 p-2 text-muted-foreground backdrop-blur-sm transition-all hover:border-border hover:bg-black/80 hover:text-foreground"
             >
               <ChevronRight className="size-5" />
             </button>
@@ -194,7 +194,7 @@ function Lightbox({ images, initialIndex, movieTitle, open, onOpenChange, aspect
 
         {/* Thumbnail filmstrip */}
         {images.length > 1 && (
-          <div className="border-t border-white/[0.06] px-4 py-2.5">
+          <div className="border-t border-border/40 px-4 py-2.5">
             <div className="scrollbar-none flex gap-1.5 overflow-x-auto">
               {images.map((url, index) => (
                 <button
@@ -203,7 +203,7 @@ function Lightbox({ images, initialIndex, movieTitle, open, onOpenChange, aspect
                   className={`relative flex-shrink-0 overflow-hidden rounded-md transition-all duration-200 ${
                     index === currentIndex
                       ? 'ring-2 ring-amber-500/70 ring-offset-1 ring-offset-black'
-                      : 'opacity-40 ring-1 ring-white/[0.06] hover:opacity-70'
+                      : 'opacity-40 ring-1 ring-border/40 hover:opacity-70'
                   }`}
                 >
                   <div className={isPoster ? 'h-14 w-9' : 'h-10 w-[72px]'}>
@@ -267,14 +267,14 @@ function GalleryItem({ url, alt, index, onClick, variant }: GalleryItemProps) {
 
           {/* Expand icon — glass pill */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <div className="rounded-full border border-white/15 bg-black/40 p-2.5 shadow-lg backdrop-blur-md">
-              <Maximize2 className="size-4 text-white/90" />
+            <div className="rounded-full border border-foreground/15 bg-black/40 p-2.5 shadow-lg backdrop-blur-md">
+              <Maximize2 className="size-4 text-foreground/90" />
             </div>
           </div>
 
           {/* Index — bottom-left, subtle */}
           <div className="absolute bottom-2 left-2">
-            <span className="text-[10px] font-semibold tabular-nums text-white/50 drop-shadow-sm transition-colors group-hover:text-white/70">
+            <span className="text-[10px] font-semibold tabular-nums text-foreground/50 drop-shadow-sm transition-colors group-hover:text-foreground/70">
               {index + 1}
             </span>
           </div>
@@ -290,10 +290,10 @@ function GalleryItem({ url, alt, index, onClick, variant }: GalleryItemProps) {
 
 interface GallerySectionContentProps {
   images: MediaImages;
-  movieTitle: string;
+  title: string;
 }
 
-function GallerySectionContent({ images, movieTitle }: GallerySectionContentProps) {
+function GallerySectionContent({ images, title }: GallerySectionContentProps) {
   const hasBackdrops = images.backdrops.length > 0;
   const hasPosters = images.posters.length > 0;
 
@@ -332,7 +332,7 @@ function GallerySectionContent({ images, movieTitle }: GallerySectionContentProp
             <GalleryItem
               key={url}
               url={url}
-              alt={`${movieTitle} ${activeTab === 'backdrops' ? 'backdrop' : 'poster'} ${index + 1}`}
+              alt={`${title} ${activeTab === 'backdrops' ? 'backdrop' : 'poster'} ${index + 1}`}
               index={index}
               onClick={() => openLightbox(index)}
               variant={activeTab === 'backdrops' ? 'backdrop' : 'poster'}
@@ -346,7 +346,7 @@ function GallerySectionContent({ images, movieTitle }: GallerySectionContentProp
       <Lightbox
         images={currentImages}
         initialIndex={lightboxIndex}
-        movieTitle={movieTitle}
+        title={title}
         open={lightboxOpen}
         onOpenChange={setLightboxOpen}
         aspectRatio={activeTab === 'backdrops' ? 'video' : 'poster'}
@@ -360,20 +360,21 @@ function GallerySectionContent({ images, movieTitle }: GallerySectionContentProp
 // ============================================================================
 
 interface GallerySectionProps {
-  tmdbId: number;
+  imagesQueryOptions: DataQueryOptions<MediaImages>;
+  titleQueryOptions: DataQueryOptions<string>;
 }
 
-function GallerySection({ tmdbId }: GallerySectionProps) {
-  const imagesQuery = useQuery(movieImagesQueryOptions(tmdbId));
-  const titleQuery = useQuery(movieTitleQueryOptions(tmdbId));
+function GallerySection({ imagesQueryOptions, titleQueryOptions }: GallerySectionProps) {
+  const imagesQuery = useQuery(imagesQueryOptions);
+  const titleQuery = useQuery(titleQueryOptions);
 
   return (
     <Queries
-      results={[imagesQuery, titleQuery]}
+      results={[imagesQuery, titleQuery] as const}
       callbacks={{
         loading: GallerySectionLoading,
         error: () => null,
-        success: ([images, title]) => <GallerySectionContent images={images} movieTitle={title} />,
+        success: ([images, title]) => <GallerySectionContent images={images} title={title} />,
       }}
     />
   );

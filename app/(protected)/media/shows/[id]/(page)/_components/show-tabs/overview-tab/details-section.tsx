@@ -7,11 +7,10 @@ import { Languages, Radio, Tag } from 'lucide-react';
 
 import { showDetailsInfoQueryOptions, showKeywordsQueryOptions } from '@/options/queries/shows/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Keywords Sub-section (autonomous — own query)

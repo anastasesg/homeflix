@@ -9,11 +9,10 @@ import { cn } from '@/lib/utils';
 import { movieProductionQueryOptions } from '@/options/queries/movies/detail';
 import { formatCurrency } from '@/utilities';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Loading

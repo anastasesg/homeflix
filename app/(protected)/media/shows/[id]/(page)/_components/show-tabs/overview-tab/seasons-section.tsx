@@ -11,11 +11,10 @@ import { cn } from '@/lib/utils';
 import { showDetailQueryOptions } from '@/options/queries/shows/detail';
 import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Queries } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Season Card

@@ -6,10 +6,9 @@ import { Sparkles } from 'lucide-react';
 import { type MediaKeywords } from '@/api/entities';
 import { movieKeywordsQueryOptions } from '@/options/queries/movies/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Loading
