@@ -153,6 +153,60 @@ function CrewSectionLoading() {
 // ============================================================================
 
 const COLLAPSED_DEPARTMENT_LIMIT = 2;
+const COLLAPSED_MEMBER_LIMIT = 4;
+
+// ─── Department group with its own member expansion ──────────────────────────
+
+interface DepartmentGroupProps {
+  department: string;
+  members: CrewMember[];
+}
+
+function DepartmentGroup({ department, members }: DepartmentGroupProps) {
+  const [expanded, setExpanded] = useState(false);
+  const needsExpansion = members.length > COLLAPSED_MEMBER_LIMIT;
+  const visibleMembers = expanded ? members : members.slice(0, COLLAPSED_MEMBER_LIMIT);
+  const hiddenCount = members.length - COLLAPSED_MEMBER_LIMIT;
+
+  return (
+    <div>
+      <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+        {department}
+        <span className="ml-1.5 text-muted-foreground/40">{members.length}</span>
+      </p>
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
+        {visibleMembers.map((person, index) => (
+          <CrewCard
+            key={`${person.name}-${person.job}-${index}`}
+            name={person.name}
+            job={person.job}
+            profileUrl={person.profileUrl}
+          />
+        ))}
+      </div>
+      {needsExpansion && (
+        <button
+          onClick={() => setExpanded((prev) => !prev)}
+          className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[11px] font-medium text-muted-foreground/70 transition-colors hover:text-foreground"
+        >
+          {expanded ? (
+            <>
+              Show less
+              <ChevronDown className="size-3 rotate-180 transition-transform" />
+            </>
+          ) : (
+            <>
+              +{hiddenCount} more
+              <ChevronDown className="size-3 transition-transform" />
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Content ─────────────────────────────────────────────────────────────────
 
 interface CrewSectionContentProps {
   credits: MediaCredits;
@@ -164,16 +218,16 @@ function CrewSectionContent({ credits, departmentPriority }: CrewSectionContentP
     () => groupByDepartment(credits.crew, departmentPriority),
     [credits.crew, departmentPriority]
   );
-  const [expanded, setExpanded] = useState(false);
+  const [deptExpanded, setDeptExpanded] = useState(false);
 
   if (credits.crew.length === 0) return null;
 
   const allEntries = [...departments.entries()];
-  const needsExpansion = allEntries.length > COLLAPSED_DEPARTMENT_LIMIT;
-  const visibleEntries = expanded ? allEntries : allEntries.slice(0, COLLAPSED_DEPARTMENT_LIMIT);
+  const needsDeptExpansion = allEntries.length > COLLAPSED_DEPARTMENT_LIMIT;
+  const visibleEntries = deptExpanded ? allEntries : allEntries.slice(0, COLLAPSED_DEPARTMENT_LIMIT);
 
   const hiddenCount =
-    needsExpansion && !expanded
+    needsDeptExpansion && !deptExpanded
       ? allEntries.slice(COLLAPSED_DEPARTMENT_LIMIT).reduce((sum, [, members]) => sum + members.length, 0)
       : 0;
 
@@ -182,30 +236,16 @@ function CrewSectionContent({ credits, departmentPriority }: CrewSectionContentP
       <SectionHeader icon={Film} title="Crew" count={credits.crew.length} />
       <div className="space-y-5">
         {visibleEntries.map(([department, members]) => (
-          <div key={department}>
-            <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-              {department}
-            </p>
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
-              {members.map((person, index) => (
-                <CrewCard
-                  key={`${person.name}-${person.job}-${index}`}
-                  name={person.name}
-                  job={person.job}
-                  profileUrl={person.profileUrl}
-                />
-              ))}
-            </div>
-          </div>
+          <DepartmentGroup key={department} department={department} members={members} />
         ))}
       </div>
 
-      {needsExpansion && (
+      {needsDeptExpansion && (
         <button
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() => setDeptExpanded((prev) => !prev)}
           className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-lg border border-border/60 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-border hover:bg-accent/50 hover:text-foreground"
         >
-          {expanded ? (
+          {deptExpanded ? (
             <>
               Show less
               <ChevronDown className="size-3.5 rotate-180 transition-transform" />
