@@ -1,8 +1,5 @@
 import { ShowItem } from '../entities';
-import { SortDirection } from '../types';
-
-export type ShowSortField = 'added' | 'title' | 'year' | 'rating' | 'nextAiring';
-export type ShowTabValue = 'all' | 'continuing' | 'complete' | 'missing';
+import { ShowSortField, ShowTabValue, SortDirection } from '../types';
 
 // ============================================================================
 // Filters

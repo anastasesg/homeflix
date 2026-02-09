@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import type { ShowItemsRequest } from '@/api/functions';
+import type { ShowItemsRequest } from '@/api/dtos';
 import {
   fetchFeaturedShow,
   fetchShowEpisodeFiles,

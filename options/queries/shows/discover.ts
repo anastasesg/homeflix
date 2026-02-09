@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 
-import type { DiscoverShowFilters, DiscoverShowPage } from '@/api/functions';
+import type { DiscoverShowFilters, DiscoverShowPage } from '@/api/dtos';
 import {
   fetchAiringTodayShows,
   fetchFilteredShows,

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, ChevronLeft, ChevronRight, Clock, Film, Star, Tv } from 'lucide-react';
 
-import type { SeasonDetail, ShowBasic, ShowLibraryInfo } from '@/api/entities';
+import type { SeasonDetail, ShowDetail, ShowLibraryInfo } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
 import { cn } from '@/lib/utils';
 import { showDetailQueryOptions, showSeasonQueryOptions } from '@/options/queries/shows/detail';
@@ -48,7 +48,7 @@ function computeTotalRuntime(season: SeasonDetail): number {
 // ============================================================================
 
 interface SeasonNavProps {
-  show: ShowBasic;
+  show: ShowDetail;
   seasonNumber: number;
   tmdbId: number;
 }
@@ -162,7 +162,7 @@ function SeasonHeaderLoading() {
 // ============================================================================
 
 interface SeasonHeaderSuccessProps {
-  show: ShowBasic;
+  show: ShowDetail;
   season: SeasonDetail;
   library: ShowLibraryInfo;
   seasonNumber: number;

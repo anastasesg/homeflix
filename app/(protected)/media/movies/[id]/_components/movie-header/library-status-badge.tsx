@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Clock, Film, HardDrive, Plus } from 'lucide-react';
 
-import { type LibraryInfo } from '@/api/entities';
+import { type MovieLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 
@@ -25,7 +25,7 @@ function LibraryStatusBadgeLoading() {
 // ============================================================================
 
 interface LibraryStatusBadgeSuccessProps {
-  libraryInfo: LibraryInfo;
+  libraryInfo: MovieLibraryInfo;
 }
 
 function LibraryStatusBadgeSuccess({ libraryInfo }: LibraryStatusBadgeSuccessProps) {

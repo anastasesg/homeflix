@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Film } from 'lucide-react';
 
-import { type ShowCredits } from '@/api/entities';
+import { type MediaCredits } from '@/api/entities';
 import { showCreditsQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
@@ -30,7 +30,7 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-type CrewMember = ShowCredits['crew'][number];
+type CrewMember = MediaCredits['crew'][number];
 
 /** Priority order for TV show crew departments. */
 const DEPARTMENT_PRIORITY = ['Creator', 'Writing', 'Production', 'Directing'];
@@ -148,7 +148,7 @@ function CrewSectionLoading() {
 
 const COLLAPSED_DEPARTMENT_LIMIT = 2;
 
-function CrewSectionContent({ credits }: { credits: ShowCredits }) {
+function CrewSectionContent({ credits }: { credits: MediaCredits }) {
   const departments = useMemo(() => groupByDepartment(credits.crew), [credits.crew]);
   const [expanded, setExpanded] = useState(false);
 

@@ -1,7 +1,12 @@
-import { type components, createSonarrClient } from '@/api/clients/sonarr';
+import { createSonarrClient } from '@/api/clients/sonarr';
+import type { ShowItemsRequest, ShowItemsResponse } from '@/api/dtos';
 import type { EpisodeFile, ShowHistoryEvent, ShowItem, ShowLibraryInfo } from '@/api/entities';
-import { sonarrToShowItem } from '@/api/mappers';
-import { SortDirection } from '@/api/types';
+import {
+  sonarrToEpisodeFile,
+  sonarrToShowHistoryEvent,
+  sonarrToShowItem,
+  sonarrToShowLibraryInfo,
+} from '@/api/mappers';
 import {
   filterByTab,
   filterShowsByGenres,
@@ -9,104 +14,8 @@ import {
   filterShowsByRating,
   filterShowsBySearch,
   filterShowsByYearRange,
-  ShowSortField,
-  ShowTabValue,
   sortShows,
 } from '@/api/utils';
-
-type EpisodeFileResource = components['schemas']['EpisodeFileResource'];
-type HistoryResource = components['schemas']['HistoryResource'];
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export type ShowItemsRequest = {
-  tab?: ShowTabValue;
-  search?: string;
-  genres?: string[];
-  networks?: string[];
-  yearMin?: number | null;
-  yearMax?: number | null;
-  ratingMin?: number | null;
-  sortField?: ShowSortField;
-  sortDirection?: SortDirection;
-};
-
-export type ShowItemsResponse = {
-  stats: {
-    all: number;
-    continuing: number;
-    complete: number;
-    missing: number;
-    totalEpisodes: number;
-    downloadedEpisodes: number;
-  };
-  shows: ShowItem[];
-};
-
-// ============================================================================
-// Mappers
-// ============================================================================
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-}
-
-function deriveShowStatus(series: components['schemas']['SeriesResource']): ShowLibraryInfo['status'] {
-  const stats = series.statistics;
-  if (!stats) return 'missing';
-  const total = stats.episodeCount ?? 0;
-  const files = stats.episodeFileCount ?? 0;
-  if (total > 0 && files >= total) return 'downloaded';
-  if (files > 0) return 'partial';
-  if (series.monitored) return 'wanted';
-  return 'missing';
-}
-
-function mapEpisodeFile(file: EpisodeFileResource): EpisodeFile {
-  return {
-    id: file.id ?? 0,
-    path: file.path ?? '',
-    size: formatBytes(file.size ?? 0),
-    quality: file.quality?.quality?.name ?? 'Unknown',
-    videoCodec: file.mediaInfo?.videoCodec ?? 'Unknown',
-    audioCodec: file.mediaInfo?.audioCodec ?? 'Unknown',
-    resolution: file.mediaInfo?.resolution ?? 'Unknown',
-    languages: file.languages?.map((l) => l.name ?? 'Unknown') ?? [],
-    dateAdded: file.dateAdded ?? '',
-    seasonNumber: file.seasonNumber ?? 0,
-    episodeNumber: 0,
-  };
-}
-
-function mapShowHistoryEvent(event: HistoryResource): ShowHistoryEvent {
-  const typeMap: Record<string, ShowHistoryEvent['type']> = {
-    grabbed: 'grabbed',
-    downloadFolderImported: 'downloadFolderImported',
-    downloadFailed: 'downloadFailed',
-    episodeFileDeleted: 'episodeFileDeleted',
-    episodeFileRenamed: 'episodeFileRenamed',
-  };
-
-  return {
-    id: event.id ?? 0,
-    type: typeMap[event.eventType ?? ''] ?? 'unknown',
-    date: event.date ?? '',
-    quality: event.quality?.quality?.name ?? 'Unknown',
-    indexer: event.data?.indexer ?? undefined,
-    downloadClient: event.data?.downloadClient ?? undefined,
-    reason: event.data?.message ?? undefined,
-    sourceTitle: event.sourceTitle ?? undefined,
-    seasonNumber: event.episode?.seasonNumber ?? undefined,
-    episodeNumber: event.episode?.episodeNumber ?? undefined,
-    episodeTitle: event.episode?.title ?? undefined,
-  };
-}
 
 // ============================================================================
 // Functions
@@ -187,26 +96,7 @@ export async function fetchShowLibraryInfo(tmdbId: number): Promise<ShowLibraryI
     const series = data.find((s) => s.tmdbId === tmdbId);
     if (!series) return NOT_IN_LIBRARY;
 
-    return {
-      inLibrary: true,
-      sonarrId: series.id ?? undefined,
-      status: deriveShowStatus(series),
-      monitored: series.monitored ?? false,
-      qualityProfileId: series.qualityProfileId ?? undefined,
-      totalEpisodes: series.statistics?.episodeCount ?? 0,
-      downloadedEpisodes: series.statistics?.episodeFileCount ?? 0,
-      sizeOnDisk: series.statistics?.sizeOnDisk ? formatBytes(series.statistics.sizeOnDisk) : undefined,
-      nextAiring: series.nextAiring ?? undefined,
-      path: series.path ?? undefined,
-      seasons: (series.seasons ?? []).map((s) => ({
-        seasonNumber: s.seasonNumber ?? 0,
-        monitored: s.monitored ?? false,
-        episodeCount: s.statistics?.episodeCount ?? 0,
-        episodeFileCount: s.statistics?.episodeFileCount ?? 0,
-        totalEpisodeCount: s.statistics?.totalEpisodeCount ?? 0,
-        sizeOnDisk: s.statistics?.sizeOnDisk ?? 0,
-      })),
-    };
+    return sonarrToShowLibraryInfo(series);
   } catch {
     return NOT_IN_LIBRARY;
   }
@@ -220,7 +110,7 @@ export async function fetchShowEpisodeFiles(sonarrId: number): Promise<EpisodeFi
     });
 
     if (error || !data) return [];
-    return data.map(mapEpisodeFile);
+    return data.map(sonarrToEpisodeFile);
   } catch {
     return [];
   }
@@ -234,7 +124,7 @@ export async function fetchShowHistory(sonarrId: number): Promise<ShowHistoryEve
     });
 
     if (error || !data) return [];
-    return data.map(mapShowHistoryEvent);
+    return data.map(sonarrToShowHistoryEvent);
   } catch {
     return [];
   }

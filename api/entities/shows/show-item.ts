@@ -1,4 +1,4 @@
-import type { Genre } from '@/api/mappers';
+import type { Genre } from '@/api/types';
 
 export type ShowStatus = 'continuing' | 'ended' | 'upcoming';
 export type DisplayStatus = 'complete' | 'partial' | 'downloading' | 'missing' | 'wanted';

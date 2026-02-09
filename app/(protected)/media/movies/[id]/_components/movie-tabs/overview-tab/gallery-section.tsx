@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Film, Image as ImageIcon, Maximize2, X } from 'lucide-react';
 
-import { type MovieImages } from '@/api/entities';
+import { type MediaImages } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { movieImagesQueryOptions, movieTitleQueryOptions } from '@/options/queries/movies/detail';
 
@@ -289,7 +289,7 @@ function GalleryItem({ url, alt, index, onClick, variant }: GalleryItemProps) {
 // ============================================================================
 
 interface GallerySectionContentProps {
-  images: MovieImages;
+  images: MediaImages;
   movieTitle: string;
 }
 

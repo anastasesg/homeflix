@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Clock, Film, HardDrive, Layers, Plus, Tv } from 'lucide-react';
 
-import { type ShowBasic, type ShowLibraryInfo } from '@/api/entities';
+import { type ShowDetail, type ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { showDetailQueryOptions } from '@/options/queries/shows/detail';
 import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
@@ -71,7 +71,7 @@ function ShowStatsLoading() {
 // ============================================================================
 
 interface ShowStatsSuccessProps {
-  show: ShowBasic;
+  show: ShowDetail;
   libraryInfo: ShowLibraryInfo;
 }
 

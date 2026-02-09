@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { Clock, Play, Shield, Star } from 'lucide-react';
 
-import { type MovieBasic, type MovieVideos } from '@/api/entities';
+import { type MediaVideos, type MovieDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
 import {
   movieContentRatingQueryOptions,
@@ -128,8 +128,8 @@ function MovieHeaderLoading() {
 // ============================================================================
 
 interface MovieHeaderSuccessProps {
-  movie: MovieBasic;
-  videos: MovieVideos;
+  movie: MovieDetail;
+  videos: MediaVideos;
   tmdbId: number;
 }
 

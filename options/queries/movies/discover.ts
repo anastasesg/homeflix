@@ -1,6 +1,6 @@
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 
-import type { DiscoverMovieFilters, DiscoverMoviePage } from '@/api/functions';
+import type { DiscoverMovieFilters, DiscoverMoviePage } from '@/api/dtos';
 import {
   fetchFilteredMovies,
   fetchFilteredMoviesInfinite,

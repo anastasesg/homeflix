@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, ChevronLeft, ChevronRight, Clock, Layers, Star, Tv } from 'lucide-react';
 
-import type { EpisodeBasic, SeasonDetail, ShowBasic } from '@/api/entities';
+import type { EpisodeBasic, SeasonDetail, ShowDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
 import {
   showDetailQueryOptions,
@@ -92,7 +92,7 @@ function EpisodeHeaderLoading() {
 
 interface EpisodeHeaderSuccessProps {
   episode: EpisodeBasic;
-  show: ShowBasic;
+  show: ShowDetail;
   season: SeasonDetail;
   tmdbId: number;
   seasonNumber: number;

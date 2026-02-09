@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 
-import { type MovieCredits } from '@/api/entities';
+import { type MediaCredits } from '@/api/entities';
 import { movieCreditsQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
@@ -120,7 +120,7 @@ function CastSectionLoading() {
 // Success
 // ============================================================================
 
-function CastSectionContent({ credits }: { credits: MovieCredits }) {
+function CastSectionContent({ credits }: { credits: MediaCredits }) {
   if (credits.cast.length === 0) return null;
 
   return (

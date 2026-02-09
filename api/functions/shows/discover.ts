@@ -1,18 +1,7 @@
-import { buildDiscoverTVQuery, createTMDBClient, type DiscoverTVParams } from '@/api/clients/tmdb';
+import { buildDiscoverTVQuery, createTMDBClient } from '@/api/clients/tmdb';
+import type { DiscoverShowFilters, DiscoverShowPage } from '@/api/dtos';
 import type { ShowItem } from '@/api/entities';
 import { tmbdToShowItem } from '@/api/mappers';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export type DiscoverShowFilters = Omit<DiscoverTVParams, 'page'>;
-
-export interface DiscoverShowPage {
-  shows: ShowItem[];
-  totalPages: number;
-  totalResults: number;
-}
 
 // ============================================================================
 // Functions

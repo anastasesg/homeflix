@@ -1,4 +1,4 @@
-export interface ShowBasic {
+export interface ShowDetail {
   id: number;
   name: string;
   originalName: string;
@@ -38,25 +38,6 @@ export interface ShowBasic {
   }>;
 }
 
-export interface ShowCredits {
-  cast: Array<{ name: string; character: string; profileUrl?: string; order: number }>;
-  crew: Array<{ name: string; job: string; department: string; profileUrl?: string }>;
-}
-
-export interface ShowImages {
-  backdrops: string[];
-  posters: string[];
-}
-
-export interface ShowVideos {
-  trailerUrl?: string;
-  videos: Array<{ id: string; name: string; type: string; url: string }>;
-}
-
-export interface ShowKeywords {
-  keywords: string[];
-}
-
 export interface SeasonDetail {
   id: number;
   name: string;
@@ -84,18 +65,4 @@ export interface EpisodeBasic {
   voteCount: number;
   crew: Array<{ name: string; job: string; department: string; profileUrl?: string }>;
   guestStars: Array<{ name: string; character: string; profileUrl?: string; order: number }>;
-}
-
-export interface ShowRecommendation {
-  id: number;
-  name: string;
-  posterUrl?: string;
-  rating: number;
-  year: number;
-  overview?: string;
-}
-
-export interface ShowContentRating {
-  country: string;
-  rating: string;
 }

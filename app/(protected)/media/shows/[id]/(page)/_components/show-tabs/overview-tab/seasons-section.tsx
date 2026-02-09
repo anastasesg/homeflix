@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Layers, Tv } from 'lucide-react';
 
-import { type ShowBasic, type ShowLibraryInfo } from '@/api/entities';
+import { type ShowDetail, type ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { showDetailQueryOptions } from '@/options/queries/shows/detail';
 import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
@@ -23,7 +23,7 @@ import { SectionHeader } from './section-header';
 
 interface SeasonCardProps {
   tmdbId: number;
-  season: ShowBasic['seasons'][number];
+  season: ShowDetail['seasons'][number];
   progress?: { fileCount: number; episodeCount: number };
 }
 
@@ -114,7 +114,7 @@ function SeasonsSectionLoading() {
 // ============================================================================
 
 interface SeasonsSectionContentProps {
-  show: ShowBasic;
+  show: ShowDetail;
   libraryInfo?: ShowLibraryInfo;
 }
 

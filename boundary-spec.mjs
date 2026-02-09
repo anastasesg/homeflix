@@ -32,6 +32,7 @@ export const layers = {
       'api-entities': 'api/entities',
       'api-mappers': 'api/mappers',
       'api-clients': 'api/clients',
+      'api-dtos': 'api/dtos',
     },
     deps: ['api-types'],
   },

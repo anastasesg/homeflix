@@ -30,20 +30,20 @@ function ShowCard({ show }: ShowCardProps) {
         {show.posterUrl ? (
           <Image
             src={show.posterUrl}
-            alt={show.name}
+            alt={show.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="150px"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-muted p-2 text-center text-xs text-muted-foreground">
-            {show.name}
+            {show.title}
           </div>
         )}
       </div>
       <div className="mt-2 px-0.5">
         <p className="truncate text-[13px] font-semibold leading-tight text-foreground/90 transition-colors group-hover:text-foreground">
-          {show.name}
+          {show.title}
         </p>
         <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
           {show.year > 0 && <span>{show.year}</span>}

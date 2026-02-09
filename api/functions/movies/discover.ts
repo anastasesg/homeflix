@@ -1,18 +1,7 @@
-import { buildDiscoverMovieQuery, createTMDBClient, type DiscoverMovieParams } from '@/api/clients/tmdb';
+import { buildDiscoverMovieQuery, createTMDBClient } from '@/api/clients/tmdb';
+import type { DiscoverMovieFilters, DiscoverMoviePage } from '@/api/dtos';
 import type { MovieItem } from '@/api/entities';
 import { tmbdToMovieItem } from '@/api/mappers';
-
-// ============================================================================
-// Types
-// ============================================================================
-
-export type DiscoverMovieFilters = Omit<DiscoverMovieParams, 'page'>;
-
-export interface DiscoverMoviePage {
-  movies: MovieItem[];
-  totalPages: number;
-  totalResults: number;
-}
 
 // ============================================================================
 // Functions

@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Film, Globe } from 'lucide-react';
 
-import type { ShowBasic } from '@/api/entities';
+import type { ShowDetail } from '@/api/entities';
 import { showDetailQueryOptions } from '@/options/queries/shows/detail';
 
 import { Query } from '@/components/query';
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 // ============================================================================
 
 interface EpisodeLinksSuccessProps {
-  show: ShowBasic;
+  show: ShowDetail;
   tmdbId: number;
   seasonNumber: number;
   episodeNumber: number;

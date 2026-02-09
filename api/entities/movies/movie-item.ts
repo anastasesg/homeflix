@@ -1,5 +1,4 @@
-import type { Genre } from '@/api/mappers';
-import type { MediaStatus } from '@/api/types';
+import type { Genre, MediaStatus } from '@/api/types';
 
 export interface MovieItem {
   tmdbId: number;

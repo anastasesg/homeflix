@@ -13,7 +13,7 @@ import {
   Trash2,
 } from 'lucide-react';
 
-import { type HistoryEvent } from '@/api/entities';
+import { type MovieHistoryEvent } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { movieHistoryQueryOptions, movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 
@@ -38,7 +38,7 @@ interface EventConfig {
   pulseColor?: string;
 }
 
-const eventConfig: Record<HistoryEvent['type'], EventConfig> = {
+const eventConfig: Record<MovieHistoryEvent['type'], EventConfig> = {
   grabbed: {
     icon: Download,
     label: 'Grabbed',
@@ -137,7 +137,7 @@ function getRelativeTime(dateStr: string): string {
 // ============================================================================
 
 interface TimelineEventProps {
-  event: HistoryEvent;
+  event: MovieHistoryEvent;
   isFirst: boolean;
   isLast: boolean;
   isLatest: boolean;
@@ -354,7 +354,7 @@ function HistoryTabError({ error }: { error: unknown }) {
 // Content
 // ============================================================================
 
-function HistoryTabContent({ events }: { events: HistoryEvent[] }) {
+function HistoryTabContent({ events }: { events: MovieHistoryEvent[] }) {
   if (events.length === 0) {
     return <EmptyHistory />;
   }

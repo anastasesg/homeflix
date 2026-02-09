@@ -1,6 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import type { MovieItemsRequest } from '@/api/functions';
+import type { MovieItemsRequest } from '@/api/dtos';
 import { fetchFeaturedMovie, fetchMovieHistory, fetchMovieItems, fetchMovieLibraryInfo } from '@/api/functions';
 
 export type MovieQueryProps = MovieItemsRequest;

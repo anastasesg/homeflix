@@ -18,7 +18,7 @@ import {
   Zap,
 } from 'lucide-react';
 
-import { type LibraryInfo } from '@/api/entities';
+import { type MovieLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
 
@@ -183,7 +183,7 @@ function ManageTabError({ error }: { error: unknown }) {
 // Content
 // ============================================================================
 
-function ManageTabContent({ libraryInfo }: { libraryInfo: LibraryInfo }) {
+function ManageTabContent({ libraryInfo }: { libraryInfo: MovieLibraryInfo }) {
   const [monitored, setMonitored] = useState(libraryInfo.monitored);
   const [qualityProfileId, setQualityProfileId] = useState(String(libraryInfo.qualityProfileId ?? 4));
   const [isSearching, setIsSearching] = useState(false);

@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 
-import { type MovieKeywords } from '@/api/entities';
+import { type MediaKeywords } from '@/api/entities';
 import { movieKeywordsQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
@@ -36,7 +36,7 @@ function KeywordsSectionLoading() {
 // ============================================================================
 
 interface KeywordsSectionContentProps {
-  data: MovieKeywords;
+  data: MediaKeywords;
 }
 
 function KeywordsSectionContent({ data }: KeywordsSectionContentProps) {

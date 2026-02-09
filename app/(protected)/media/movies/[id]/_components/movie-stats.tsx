@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Clock, Film, HardDrive, Plus, TrendingUp } from 'lucide-react';
 
-import { type LibraryInfo, type MovieBasic } from '@/api/entities';
+import { type MovieDetail, type MovieLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { movieDetailQueryOptions } from '@/options/queries/movies/detail';
 import { movieLibraryInfoQueryOptions } from '@/options/queries/movies/library';
@@ -72,8 +72,8 @@ function MovieStatsLoading() {
 // ============================================================================
 
 interface MovieStatsSuccessProps {
-  libraryInfo: LibraryInfo;
-  movie: MovieBasic;
+  libraryInfo: MovieLibraryInfo;
+  movie: MovieDetail;
 }
 
 function MovieStatsSuccess({ libraryInfo, movie }: MovieStatsSuccessProps) {

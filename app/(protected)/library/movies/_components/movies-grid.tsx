@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, Film } from 'lucide-react';
 
-import { MovieItemsResponse } from '@/api/functions';
+import { MovieItemsResponse } from '@/api/dtos';
 import { useMovieFilters } from '@/hooks/filters';
 import { movieItemsQueryOptions } from '@/options/queries/movies/library';
 

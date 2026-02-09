@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Film } from 'lucide-react';
 
-import { type MovieCredits } from '@/api/entities';
+import { type MediaCredits } from '@/api/entities';
 import { movieCreditsQueryOptions } from '@/options/queries/movies/detail';
 
 import { Query } from '@/components/query';
@@ -30,7 +30,7 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-type CrewMember = MovieCredits['crew'][number];
+type CrewMember = MediaCredits['crew'][number];
 
 /** Groups crew by department, preserving original order within each group. */
 function groupByDepartment(crew: CrewMember[]): Map<string, CrewMember[]> {
@@ -131,7 +131,7 @@ function CrewSectionLoading() {
 
 const COLLAPSED_DEPARTMENT_LIMIT = 2;
 
-function CrewSectionContent({ credits }: { credits: MovieCredits }) {
+function CrewSectionContent({ credits }: { credits: MediaCredits }) {
   const departments = useMemo(() => groupByDepartment(credits.crew), [credits.crew]);
   const [expanded, setExpanded] = useState(false);
 

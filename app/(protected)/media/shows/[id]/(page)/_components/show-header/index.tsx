@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { Clock, Play, Star, Tv } from 'lucide-react';
 
-import { type ShowBasic, type ShowContentRating, type ShowVideos } from '@/api/entities';
+import { type ContentRating, type MediaVideos, type ShowDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
 import {
   showContentRatingsQueryOptions,
@@ -129,9 +129,9 @@ function ShowHeaderLoading() {
 // ============================================================================
 
 interface ShowHeaderSuccessProps {
-  show: ShowBasic;
-  videos: ShowVideos;
-  contentRatings: ShowContentRating[];
+  show: ShowDetail;
+  videos: MediaVideos;
+  contentRatings: ContentRating[];
   tmdbId: number;
 }
 

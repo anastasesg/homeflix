@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, Tv2 } from 'lucide-react';
 
-import { ShowItemsResponse } from '@/api/functions';
+import { ShowItemsResponse } from '@/api/dtos';
 import { useShowFilters } from '@/hooks/filters';
 import { showItemsQueryOptions } from '@/options/queries/shows/library';
 
