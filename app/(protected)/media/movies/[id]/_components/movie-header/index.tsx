@@ -20,7 +20,9 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { LibraryStatusBadge } from './library-status-badge';
+import { ManagementButton } from './management-button';
+import { PlayButton } from './play-button';
+import { QualityBadge } from './quality-badge';
 
 // ============================================================================
 // Content Rating Badge (query-autonomous)
@@ -217,15 +219,16 @@ function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) 
               <span className="text-muted-foreground">{movie.genres.slice(0, 3).join(' / ')}</span>
             </div>
 
-            {/* Library Status + Actions */}
+            {/* Streaming Actions */}
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <LibraryStatusBadge tmdbId={tmdbId} />
-
+              <PlayButton tmdbId={tmdbId} />
+              <QualityBadge tmdbId={tmdbId} />
+              <ManagementButton tmdbId={tmdbId} />
               {trailerUrl && (
-                <Button className="gap-2 bg-foreground text-background hover:bg-foreground/90" asChild>
+                <Button variant="outline" className="gap-2 border-border" asChild>
                   <a href={trailerUrl} target="_blank" rel="noopener noreferrer">
-                    <Play className="size-4 fill-current" />
-                    Watch Trailer
+                    <Play className="size-4" />
+                    Trailer
                   </a>
                 </Button>
               )}

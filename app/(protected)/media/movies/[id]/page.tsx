@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 
+import { MovieContent } from './_components/movie-content';
 import { MovieHeader } from './_components/movie-header';
-import { MovieStats } from './_components/movie-stats';
-import { MovieTabs } from './_components/movie-tabs';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,8 +15,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <>
       <MovieHeader tmdbId={tmdbId} />
-      <MovieStats tmdbId={tmdbId} />
-      <MovieTabs tmdbId={tmdbId} />
+      <MovieContent tmdbId={tmdbId} />
     </>
   );
 }

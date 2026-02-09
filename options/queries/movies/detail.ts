@@ -7,7 +7,9 @@ import {
   fetchMovieImages,
   fetchMovieKeywords,
   fetchMovieRecommendations,
+  fetchMovieReviews,
   fetchMovieVideos,
+  fetchPersonMovieCredits,
   fetchSimilarMovies,
 } from '@/api/functions';
 
@@ -119,5 +121,35 @@ export function movieExternalLinksQueryOptions(tmdbId: number) {
       tmdbId: movie.tmdbId,
       homepage: movie.homepage,
     }),
+  });
+}
+
+export function movieCollectionQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...movieDetailQueryOptions(tmdbId),
+    select: (movie) => movie.collection,
+  });
+}
+
+export function movieDirectorQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...movieCreditsQueryOptions(tmdbId),
+    select: (credits) => credits.crew.find((c) => c.job === 'Director'),
+  });
+}
+
+export function movieReviewsQueryOptions(tmdbId: number) {
+  return queryOptions({
+    queryKey: ['movies', 'detail', tmdbId, 'reviews'] as const,
+    queryFn: () => fetchMovieReviews(tmdbId),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function personMovieCreditsQueryOptions(personId: number) {
+  return queryOptions({
+    queryKey: ['person', personId, 'movie-credits'] as const,
+    queryFn: () => fetchPersonMovieCredits(personId),
+    staleTime: 10 * 60 * 1000,
   });
 }

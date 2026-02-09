@@ -27,8 +27,11 @@ import {
   OverviewSection,
 } from '@/components/media/sections';
 
+import { CollectionSection } from './collection-section';
 import { DetailsSection } from './details-section';
+import { DirectorFilmographySection } from './director-filmography-section';
 import { ProductionSection } from './production-section';
+import { ReviewsSection } from './reviews-section';
 
 // ============================================================================
 // Utilities
@@ -101,11 +104,11 @@ function MovieCard({ movie }: MovieCardProps) {
 // Main
 // ============================================================================
 
-interface OverviewTabProps {
+interface MovieContentProps {
   tmdbId: number;
 }
 
-function OverviewTab({ tmdbId }: OverviewTabProps) {
+function MovieContent({ tmdbId }: MovieContentProps) {
   return (
     <div className="flex flex-col space-y-8">
       <OverviewSection queryOptions={movieOverviewQueryOptions(tmdbId)} />
@@ -115,6 +118,9 @@ function OverviewTab({ tmdbId }: OverviewTabProps) {
       />
       <CastSection queryOptions={movieCreditsQueryOptions(tmdbId)} />
       <CrewSection queryOptions={movieCreditsQueryOptions(tmdbId)} />
+      <CollectionSection tmdbId={tmdbId} />
+      <ReviewsSection tmdbId={tmdbId} />
+      <DirectorFilmographySection tmdbId={tmdbId} />
       <MediaCarouselSection
         queryOptions={movieRecommendationsQueryOptions(tmdbId)}
         icon={ThumbsUp}
@@ -134,5 +140,5 @@ function OverviewTab({ tmdbId }: OverviewTabProps) {
   );
 }
 
-export type { OverviewTabProps };
-export { OverviewTab };
+export type { MovieContentProps };
+export { MovieContent };

@@ -1,4 +1,4 @@
-import { createTMDBClient } from '@/api/clients/tmdb';
+import { createTMDBClient, getTMDBImageUrl } from '@/api/clients/tmdb';
 import type {
   ContentRating,
   MediaCredits,
@@ -7,6 +7,7 @@ import type {
   MediaVideos,
   MovieDetail,
   MovieRecommendation,
+  MovieReview,
 } from '@/api/entities';
 import {
   tmdbToMovieContentRatings,
@@ -15,6 +16,7 @@ import {
   tmdbToMovieImages,
   tmdbToMovieKeywords,
   tmdbToMovieRecommendations,
+  tmdbToMovieReviews,
   tmdbToMovieVideos,
   tmdbToSimilarMovies,
 } from '@/api/mappers';
@@ -93,4 +95,50 @@ export async function fetchMovieContentRating(tmdbId: number): Promise<ContentRa
   });
   if (error || !data) throw new Error('Failed to fetch movie release dates from TMDB');
   return tmdbToMovieContentRatings(data);
+}
+
+export async function fetchMovieReviews(tmdbId: number): Promise<MovieReview[]> {
+  const client = createTMDBClient();
+  const { data, error } = await client.GET('/3/movie/{movie_id}/reviews', {
+    params: { path: { movie_id: tmdbId } },
+  });
+  if (error || !data) throw new Error('Failed to fetch movie reviews from TMDB');
+  return tmdbToMovieReviews(data);
+}
+
+export async function fetchPersonMovieCredits(personId: number): Promise<MovieRecommendation[]> {
+  const client = createTMDBClient();
+  const { data, error } = await client.GET('/3/person/{person_id}/movie_credits', {
+    params: { path: { person_id: personId } },
+  });
+  if (error || !data) throw new Error('Failed to fetch person movie credits from TMDB');
+
+  // Extract cast array and map to MovieRecommendation
+  interface TMDBPersonMovieCreditsResponse {
+    cast?: Array<{
+      id?: number;
+      title?: string;
+      poster_path?: string;
+      vote_average?: number;
+      vote_count?: number;
+      release_date?: string;
+      overview?: string;
+    }>;
+  }
+
+  const cast = (data as TMDBPersonMovieCreditsResponse).cast ?? [];
+
+  // Sort by vote_count descending, then limit to 20
+  return cast
+    .sort((a, b) => (b.vote_count ?? 0) - (a.vote_count ?? 0))
+    .slice(0, 20)
+    .map((item) => ({
+      mediaType: 'movie' as const,
+      id: item.id ?? 0,
+      title: item.title ?? '',
+      posterUrl: getTMDBImageUrl(item.poster_path, 'w342'),
+      rating: item.vote_average ?? 0,
+      year: item.release_date ? parseInt(item.release_date.substring(0, 4), 10) : 0,
+      overview: item.overview || undefined,
+    }));
 }

@@ -20,4 +20,10 @@ export interface MovieDetail {
   imdbId?: string;
   tmdbId: number;
   homepage?: string;
+  collection?: {
+    id: number;
+    name: string;
+    posterUrl?: string;
+    backdropUrl?: string;
+  };
 }

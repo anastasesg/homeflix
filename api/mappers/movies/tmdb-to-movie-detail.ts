@@ -1,7 +1,24 @@
 import { getTMDBImageUrl, type TMDBMovie } from '@/api/clients/tmdb';
 import type { MovieDetail } from '@/api/entities/movies/movie-detail';
 
+// ============================================================================
+// Types
+// ============================================================================
+
+interface TMDBCollection {
+  id: number;
+  name: string;
+  poster_path?: string | null;
+  backdrop_path?: string | null;
+}
+
+// ============================================================================
+// Mapper
+// ============================================================================
+
 export function tmdbToMovieDetail(movie: TMDBMovie): MovieDetail {
+  const belongsToCollection = movie.belongs_to_collection as TMDBCollection | null | undefined;
+
   return {
     id: movie.id,
     title: movie.title ?? '',
@@ -27,5 +44,13 @@ export function tmdbToMovieDetail(movie: TMDBMovie): MovieDetail {
     imdbId: movie.imdb_id || undefined,
     tmdbId: movie.id,
     homepage: movie.homepage || undefined,
+    collection: belongsToCollection
+      ? {
+          id: belongsToCollection.id,
+          name: belongsToCollection.name,
+          posterUrl: getTMDBImageUrl(belongsToCollection.poster_path, 'w342'),
+          backdropUrl: getTMDBImageUrl(belongsToCollection.backdrop_path, 'w780'),
+        }
+      : undefined,
   };
 }

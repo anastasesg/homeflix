@@ -8,4 +8,5 @@ export * from './tmdb-to-movie-images';
 export * from './tmdb-to-movie-item';
 export * from './tmdb-to-movie-keywords';
 export * from './tmdb-to-movie-recommendations';
+export * from './tmdb-to-movie-reviews';
 export * from './tmdb-to-movie-videos';
