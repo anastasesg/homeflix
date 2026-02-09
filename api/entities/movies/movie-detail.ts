@@ -1,4 +1,4 @@
-export interface MovieBasic {
+export interface MovieDetail {
   id: number;
   title: string;
   originalTitle: string;
@@ -20,37 +20,4 @@ export interface MovieBasic {
   imdbId?: string;
   tmdbId: number;
   homepage?: string;
-}
-
-export interface MovieCredits {
-  cast: Array<{ name: string; character: string; profileUrl?: string; order: number }>;
-  crew: Array<{ name: string; job: string; department: string; profileUrl?: string }>;
-}
-
-export interface MovieImages {
-  backdrops: string[];
-  posters: string[];
-}
-
-export interface MovieVideos {
-  trailerUrl?: string;
-  videos: Array<{ id: string; name: string; type: string; url: string }>;
-}
-
-export interface MovieKeywords {
-  keywords: string[];
-}
-
-export interface MovieRecommendation {
-  id: number;
-  title: string;
-  posterUrl?: string;
-  rating: number;
-  year: number;
-  overview?: string;
-}
-
-export interface MovieContentRating {
-  country: string;
-  rating: string;
 }
