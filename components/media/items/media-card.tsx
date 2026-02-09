@@ -140,7 +140,7 @@ function GenericCardContent<TRoute extends string = string>({
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-xl ring-1 ring-white/5 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:ring-2 hover:ring-primary/40 hover:shadow-xl hover:shadow-primary/10"
+      className="group relative block overflow-hidden rounded-xl border border-border/20 transition-colors duration-300 hover:border-primary/40"
       style={animationDelay ? { animationDelay: `${animationDelay}ms` } : undefined}
     >
       <AspectRatio ratio={2 / 3}>

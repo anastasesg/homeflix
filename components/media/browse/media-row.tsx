@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 import { MediaCard } from '@/components/media/items';
 import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // ============================================================================
@@ -44,6 +45,11 @@ interface MediaRowLoadingProps {
 // ============================================================================
 // Utilities
 // ============================================================================
+
+const cardBasisClass: Record<MediaRowSize, string> = {
+  default: 'basis-[140px] sm:basis-[160px] md:basis-[180px]',
+  lg: 'basis-[160px] sm:basis-[180px] md:basis-[200px]',
+};
 
 const cardWidthClass: Record<MediaRowSize, string> = {
   default: 'w-[140px] sm:w-[160px] md:w-[180px]',
@@ -124,22 +130,15 @@ function MediaRow({ type, size, title, media, onSeeAll }: MediaRowProps) {
       </div>
 
       {/* Row content */}
-      <div className="relative -mx-2">
-        <div
-          className="flex touch-pan-x gap-3 overflow-x-auto px-2 py-2 scrollbar-none sm:gap-4"
-          style={{ scrollSnapType: 'x mandatory' }}
-        >
+      <Carousel opts={{ align: 'start', loop: false, dragFree: true }} className="w-full">
+        <CarouselContent className="-ml-3 py-1 sm:-ml-4">
           {media.map((item, index) => (
-            <div
-              key={item.tmdbId}
-              className={cn('shrink-0', cardWidthClass[size])}
-              style={{ scrollSnapAlign: 'start' }}
-            >
+            <CarouselItem key={item.tmdbId} className={cn('pl-3 sm:pl-4', cardBasisClass[size])}>
               <MediaCard type={type} data={item as MovieItem & ShowItem} index={index} />
-            </div>
+            </CarouselItem>
           ))}
-        </div>
-      </div>
+        </CarouselContent>
+      </Carousel>
     </section>
   );
 }
