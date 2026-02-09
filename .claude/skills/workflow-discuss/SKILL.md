@@ -1,17 +1,56 @@
 ---
 name: workflow-discuss
-description: Use when the /work command starts a new workspace. Guides the discussion phase — asks clarifying questions one at a time, captures decisions in DISCUSSION.md, tracks assumptions in ASSUMPTIONS.md.
+description: Kick off a new workflow by discussing requirements — asks clarifying questions, explores trade-offs, and captures decisions in a structured format.
 ---
 
 # Workflow: Discussion Phase
 
 Guide the user through a structured discussion to understand what they want to build/fix/refactor. Capture everything in DISCUSSION.md.
 
-## Inputs
+## Workspace Setup
 
-- **Workspace path**: `.working/{type}/{slug}/` (provided by /work command)
-- **User's description**: The original intent (from /work arguments)
-- **STATUS.md**: Already created by /work command with type, slug, timestamps
+The user invokes this as `/workflow-discuss {description}`.
+
+### 1. Parse arguments
+
+If `$ARGUMENTS` is empty, ask the user to describe what they want to work on.
+
+### 2. Classify work type
+
+Based on the description, determine the type:
+- `feat` — New feature or functionality
+- `bug` — Bug fix
+- `refactor` — Code restructuring without behavior change
+- `docs` — Documentation changes
+- `chore` — Maintenance, dependencies, tooling
+
+### 3. Generate slug
+
+Create a descriptive, kebab-case slug (3-5 words max). Examples:
+- "add global search with filters" → `global-search-filters`
+- "fix movie detail page crash" → `fix-movie-detail-crash`
+
+### 4. Confirm with user
+
+Present: **"I'd classify this as `{type}` with slug `{slug}`. Does that look right?"**
+
+Wait for confirmation before proceeding.
+
+### 5. Create workspace
+
+```bash
+mkdir -p .working/{type}/{slug}
+```
+
+Write `.working/{type}/{slug}/STATUS.yaml`:
+
+```yaml
+slug: {slug}
+type: {type}
+phase: discussion
+created: {ISO timestamp}
+updated: {ISO timestamp}
+```
 
 ## Skills Integration
 
@@ -112,8 +151,8 @@ If any assumptions are made during discussion, create/update `.working/{type}/{s
 When the discussion feels complete (scope is clear, decisions are made, no open questions):
 
 1. Present a summary of DISCUSSION.md to the user
-2. Ask: **"Does this capture everything? Ready to move to design with `/workflow:design {slug}`?"**
-3. Update STATUS.md: `phase: discussion-complete`
+2. Ask: **"Does this capture everything? Ready to move to design with `/workflow-design {slug}`?"** (or continue with `/workflow-plan {slug}` if design isn't needed)
+3. Update STATUS.yaml: `phase: discussion-complete`
 
 ## Rules
 

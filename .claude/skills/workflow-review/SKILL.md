@@ -1,18 +1,21 @@
 ---
 name: workflow-review
-description: Use when /workflow:review command is invoked. Presents the aggregated implementation report to the user for final sign-off. Runs final verification across all changes.
+description: Review completed implementation — runs final verification across all changes and presents results for user sign-off.
 ---
 
 # Workflow: Review Phase
 
 Present the implementation results for user sign-off before committing.
 
-## Prerequisites
+## Workspace Discovery
 
-- `.working/{type}/{slug}/impl/IMPLEMENTATION.md` must exist
-- `STATUS.md` phase must be `implementation-complete`
+The user invokes this as `/workflow-review {slug}`.
 
-If prerequisites aren't met, tell the user which phase to complete first.
+1. If `$ARGUMENTS` is empty, scan `.working/*/` directories and list available workspaces — ask which one
+2. Scan `.working/*/` for a folder matching the slug `$ARGUMENTS`
+3. Read `STATUS.yaml` — phase must be `implementation-complete`. If not, tell the user which phase to complete first.
+4. Verify `.working/{type}/{slug}/impl/IMPLEMENTATION.md` exists
+5. Update STATUS.yaml: `phase: review`, `updated: {ISO timestamp}`
 
 ## Skills Integration
 
@@ -29,7 +32,12 @@ If prerequisites aren't met, tell the user which phase to complete first.
 
 ### 1. Read implementation report
 
-Read `impl/IMPLEMENTATION.md` and all individual task reports from `impl/task/TASK_*.md`.
+Read `impl/IMPLEMENTATION.md` — the **YAML frontmatter** contains structured results:
+- `total_tasks`, `completed`, `failed`, `all_approved` — summary stats
+- `verification` — aggregate TypeScript and lint status
+- `tasks` — array of `{id, title, status, commit, review}` for each task
+
+Also read individual task reports from `impl/task/TASK_*.md` for detailed notes and review findings.
 
 ### 2. Run final verification
 
@@ -81,8 +89,8 @@ If the user requests changes:
 - Present again
 
 If the user approves:
-- Update STATUS.md: `phase: review-complete`
-- Tell them: **"Approved. Run `/workflow:complete {slug}` to squash and finalize."**
+- Update STATUS.yaml: `phase: review-complete`
+- Tell them: **"Approved. Run `/workflow-complete {slug}` to squash and finalize."**
 
 ## Rules
 

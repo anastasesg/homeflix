@@ -1,18 +1,21 @@
 ---
 name: workflow-design
-description: Use when /workflow:design command is invoked. Reads DISCUSSION.md and produces a high-level DESIGN.md through iterative user validation. Presents design in 200-300 word sections.
+description: Convert discussion output into a validated design — reads captured requirements and presents architecture for iterative approval.
 ---
 
 # Workflow: Design Phase
 
 Transform the discussion output into a validated high-level design.
 
-## Prerequisites
+## Workspace Discovery
 
-- `.working/{type}/{slug}/DISCUSSION.md` must exist
-- `STATUS.md` phase must be `discussion-complete`
+The user invokes this as `/workflow-design {slug}`.
 
-If prerequisites aren't met, tell the user which phase to complete first.
+1. If `$ARGUMENTS` is empty, scan `.working/*/` directories and list available workspaces — ask which one
+2. Scan `.working/*/` for a folder matching the slug `$ARGUMENTS`
+3. Read `STATUS.yaml` — phase must be `discussion-complete`. If not, tell the user which phase to complete first.
+4. Verify `.working/{type}/{slug}/DISCUSSION.md` exists
+5. Update STATUS.yaml: `phase: design`, `updated: {ISO timestamp}`
 
 ## Skills Integration
 
@@ -43,7 +46,7 @@ When presenting design sections, **cite which skill** informed the decision — 
 Read these files from the workspace:
 - `DISCUSSION.md` — decisions, scope, relevant code, **applicable skills**
 - `ASSUMPTIONS.md` — if it exists
-- `STATUS.md` — workspace metadata
+- `STATUS.yaml` — workspace metadata
 
 ### 2. Explore approaches
 
@@ -121,8 +124,8 @@ Carried forward from DISCUSSION.md, refined with implementation-specific detail:
 ### 5. Wrap up
 
 1. Present the complete DESIGN.md for final confirmation
-2. Ask: **"Design looks complete. Ready to plan with `/workflow:plan {slug}`?"**
-3. Update STATUS.md: `phase: design-complete`
+2. Ask: **"Design looks complete. Ready to plan with `/workflow-plan {slug}`?"**
+3. Update STATUS.yaml: `phase: design-complete`
 
 ## Rules
 

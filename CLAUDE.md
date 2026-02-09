@@ -75,10 +75,10 @@ Project-specific instructions for Claude Code.
 - `hooks/filters/` — URL filter hooks (nuqs)
 - `options/queries/` — Query option factories
 - `utilities/` — Formatters (currency, duration)
-- `.claude/skills/` — Claude Code skills (auto-discovered)
-- `.claude/commands/` — Slash commands (thin wrappers delegating to skills)
+- `.claude/skills/` — Claude Code skills (auto-discovered, includes workflow phases)
+- `.claude/commands/` — Legacy slash commands (commit, review-ui, review-accessibility)
 - `.claude/agents/` — Subagent definitions (task-implementer, task-reviewer)
-- `.working/` — Workflow workspaces (gitignored, created by `/work` command)
+- `.working/` — Workflow workspaces (gitignored, created by `/workflow:work`)
 
 ## Environment
 
@@ -102,13 +102,14 @@ Requires `.env.local` with API URLs and keys for four services:
 
 ## Workflow System
 
-When a task is too complex for simple chat (multi-file features, architectural changes, anything needing design decisions), suggest using the workflow system: **"This looks like it could benefit from the workflow system — want me to start with `/workflow:work`?"**
+When a task is too complex for simple chat (multi-file features, architectural changes, anything needing design decisions), suggest using the workflow system: **"This looks like it could benefit from the workflow system — want me to start with `/workflow-discuss`?"**
 
-- **Commands**: `/workflow:work`, `/workflow:design`, `/workflow:plan`, `/workflow:implement`, `/workflow:review`, `/workflow:complete`
+- **Skills**: `workflow-discuss` (`/workflow-discuss`), `workflow-design`, `workflow-plan`, `workflow-implement`, `workflow-review`, `workflow-complete`
 - **Flow**: discussion → design → plan → implementation → review → commit
 - **Workspaces**: `.working/{type}/{slug}/` (gitignored) — type is feat/bug/refactor/docs/chore
 - **Agents**: `task-implementer` (sonnet, implements single tasks), `task-reviewer` (sonnet, reviews tasks)
-- Skills, agents, and commands live in `.claude/` (gitignored, local-only)
+- **File formats**: `STATUS.yaml` (pure YAML), task specs and reports use YAML frontmatter + markdown body, `DISCUSSION.md` and `DESIGN.md` remain pure markdown
+- Skills and agents live in `.claude/` (gitignored, local-only)
 
 ## Commands
 

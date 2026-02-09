@@ -1,18 +1,21 @@
 ---
 name: workflow-plan
-description: Use when /workflow:plan command is invoked. Reads DESIGN.md and decomposes it into atomic TASK files with dependency tracking. Creates plan/PLAN.md and plan/task/TASK_{N}.md files.
+description: Break an approved design into atomic implementation tasks — creates dependency-ordered task specs ready for parallel agent execution.
 ---
 
 # Workflow: Plan Phase
 
 Decompose the design into atomic, narrowly-scoped implementation tasks.
 
-## Prerequisites
+## Workspace Discovery
 
-- `.working/{type}/{slug}/DESIGN.md` must exist
-- `STATUS.md` phase must be `design-complete`
+The user invokes this as `/workflow-plan {slug}`.
 
-If prerequisites aren't met, tell the user which phase to complete first.
+1. If `$ARGUMENTS` is empty, scan `.working/*/` directories and list available workspaces — ask which one
+2. Scan `.working/*/` for a folder matching the slug `$ARGUMENTS`
+3. Read `STATUS.yaml` — phase must be `design-complete`. If not, tell the user which phase to complete first.
+4. Verify `.working/{type}/{slug}/DESIGN.md` exists
+5. Update STATUS.yaml: `phase: plan`, `updated: {ISO timestamp}`
 
 ## Skills Integration
 
@@ -82,29 +85,38 @@ Group tasks into batches for parallel execution:
 
 Create `.working/{type}/{slug}/plan/PLAN.md`:
 
-```markdown
-# Plan: {slug}
+````markdown
+---
+slug: "{slug}"
+total_tasks: {N}
+tasks:
+  - id: 1
+    title: "..."
+    depends_on: []
+    blocks: [3, 4]
+    batch: 1
+    skills: [code-style, data-fetching]
+  - id: 2
+    title: "..."
+    depends_on: []
+    blocks: [5]
+    batch: 1
+    skills: [code-style, component-architecture, styling-design]
+  - id: 3
+    title: "..."
+    depends_on: [1]
+    blocks: [6]
+    batch: 2
+    skills: [code-style, data-fetching]
+batches:
+  - batch: 1
+    tasks: [1, 2]
+  - batch: 2
+    tasks: [3, 4]
+---
 
 ## Summary
 {What this plan implements, referencing the design}
-
-## Task Overview
-
-| # | Title | Depends On | Blocks | Batch | Skills |
-|---|-------|-----------|--------|-------|--------|
-| 1 | ... | — | 3, 4 | 1 | code-style, data-fetching |
-| 2 | ... | — | 5 | 1 | code-style, component-architecture, styling-design |
-| 3 | ... | 1 | 6 | 2 | code-style, data-fetching |
-
-## Execution Batches
-
-### Batch 1 (parallel)
-- Task 1: ...
-- Task 2: ...
-
-### Batch 2 (parallel, after batch 1)
-- Task 3: ...
-- Task 4: ...
 
 ## File Impact Summary
 
@@ -116,19 +128,43 @@ Create `.working/{type}/{slug}/plan/PLAN.md`:
 
 ## Risk Areas
 - {Anything that might cause issues during implementation}
-```
+````
+
+**Frontmatter schema notes:**
+- `tasks` — full task overview (replaces the markdown table); used by workflow-implement to resolve dependencies
+- `batches` — execution order; each batch lists task IDs that can run in parallel
+- Prose sections (Summary, File Impact, Risk Areas) stay in the markdown body for readability
 
 ### 6. Write task files
 
 Create `.working/{type}/{slug}/plan/task/TASK_{N}.md` for each task using this template:
 
-```markdown
-# Task {N}: {Title}
-
-## Status
+````markdown
+---
+task: {N}
+title: "{Title}"
 status: pending
 depends_on: []
 blocks: []
+batch: {batch_number}
+skills:
+  - code-style
+  - "{other applicable skills}"
+files_create:
+  - path: "path/to/file.ts"
+    description: "What this file does"
+files_modify:
+  - path: "path/to/file.ts"
+    description: "What specific changes to make"
+files_reference:
+  - path: "path/to/file.ts"
+    description: "Why to read this (pattern to follow, types to use, etc.)"
+acceptance:
+  - "Specific functional criterion 1"
+  - "Specific functional criterion 2"
+  - "bun check passes"
+  - "bun lint --fix clean"
+---
 
 ## Context
 {Why this task exists and how it fits in the plan. Reference the design.}
@@ -136,38 +172,27 @@ blocks: []
 ## Objective
 {Single clear sentence of what this task accomplishes.}
 
-## Scope
-### Files to create
-- `path/to/file.ts` — Description of what this file does
-
-### Files to modify
-- `path/to/file.ts` — What specific changes to make
-
-### Files for reference (read-only)
-- `path/to/file.ts` — Why to read this (pattern to follow, types to use, etc.)
-
-## Applicable Skills
-The task-implementer agent MUST read these skills (from `.claude/skills/`) before writing code:
-- `code-style` — Import ordering, export rules, formatting
+## Skills Guidance
+The task-implementer agent MUST read these skills (from `.claude/skills/`) before writing code.
+Always include `code-style`. Add others based on what the task does:
 - `component-architecture` — {Why, if applicable}
 - `data-fetching` — {Why, if applicable}
 - `styling-design` — {Why, if applicable}
-(Always include `code-style`. Add others based on what the task does.)
 
 ## Implementation Notes
 - Specific guidance, patterns to follow, gotchas
 - Reference existing code patterns: "Follow the same pattern as `api/functions/movies.ts`"
 - Note any project conventions: "Use `cn()` for class merging, named exports only"
 
-## Acceptance Criteria
-- [ ] Specific functional criterion 1
-- [ ] Specific functional criterion 2
-- [ ] TypeScript compiles: `bun check` passes
-- [ ] Lint passes: `bun lint --fix` clean
-
 ## Out of Scope
 - {Things explicitly excluded — prevents agent scope creep}
-```
+````
+
+**Frontmatter schema notes:**
+- `skills` — list of skill names the task-implementer must read; always includes `code-style`
+- `files_create` / `files_modify` / `files_reference` — structured file lists for programmatic access
+- `acceptance` — flat list of strings; the last two should always be `bun check` and `bun lint`
+- Prose sections (Context, Objective, Implementation Notes, Out of Scope) stay in the markdown body
 
 ### 7. Present and validate
 
@@ -175,7 +200,7 @@ The task-implementer agent MUST read these skills (from `.claude/skills/`) befor
 2. Walk through the dependency graph: "Tasks 1 and 2 run in parallel, then task 3 after 1 completes..."
 3. Ask: **"Does this task breakdown look right? Any tasks too big or missing?"**
 4. Adjust based on feedback
-5. Update STATUS.md: `phase: plan-complete`
+5. Update STATUS.yaml: `phase: plan-complete`
 
 ## Rules
 

@@ -1,6 +1,6 @@
 ---
 name: workflow-complete
-description: Use when /workflow:complete command is invoked. Squashes all task commits into one clean commit without co-author info, removes the worktree, and marks the workspace as complete.
+description: Finalize the workflow — squash commits into one clean commit, remove the worktree, and close the workspace.
 ---
 
 # Workflow: Complete Phase
@@ -13,17 +13,20 @@ Finalize the work — squash, clean up, and close the workspace.
 - **`finishing-a-development-branch`** — Invoke this before squashing/merging. It guides the decision on how to integrate the work (squash merge, rebase, etc.) and ensures nothing is left behind.
 - **`verification-before-completion`** — Final pre-merge verification. Run `bun check` and `bun lint --fix` one last time on the worktree before squashing.
 
-## Prerequisites
+## Workspace Discovery
 
-- `STATUS.md` phase must be `review-complete`
+The user invokes this as `/workflow-complete {slug}`.
 
-If not, tell the user which phase to complete first.
+1. If `$ARGUMENTS` is empty, scan `.working/*/` directories and list available workspaces — ask which one
+2. Scan `.working/*/` for a folder matching the slug `$ARGUMENTS`
+3. Read `STATUS.yaml` — phase must be `review-complete`. If not, tell the user which phase to complete first.
+4. Update STATUS.yaml: `phase: completing`, `updated: {ISO timestamp}`
 
 ## Process
 
 ### 1. Read workspace state
 
-Read `STATUS.md` for:
+Read `STATUS.yaml` for:
 - `branch` — the worktree branch name
 - `worktree` — the worktree path
 - `type` — for commit message prefix
@@ -85,7 +88,7 @@ rmdir .worktrees/{type} 2>/dev/null || true
 
 ### 5. Mark complete
 
-Update STATUS.md:
+Update STATUS.yaml:
 - `phase: complete`
 - `completed: {ISO timestamp}`
 
