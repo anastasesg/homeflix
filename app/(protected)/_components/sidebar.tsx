@@ -66,7 +66,6 @@ const navigation = {
   discover: [
     { title: 'Search', url: '/discover/search', icon: Search },
     { title: 'Calendar', url: '/discover/calendar', icon: Calendar },
-    { title: 'Requests', url: '/discover/requests', icon: Hand },
   ],
   media: [
     { title: 'Movies', url: '/media/movies', icon: Film },
@@ -84,6 +83,7 @@ const navigation = {
   ],
   system: [
     { title: 'Dashboard', url: '/system/dashboard', icon: Gauge },
+    { title: 'Requests', url: '/system/requests', icon: Hand },
     { title: 'Services', url: '/system/services', icon: Server },
     { title: 'Settings', url: '/system/settings', icon: Settings },
   ],

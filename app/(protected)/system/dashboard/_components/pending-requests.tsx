@@ -134,7 +134,7 @@ function PendingRequests() {
 
       <CardFooter className="p-0">
         <Button variant="ghost" size="sm" className="w-full rounded-none rounded-b-xl" asChild>
-          <Link href="/discover/requests">
+          <Link href="/system/requests">
             Manage requests
             <ArrowRight className="size-3" />
           </Link>
