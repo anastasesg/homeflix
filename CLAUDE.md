@@ -77,8 +77,8 @@ Project-specific instructions for Claude Code.
 - `utilities/` — Formatters (currency, duration)
 - `.claude/skills/` — Claude Code skills (auto-discovered, includes workflow phases)
 - `.claude/commands/` — Legacy slash commands (commit, review-ui, review-accessibility)
-- `.claude/agents/` — Subagent definitions (task-implementer, task-reviewer)
-- `.working/` — Workflow workspaces (gitignored, created by `/workflow:work`)
+- `.claude/agents/` — Subagent definitions (task-implementer, task-reviewer, task-committer)
+- `.workflow/` — Workflow workspaces + worktrees (gitignored, created by `/workflow-discuss`)
 
 ## Environment
 
@@ -106,8 +106,9 @@ When a task is too complex for simple chat (multi-file features, architectural c
 
 - **Skills**: `workflow-discuss` (`/workflow-discuss`), `workflow-design`, `workflow-plan`, `workflow-implement`, `workflow-review`, `workflow-complete`
 - **Flow**: discussion → design → plan → implementation → review → commit
-- **Workspaces**: `.working/{type}/{slug}/` (gitignored) — type is feat/bug/refactor/docs/chore
-- **Agents**: `task-implementer` (sonnet, implements single tasks), `task-reviewer` (sonnet, reviews tasks)
+- **Workspaces**: `.workflow/{type}/{slug}/` (gitignored) — type is feat/bug/refactor/docs/chore
+- **Worktrees**: `.workflow/{type}/{slug}/worktrees/base/` + per-task `worktrees/task-{N}/` (isolated, removed after commit)
+- **Agents**: `task-implementer` (sonnet, implements single tasks), `task-reviewer` (sonnet, reviews tasks), `task-committer` (haiku, stages + commits)
 - **File formats**: `STATUS.yaml` (pure YAML), task specs and reports use YAML frontmatter + markdown body, `DISCUSSION.md` and `DESIGN.md` remain pure markdown
 - Skills and agents live in `.claude/` (gitignored, local-only)
 

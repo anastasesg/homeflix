@@ -11,10 +11,10 @@ Decompose the design into atomic, narrowly-scoped implementation tasks.
 
 The user invokes this as `/workflow-plan {slug}`.
 
-1. If `$ARGUMENTS` is empty, scan `.working/*/` directories and list available workspaces — ask which one
-2. Scan `.working/*/` for a folder matching the slug `$ARGUMENTS`
+1. If `$ARGUMENTS` is empty, scan `.workflow/*/` directories and list available workspaces — ask which one
+2. Scan `.workflow/*/` for a folder matching the slug `$ARGUMENTS`
 3. Read `STATUS.yaml` — phase must be `design-complete`. If not, tell the user which phase to complete first.
-4. Verify `.working/{type}/{slug}/DESIGN.md` exists
+4. Verify `.workflow/{type}/{slug}/DESIGN.md` exists
 5. Update STATUS.yaml: `phase: plan`, `updated: {ISO timestamp}`
 
 ## Skills Integration
@@ -83,7 +83,7 @@ Group tasks into batches for parallel execution:
 
 ### 5. Write plan/PLAN.md
 
-Create `.working/{type}/{slug}/plan/PLAN.md`:
+Create `.workflow/{type}/{slug}/plan/PLAN.md`:
 
 ````markdown
 ---
@@ -137,7 +137,7 @@ batches:
 
 ### 6. Write task files
 
-Create `.working/{type}/{slug}/plan/task/TASK_{N}.md` for each task using this template:
+Create `.workflow/{type}/{slug}/plan/task/TASK_{N}.md` for each task using this template:
 
 ````markdown
 ---

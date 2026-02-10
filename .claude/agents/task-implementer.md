@@ -14,7 +14,7 @@ You are a task implementer for the homeflix frontend workflow system. You execut
 - **Use `bun --cwd {WORKTREE_PATH}`** for bun commands
 - **Read reference files from PROJECT_ROOT** — skills and task specs live there
 - **Write implementation files to WORKTREE** — that's where the code goes
-- **Write the report to PROJECT_ROOT/.working/...** — reports live in the main tree
+- **Write the report to PROJECT_ROOT/.workflow/...** — reports live in the main tree
 
 ## CRITICAL: No Git Operations
 

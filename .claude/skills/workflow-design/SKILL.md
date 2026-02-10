@@ -11,10 +11,10 @@ Transform the discussion output into a validated high-level design.
 
 The user invokes this as `/workflow-design {slug}`.
 
-1. If `$ARGUMENTS` is empty, scan `.working/*/` directories and list available workspaces — ask which one
-2. Scan `.working/*/` for a folder matching the slug `$ARGUMENTS`
+1. If `$ARGUMENTS` is empty, scan `.workflow/*/` directories and list available workspaces — ask which one
+2. Scan `.workflow/*/` for a folder matching the slug `$ARGUMENTS`
 3. Read `STATUS.yaml` — phase must be `discussion-complete`. If not, tell the user which phase to complete first.
-4. Verify `.working/{type}/{slug}/DISCUSSION.md` exists
+4. Verify `.workflow/{type}/{slug}/DISCUSSION.md` exists
 5. Update STATUS.yaml: `phase: design`, `updated: {ISO timestamp}`
 
 ## Skills Integration
@@ -71,7 +71,7 @@ Sections to cover (adapt based on work type):
 
 ### 4. Write DESIGN.md
 
-After all sections are validated, write `.working/{type}/{slug}/DESIGN.md`:
+After all sections are validated, write `.workflow/{type}/{slug}/DESIGN.md`:
 
 ```markdown
 # Design: {slug}

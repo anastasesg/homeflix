@@ -11,10 +11,10 @@ Present the implementation results for user sign-off before committing.
 
 The user invokes this as `/workflow-review {slug}`.
 
-1. If `$ARGUMENTS` is empty, scan `.working/*/` directories and list available workspaces — ask which one
-2. Scan `.working/*/` for a folder matching the slug `$ARGUMENTS`
+1. If `$ARGUMENTS` is empty, scan `.workflow/*/` directories and list available workspaces — ask which one
+2. Scan `.workflow/*/` for a folder matching the slug `$ARGUMENTS`
 3. Read `STATUS.yaml` — phase must be `implementation-complete`. If not, tell the user which phase to complete first.
-4. Verify `.working/{type}/{slug}/impl/IMPLEMENTATION.md` exists
+4. Verify `.workflow/{type}/{slug}/impl/IMPLEMENTATION.md` exists
 5. Update STATUS.yaml: `phase: review`, `updated: {ISO timestamp}`
 
 ## Skills Integration
@@ -39,13 +39,14 @@ Read `impl/IMPLEMENTATION.md` — the **YAML frontmatter** contains structured r
 
 Also read individual task reports from `impl/task/TASK_*.md` for detailed notes and review findings.
 
+Read `STATUS.yaml` for `base_worktree` — this is the worktree with all merged changes.
+
 ### 2. Run final verification
 
-In the worktree, run:
+In the **base worktree** (which has all task branches merged in), run:
 ```bash
-cd {worktree_path}
-bun check
-bun lint --fix
+bun --cwd {BASE_WORKTREE} check
+bun --cwd {BASE_WORKTREE} lint --fix
 ```
 
 Both must pass across the entire codebase, not just changed files.
@@ -54,8 +55,7 @@ Both must pass across the entire codebase, not just changed files.
 
 Show the complete diff from the branch point:
 ```bash
-cd {worktree_path}
-git diff main...HEAD --stat
+git -C {BASE_WORKTREE} diff main...HEAD --stat
 ```
 
 ### 4. Present to user
@@ -84,7 +84,8 @@ Present a structured summary:
 
 If the user requests changes:
 - Note what needs to change
-- Either make the changes directly or spawn a task-implementer agent
+- **Always spawn a task-implementer agent** — NEVER make code changes yourself
+- Use the base worktree for any fix-up work (create a temporary task worktree if needed)
 - Re-run verification
 - Present again
 
@@ -98,3 +99,4 @@ If the user approves:
 - **Run fresh verification** — don't trust cached results from task reports
 - **User decides** — present findings, let the user approve or request changes
 - **Be transparent about issues** — if anything failed, highlight it clearly
+- **Use the base worktree** — all review verification happens there (task worktrees are gone)

@@ -20,6 +20,11 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    './components/ui/*.tsx',
+    './hooks/use-mobile.ts',
+    './lib/utils.ts',
+    '**/*.d.ts',
+    '.workflow/**',
   ]),
   // Import ordering and cleanup rules
   eslintPluginPrettier,
@@ -88,9 +93,6 @@ const eslintConfig = defineConfig([
     rules: {
       'boundaries/element-types': ['error', { default: 'disallow', rules: buildElementTypeRules() }],
     },
-  },
-  {
-    ignores: ['./components/ui/*.tsx', './hooks/use-mobile.ts', './lib/utils.ts', '**/*.d.ts', '.worktrees/'],
   },
 ]);
 

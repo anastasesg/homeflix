@@ -20,11 +20,8 @@
 # production
 /build
 
-# worktrees
-.worktrees/
-
-# workflow system workspace
-.working/
+# workflow system (workspaces + worktrees)
+.workflow/
 
 # misc
 .DS_Store
@@ -48,4 +45,3 @@ next-env.d.ts
 .vscode/
 .idea/
 .ai/
-.worktrees/

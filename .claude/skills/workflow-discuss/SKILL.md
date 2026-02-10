@@ -39,10 +39,10 @@ Wait for confirmation before proceeding.
 ### 5. Create workspace
 
 ```bash
-mkdir -p .working/{type}/{slug}
+mkdir -p .workflow/{type}/{slug}
 ```
 
-Write `.working/{type}/{slug}/STATUS.yaml`:
+Write `.workflow/{type}/{slug}/STATUS.yaml`:
 
 ```yaml
 slug: {slug}
@@ -97,7 +97,7 @@ As the discussion progresses, proactively explore relevant code:
 
 ### 3. Capture in DISCUSSION.md
 
-Write/update `.working/{type}/{slug}/DISCUSSION.md` as the conversation progresses:
+Write/update `.workflow/{type}/{slug}/DISCUSSION.md` as the conversation progresses:
 
 ```markdown
 # Discussion: {slug}
@@ -136,7 +136,7 @@ Write/update `.working/{type}/{slug}/DISCUSSION.md` as the conversation progress
 
 ### 4. Track assumptions
 
-If any assumptions are made during discussion, create/update `.working/{type}/{slug}/ASSUMPTIONS.md`:
+If any assumptions are made during discussion, create/update `.workflow/{type}/{slug}/ASSUMPTIONS.md`:
 
 ```markdown
 # Assumptions: {slug}
