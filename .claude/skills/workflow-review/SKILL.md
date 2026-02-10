@@ -85,7 +85,7 @@ Present a structured summary:
 If the user requests changes:
 - Note what needs to change
 - **Always spawn a task-implementer agent** — NEVER make code changes yourself
-- Use the base worktree for any fix-up work (create a temporary task worktree if needed)
+- Create a temporary task worktree for fix-up work (branch from base, merge back after)
 - Re-run verification
 - Present again
 

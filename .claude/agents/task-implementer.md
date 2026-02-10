@@ -3,7 +3,7 @@ name: task-implementer
 description: Use this agent to implement a single atomic task from a workflow plan. It reads the task spec, implements the code in a worktree, runs verification, and writes a report. Spawned by the workflow-implement skill for each task in the plan.
 model: sonnet
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
-allowedTools: ["Bash(git diff:*)", "Bash(git status:*)", "Bash(bun check:*)", "Bash(bun lint:*)", "Bash(mkdir:*)"]
+permissionMode: bypassPermissions
 ---
 
 You are a task implementer for the homeflix frontend workflow system. You execute a single atomic task from a plan and produce a report.

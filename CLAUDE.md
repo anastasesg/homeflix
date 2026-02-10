@@ -104,12 +104,16 @@ Requires `.env.local` with API URLs and keys for four services:
 
 When a task is too complex for simple chat (multi-file features, architectural changes, anything needing design decisions), suggest using the workflow system: **"This looks like it could benefit from the workflow system — want me to start with `/workflow-discuss`?"**
 
-- **Skills**: `workflow-discuss` (`/workflow-discuss`), `workflow-design`, `workflow-plan`, `workflow-implement`, `workflow-review`, `workflow-complete`
-- **Flow**: discussion → design → plan → implementation → review → commit
+- **Skills**: `workflow-discuss`, `workflow-design`, `workflow-plan`, `workflow-implement`, `workflow-review`, `workflow-complete`, `workflow-abort`
+- **Flow**: discussion → design (optional) → plan → implementation → review → commit
+- **Abort**: `/workflow-abort {slug}` cleans up worktrees/branches for stuck or abandoned workflows
 - **Workspaces**: `.workflow/{type}/{slug}/` (gitignored) — type is feat/bug/refactor/docs/chore
 - **Worktrees**: `.workflow/{type}/{slug}/worktrees/base/` + per-task `worktrees/task-{N}/` (isolated, removed after commit)
-- **Agents**: `task-implementer` (sonnet, implements single tasks), `task-reviewer` (sonnet, reviews tasks), `task-committer` (haiku, stages + commits)
+- **Agents**: `task-implementer` (sonnet, implements single tasks), `task-reviewer` (sonnet, reviews tasks), `task-committer` (haiku, stages + commits) — all use `permissionMode: bypassPermissions`
+- **Git branches**: `work/{type}/{slug}/base` (base) + `work/{type}/{slug}/task-{N}` (per-task) — both leaf nodes under same prefix
 - **File formats**: `STATUS.yaml` (pure YAML), task specs and reports use YAML frontmatter + markdown body, `DISCUSSION.md` and `DESIGN.md` remain pure markdown
+- **Agent guardrails**: Reviewer runs `bun lint` (NO `--fix`); max 3 retries per task on NEEDS_FIXES; `bun check` on base worktree after each merge
+- **Agent prompts**: Must be fully self-contained with absolute paths — agents have NO access to the orchestrator's conversation context
 - Skills and agents live in `.claude/` (gitignored, local-only)
 
 ## Commands

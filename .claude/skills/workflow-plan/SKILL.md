@@ -13,8 +13,11 @@ The user invokes this as `/workflow-plan {slug}`.
 
 1. If `$ARGUMENTS` is empty, scan `.workflow/*/` directories and list available workspaces — ask which one
 2. Scan `.workflow/*/` for a folder matching the slug `$ARGUMENTS`
-3. Read `STATUS.yaml` — phase must be `design-complete`. If not, tell the user which phase to complete first.
-4. Verify `.workflow/{type}/{slug}/DESIGN.md` exists
+3. Read `STATUS.yaml` — phase must be `design-complete` or `discussion-complete`:
+   - `design-complete` → normal flow, read DESIGN.md
+   - `discussion-complete` → design was skipped, derive plan from DISCUSSION.md directly
+   - Otherwise → tell the user which phase to complete first
+4. If `design-complete`: verify `DESIGN.md` exists. If `discussion-complete`: verify `DISCUSSION.md` exists (DESIGN.md is optional).
 5. Update STATUS.yaml: `phase: plan`, `updated: {ISO timestamp}`
 
 ## Skills Integration
@@ -204,7 +207,7 @@ Always include `code-style`. Add others based on what the task does:
 
 ## Rules
 
-- **Read DESIGN.md first** — the plan must trace back to the design
+- **Read DESIGN.md first** — or DISCUSSION.md if design was skipped. The plan must trace back to the design or discussion.
 - **Atomic tasks** — if a task description says "and also", split it
 - **Explicit dependencies** — every task must declare what it depends on
 - **Reference files** — every task must list files to read for patterns

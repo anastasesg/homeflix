@@ -27,7 +27,7 @@ The user invokes this as `/workflow-complete {slug}`.
 ### 1. Read workspace state
 
 Read `STATUS.yaml` for:
-- `branch` — the base branch name (`work/{type}/{slug}`)
+- `branch` — the base branch name (`work/{type}/{slug}/base`)
 - `base_worktree` — the base worktree path
 - `type` — for commit message prefix
 
@@ -60,12 +60,20 @@ EOF
 
 ### 3. Merge to main
 
+First, verify the main tree is clean:
+```bash
+git status --porcelain
+```
+
+If there are uncommitted changes, **stop and ask the user** to commit or stash them first.
+
+Then merge:
 ```bash
 # Switch to main in the project root
 git checkout main
 
 # Merge the squashed branch
-git merge work/{type}/{slug}
+git merge work/{type}/{slug}/base
 ```
 
 **IMPORTANT:** Ask the user before merging. Present the squashed commit and ask:
@@ -78,7 +86,7 @@ git merge work/{type}/{slug}
 git worktree remove {BASE_WORKTREE}
 
 # Delete base branch
-git branch -d work/{type}/{slug}
+git branch -d work/{type}/{slug}/base
 
 # Remove any leftover task worktrees (shouldn't exist, but just in case)
 # Check for any remaining worktrees in the workflow directory
