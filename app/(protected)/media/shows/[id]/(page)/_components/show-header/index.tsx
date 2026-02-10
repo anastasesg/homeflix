@@ -3,15 +3,16 @@
 import Image from 'next/image';
 
 import { useQuery } from '@tanstack/react-query';
-import { Clock, Play, Star, Tv } from 'lucide-react';
+import { Clock, Play, Shield, Star, Tv } from 'lucide-react';
 
-import { type ContentRating, type MediaVideos, type ShowDetail } from '@/api/entities';
+import { type MediaVideos, type ShowDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
 import {
   showContentRatingsQueryOptions,
   showDetailQueryOptions,
   showVideosQueryOptions,
 } from '@/options/queries/shows/detail';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -20,7 +21,31 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { LibraryStatusBadge } from './library-status-badge';
+import { ManagementButton } from './management-button';
+import { PlayButton } from './play-button';
+import { QualityBadge } from './quality-badge';
+
+// ============================================================================
+// Content Rating Badge (query-autonomous)
+// ============================================================================
+
+interface ContentRatingBadgeProps {
+  tmdbId: number;
+}
+
+function ContentRatingBadge({ tmdbId }: ContentRatingBadgeProps) {
+  const { data: ratings } = useQuery(showContentRatingsQueryOptions(tmdbId));
+  const usRating = ratings?.find((r) => r.country === 'US')?.rating;
+
+  if (!usRating) return null;
+
+  return (
+    <span className="flex items-center gap-1 rounded-md border border-border/60 px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+      <Shield className="size-3" />
+      {usRating}
+    </span>
+  );
+}
 
 // ============================================================================
 // Utilities
@@ -131,17 +156,18 @@ function ShowHeaderLoading() {
 interface ShowHeaderSuccessProps {
   show: ShowDetail;
   videos: MediaVideos;
-  contentRatings: ContentRating[];
   tmdbId: number;
 }
 
-function ShowHeaderSuccess({ show, videos, contentRatings, tmdbId }: ShowHeaderSuccessProps) {
+function ShowHeaderSuccess({ show, videos, tmdbId }: ShowHeaderSuccessProps) {
   useSetBreadcrumb(`/media/shows/${tmdbId}`, show?.name);
 
   const trailerUrl = videos.trailerUrl;
   const statusBadge = getShowStatusBadge(show.status);
   const networkName = show.networks[0]?.name;
-  const usRating = contentRatings.find((r) => r.country === 'US')?.rating;
+
+  // Fetch library info for episode progress
+  const { data: libraryInfo } = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <section className="relative flex min-h-[420px] overflow-hidden rounded-xl sm:min-h-[500px] lg:min-h-[560px]">
@@ -207,25 +233,29 @@ function ShowHeaderSuccess({ show, videos, contentRatings, tmdbId }: ShowHeaderS
 
             {/* Metadata */}
             <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-              {usRating && (
-                <Badge className="border border-foreground/20 bg-foreground/10 px-2 py-0.5 text-xs font-semibold">
-                  {usRating}
-                </Badge>
-              )}
-
               {show.rating > 0 && (
                 <div className="flex items-center gap-1.5 rounded-lg bg-foreground/10 px-2.5 py-1.5 backdrop-blur-sm">
                   <Star className="size-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-semibold tabular-nums">{show.rating.toFixed(1)}</span>
-                  <span className="text-xs text-muted-foreground/80">({show.voteCount.toLocaleString()})</span>
                 </div>
               )}
+
+              <ContentRatingBadge tmdbId={tmdbId} />
 
               <Separator orientation="vertical" className="h-4 bg-foreground/20" />
 
               <span className="text-muted-foreground">
                 {show.numberOfSeasons} {show.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
               </span>
+
+              {libraryInfo?.inLibrary && (
+                <>
+                  <Separator orientation="vertical" className="h-4 bg-foreground/20" />
+                  <span className="text-muted-foreground">
+                    {libraryInfo.downloadedEpisodes} of {libraryInfo.totalEpisodes} episodes
+                  </span>
+                </>
+              )}
 
               {show.runtime && show.runtime > 0 && (
                 <>
@@ -248,15 +278,16 @@ function ShowHeaderSuccess({ show, videos, contentRatings, tmdbId }: ShowHeaderS
               )}
             </div>
 
-            {/* Library Status + Actions */}
+            {/* Streaming Actions */}
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <LibraryStatusBadge tmdbId={tmdbId} />
-
+              <PlayButton tmdbId={tmdbId} />
+              <QualityBadge tmdbId={tmdbId} />
+              <ManagementButton tmdbId={tmdbId} title={show.name} />
               {trailerUrl && (
-                <Button className="gap-2 bg-foreground text-background hover:bg-foreground/90" asChild>
+                <Button variant="outline" className="gap-2 border-border" asChild>
                   <a href={trailerUrl} target="_blank" rel="noopener noreferrer">
-                    <Play className="size-4 fill-current" />
-                    Watch Trailer
+                    <Play className="size-4" />
+                    Trailer
                   </a>
                 </Button>
               )}
@@ -279,17 +310,14 @@ interface ShowHeaderProps {
 function ShowHeader({ tmdbId }: ShowHeaderProps) {
   const showQuery = useQuery(showDetailQueryOptions(tmdbId));
   const videosQuery = useQuery(showVideosQueryOptions(tmdbId));
-  const contentRatingsQuery = useQuery(showContentRatingsQueryOptions(tmdbId));
 
   return (
     <Queries
-      results={[showQuery, videosQuery, contentRatingsQuery] as const}
+      results={[showQuery, videosQuery] as const}
       callbacks={{
         loading: ShowHeaderLoading,
         error: (error) => <ShowHeaderError error={error} />,
-        success: ([show, videos, contentRatings]) => (
-          <ShowHeaderSuccess show={show} videos={videos} contentRatings={contentRatings} tmdbId={tmdbId} />
-        ),
+        success: ([show, videos]) => <ShowHeaderSuccess show={show} videos={videos} tmdbId={tmdbId} />,
       }}
     />
   );

@@ -8,5 +8,6 @@ export * from './tmdb-to-show-images';
 export * from './tmdb-to-show-item';
 export * from './tmdb-to-show-keywords';
 export * from './tmdb-to-show-recommendations';
+export * from './tmdb-to-show-reviews';
 export * from './tmdb-to-show-season';
 export * from './tmdb-to-show-videos';

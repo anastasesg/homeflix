@@ -9,6 +9,7 @@ import {
   fetchShowImages,
   fetchShowKeywords,
   fetchShowRecommendations,
+  fetchShowReviews,
   fetchShowSeason,
   fetchShowVideos,
   fetchSimilarShows,
@@ -117,7 +118,6 @@ export function showDetailsInfoQueryOptions(tmdbId: number) {
     ...showDetailQueryOptions(tmdbId),
     select: (show) => ({
       genres: show.genres,
-      networks: show.networks,
       languages: show.languages,
     }),
   });
@@ -165,5 +165,27 @@ export function seasonOverviewQueryOptions(tmdbId: number, seasonNumber: number)
   return queryOptions({
     ...showSeasonQueryOptions(tmdbId, seasonNumber),
     select: (season) => season.overview,
+  });
+}
+
+export function showSeasonsQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => show.seasons,
+  });
+}
+
+export function showDetailNetworksQueryOptions(tmdbId: number) {
+  return queryOptions({
+    ...showDetailQueryOptions(tmdbId),
+    select: (show) => show.networks,
+  });
+}
+
+export function showReviewsQueryOptions(tmdbId: number) {
+  return queryOptions({
+    queryKey: ['shows', 'detail', tmdbId, 'reviews'] as const,
+    queryFn: () => fetchShowReviews(tmdbId),
+    staleTime: 10 * 60 * 1000,
   });
 }

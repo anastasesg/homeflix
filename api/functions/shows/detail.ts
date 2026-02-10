@@ -6,6 +6,7 @@ import type {
   MediaCredits,
   MediaImages,
   MediaKeywords,
+  MediaReview,
   MediaVideos,
   SeasonDetail,
   ShowDetail,
@@ -20,6 +21,7 @@ import {
   tmdbToShowImages,
   tmdbToShowKeywords,
   tmdbToShowRecommendations,
+  tmdbToShowReviews,
   tmdbToShowVideos,
   tmdbToSimilarShows,
 } from '@/api/mappers';
@@ -135,4 +137,13 @@ export async function fetchShowContentRatings(tmdbId: number): Promise<ContentRa
   });
   if (error || !data) throw new Error('Failed to fetch show content ratings from TMDB');
   return tmdbToShowContentRatings(data);
+}
+
+export async function fetchShowReviews(tmdbId: number): Promise<MediaReview[]> {
+  const client = createTMDBClient();
+  const { data, error } = await client.GET('/3/tv/{series_id}/reviews', {
+    params: { path: { series_id: tmdbId } },
+  });
+  if (error || !data) throw new Error('Failed to fetch show reviews from TMDB');
+  return tmdbToShowReviews(data);
 }

@@ -7,10 +7,10 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { MessageSquare, Star } from 'lucide-react';
 
-import type { MediaReview } from '@/api/entities';
-import { movieReviewsQueryOptions } from '@/options/queries/movies/detail';
+import type { MediaReview } from '@/api/entities/shared/media-review';
 
 import { SectionHeader } from '@/components/media/sections/section-header';
+import type { DataQueryOptions } from '@/components/media/sections/types';
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -128,11 +128,11 @@ function ReviewsSectionContent({ reviews }: ReviewsSectionContentProps) {
 // ============================================================================
 
 interface ReviewsSectionProps {
-  tmdbId: number;
+  queryOptions: DataQueryOptions<MediaReview[]>;
 }
 
-function ReviewsSection({ tmdbId }: ReviewsSectionProps) {
-  const query = useQuery(movieReviewsQueryOptions(tmdbId));
+function ReviewsSection({ queryOptions }: ReviewsSectionProps) {
+  const query = useQuery(queryOptions);
 
   return (
     <Query

@@ -5,4 +5,5 @@ export * from './media-file';
 export * from './media-images';
 export * from './media-keywords';
 export * from './media-recommendation';
+export * from './media-review';
 export * from './media-videos';

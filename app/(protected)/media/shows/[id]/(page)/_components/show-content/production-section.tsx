@@ -5,9 +5,10 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
 
-import { showProductionQueryOptions } from '@/options/queries/shows/detail';
+import type { ShowDetail } from '@/api/entities';
 
 import { SectionHeader } from '@/components/media/sections/section-header';
+import type { DataQueryOptions } from '@/components/media/sections/types';
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -36,11 +37,11 @@ function ProductionSectionLoading() {
 // ============================================================================
 
 interface ProductionSectionProps {
-  tmdbId: number;
+  queryOptions: DataQueryOptions<ShowDetail['productionCompanies']>;
 }
 
-function ProductionSection({ tmdbId }: ProductionSectionProps) {
-  const query = useQuery(showProductionQueryOptions(tmdbId));
+function ProductionSection({ queryOptions }: ProductionSectionProps) {
+  const query = useQuery(queryOptions);
 
   return (
     <Query
@@ -62,13 +63,7 @@ function ProductionSection({ tmdbId }: ProductionSectionProps) {
                   >
                     {company.logoUrl ? (
                       <div className="relative h-5 w-12">
-                        <Image
-                          src={company.logoUrl}
-                          alt={company.name}
-                          fill
-                          className="object-contain brightness-0 invert"
-                          sizes="48px"
-                        />
+                        <Image src={company.logoUrl} alt={company.name} fill className="object-contain" sizes="48px" />
                       </div>
                     ) : (
                       <Building2 className="size-4 text-muted-foreground" />

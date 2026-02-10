@@ -1,9 +1,1 @@
-export interface MovieReview {
-  id: string;
-  author: string;
-  authorAvatar?: string;
-  rating?: number;
-  content: string;
-  createdAt: string;
-  url: string;
-}
+export type { MediaReview as MovieReview } from '../shared/media-review';

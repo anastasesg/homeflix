@@ -4,10 +4,10 @@ import type {
   MediaCredits,
   MediaImages,
   MediaKeywords,
+  MediaReview,
   MediaVideos,
   MovieDetail,
   MovieRecommendation,
-  MovieReview,
 } from '@/api/entities';
 import {
   tmdbToMovieContentRatings,
@@ -97,7 +97,7 @@ export async function fetchMovieContentRating(tmdbId: number): Promise<ContentRa
   return tmdbToMovieContentRatings(data);
 }
 
-export async function fetchMovieReviews(tmdbId: number): Promise<MovieReview[]> {
+export async function fetchMovieReviews(tmdbId: number): Promise<MediaReview[]> {
   const client = createTMDBClient();
   const { data, error } = await client.GET('/3/movie/{movie_id}/reviews', {
     params: { path: { movie_id: tmdbId } },

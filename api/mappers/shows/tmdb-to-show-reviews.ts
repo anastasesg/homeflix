@@ -15,7 +15,7 @@ interface TMDBReviewsResponse {
   }>;
 }
 
-export function tmdbToMovieReviews(data: unknown): MediaReview[] {
+export function tmdbToShowReviews(data: unknown): MediaReview[] {
   const results = (data as TMDBReviewsResponse).results ?? [];
   return results.slice(0, 10).map((item) => {
     let authorAvatar: string | undefined;

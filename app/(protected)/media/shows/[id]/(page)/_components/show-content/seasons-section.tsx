@@ -5,13 +5,14 @@ import Link from 'next/link';
 
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Layers, Tv } from 'lucide-react';
+import type { Route } from 'next';
 
-import { type ShowDetail, type ShowLibraryInfo } from '@/api/entities';
+import type { ShowDetail, ShowLibraryInfo } from '@/api/entities';
 import { cn } from '@/lib/utils';
-import { showDetailQueryOptions } from '@/options/queries/shows/detail';
 import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { SectionHeader } from '@/components/media/sections/section-header';
+import type { DataQueryOptions } from '@/components/media/sections/types';
 import { Queries } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -28,7 +29,7 @@ interface SeasonCardProps {
 
 function SeasonCard({ tmdbId, season, progress }: SeasonCardProps) {
   return (
-    <Link href={`/media/shows/${tmdbId}/seasons/${season.seasonNumber}`} className="group block pb-0.5">
+    <Link href={`/media/shows/${tmdbId}/seasons/${season.seasonNumber}` as Route} className="group block pb-0.5">
       {/* Poster */}
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg border border-border/60 shadow-sm transition-all duration-300 group-hover:border-border group-hover:shadow-md group-hover:shadow-black/10 dark:group-hover:shadow-black/30">
         {season.posterUrl ? (
@@ -113,23 +114,24 @@ function SeasonsSectionLoading() {
 // ============================================================================
 
 interface SeasonsSectionContentProps {
-  show: ShowDetail;
+  seasons: ShowDetail['seasons'];
+  tmdbId: number;
   libraryInfo?: ShowLibraryInfo;
 }
 
-function SeasonsSectionContent({ show, libraryInfo }: SeasonsSectionContentProps) {
-  if (show.seasons.length === 0) return null;
+function SeasonsSectionContent({ seasons, tmdbId, libraryInfo }: SeasonsSectionContentProps) {
+  if (seasons.length === 0) return null;
 
   return (
     <section>
-      <SectionHeader icon={Layers} title="Seasons" count={show.seasons.length} />
+      <SectionHeader icon={Layers} title="Seasons" count={seasons.length} />
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {show.seasons.map((season) => {
+        {seasons.map((season) => {
           const libSeason = libraryInfo?.seasons.find((s) => s.seasonNumber === season.seasonNumber);
           const progress = libSeason
             ? { fileCount: libSeason.episodeFileCount, episodeCount: libSeason.episodeCount }
             : undefined;
-          return <SeasonCard key={season.id} tmdbId={show.tmdbId} season={season} progress={progress} />;
+          return <SeasonCard key={season.id} tmdbId={tmdbId} season={season} progress={progress} />;
         })}
       </div>
     </section>
@@ -142,19 +144,22 @@ function SeasonsSectionContent({ show, libraryInfo }: SeasonsSectionContentProps
 
 interface SeasonsSectionProps {
   tmdbId: number;
+  queryOptions: DataQueryOptions<ShowDetail['seasons']>;
 }
 
-function SeasonsSection({ tmdbId }: SeasonsSectionProps) {
-  const showQuery = useQuery(showDetailQueryOptions(tmdbId));
+function SeasonsSection({ tmdbId, queryOptions }: SeasonsSectionProps) {
+  const seasonsQuery = useQuery(queryOptions);
   const libraryQuery = useQuery({ ...showLibraryInfoQueryOptions(tmdbId), retry: false });
 
   return (
     <Queries
-      results={[showQuery, libraryQuery] as const}
+      results={[seasonsQuery, libraryQuery] as const}
       callbacks={{
         loading: SeasonsSectionLoading,
         error: () => null,
-        success: ([show, library]) => <SeasonsSectionContent show={show} libraryInfo={library} />,
+        success: ([seasons, library]) => (
+          <SeasonsSectionContent seasons={seasons} tmdbId={tmdbId} libraryInfo={library} />
+        ),
       }}
     />
   );
