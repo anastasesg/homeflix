@@ -223,7 +223,7 @@ function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <PlayButton tmdbId={tmdbId} />
               <QualityBadge tmdbId={tmdbId} />
-              <ManagementButton tmdbId={tmdbId} />
+              <ManagementButton tmdbId={tmdbId} title={movie.title} />
               {trailerUrl && (
                 <Button variant="outline" className="gap-2 border-border" asChild>
                   <a href={trailerUrl} target="_blank" rel="noopener noreferrer">

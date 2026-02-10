@@ -29,10 +29,11 @@ function ManagementButtonLoading() {
 
 interface ManagementButtonSuccessProps {
   tmdbId: number;
+  title: string;
   libraryInfo: MovieLibraryInfo;
 }
 
-function ManagementButtonSuccess({ tmdbId, libraryInfo }: ManagementButtonSuccessProps) {
+function ManagementButtonSuccess({ tmdbId, title, libraryInfo }: ManagementButtonSuccessProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   if (!libraryInfo.inLibrary) {
@@ -60,7 +61,7 @@ function ManagementButtonSuccess({ tmdbId, libraryInfo }: ManagementButtonSucces
         <TooltipContent>Manage</TooltipContent>
       </Tooltip>
 
-      <ManagementSheet tmdbId={tmdbId} open={sheetOpen} onOpenChange={setSheetOpen} />
+      <ManagementSheet tmdbId={tmdbId} title={title} open={sheetOpen} onOpenChange={setSheetOpen} />
     </>
   );
 }
@@ -71,9 +72,10 @@ function ManagementButtonSuccess({ tmdbId, libraryInfo }: ManagementButtonSucces
 
 interface ManagementButtonProps {
   tmdbId: number;
+  title?: string;
 }
 
-function ManagementButton({ tmdbId }: ManagementButtonProps) {
+function ManagementButton({ tmdbId, title = 'Manage Movie' }: ManagementButtonProps) {
   const query = useQuery(movieLibraryInfoQueryOptions(tmdbId));
 
   return (
@@ -82,7 +84,7 @@ function ManagementButton({ tmdbId }: ManagementButtonProps) {
       callbacks={{
         loading: ManagementButtonLoading,
         error: () => null,
-        success: (data) => <ManagementButtonSuccess tmdbId={tmdbId} libraryInfo={data} />,
+        success: (data) => <ManagementButtonSuccess tmdbId={tmdbId} title={title} libraryInfo={data} />,
       }}
     />
   );

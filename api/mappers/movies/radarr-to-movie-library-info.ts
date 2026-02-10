@@ -1,5 +1,5 @@
 import type { MovieFileResource, MovieResource } from '@/api/clients/radarr';
-import type { MovieFile, MovieLibraryInfo, MovieLibraryStatus } from '@/api/entities';
+import type { MinimumAvailability, MovieFile, MovieLibraryInfo, MovieLibraryStatus } from '@/api/entities';
 import { formatBytes } from '@/api/mappers/format-bytes';
 
 function deriveStatus(movie: MovieResource): MovieLibraryStatus {
@@ -36,5 +36,6 @@ export function radarrToMovieLibraryInfo(movie: MovieResource): MovieLibraryInfo
     hasFile: movie.hasFile ?? false,
     path: movie.path ?? undefined,
     file: movie.movieFile ? mapMovieFile(movie.movieFile) : undefined,
+    minimumAvailability: (movie.minimumAvailability as MinimumAvailability) ?? undefined,
   };
 }

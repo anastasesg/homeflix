@@ -2,6 +2,8 @@ import type { MovieFile } from '../shared';
 
 export type MovieLibraryStatus = 'downloaded' | 'downloading' | 'wanted' | 'missing' | 'not_in_library';
 
+export type MinimumAvailability = 'tba' | 'announced' | 'inCinemas' | 'released';
+
 export interface MovieLibraryInfo {
   inLibrary: boolean;
   radarrId?: number;
@@ -13,4 +15,5 @@ export interface MovieLibraryInfo {
   hasFile: boolean;
   path?: string;
   file?: MovieFile;
+  minimumAvailability?: MinimumAvailability;
 }
