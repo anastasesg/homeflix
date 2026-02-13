@@ -10,7 +10,7 @@ import type { MovieItem, ShowItem } from '@/api/entities';
 import { searchMoviesQueryOptions } from '@/options/queries/movies';
 import { searchShowsQueryOptions } from '@/options/queries/shows';
 
-import { TvMediaCard } from '../_components/tv-media-card';
+import { TvMediaCard } from '../_components/tv-card';
 
 // ============================================================
 // Sub-components

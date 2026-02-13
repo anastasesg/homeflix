@@ -2,8 +2,7 @@
 
 import { useCallback } from 'react';
 
-import { Route } from 'next';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { Film, Home, Search, Tv } from 'lucide-react';
@@ -38,18 +37,22 @@ interface TvRailNavItemProps {
 }
 
 function TvRailNavItem({ item, isActive }: TvRailNavItemProps) {
-  const router = useRouter();
   const Icon = item.icon;
 
   const { ref, focused } = useFocusable({
-    onEnterPress: () => router.push(item.href as Route),
+    onEnterPress: () => {
+      window.location.href = item.href;
+    },
   });
 
   return (
     <div
       ref={ref}
+      onClick={() => {
+        window.location.href = item.href;
+      }}
       className={cn(
-        'flex items-center gap-4 rounded-xl px-5 py-4 transition-all duration-150 ease-out',
+        'flex cursor-pointer items-center gap-4 rounded-xl px-5 py-4 transition-all duration-150 ease-out',
         'outline-none',
         focused && 'scale-105 bg-accent/20 ring-3 ring-accent',
         isActive && !focused && 'bg-accent/10',

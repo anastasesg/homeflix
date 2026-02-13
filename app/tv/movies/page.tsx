@@ -8,7 +8,7 @@ import { trendingMoviesQueryOptions } from '@/options/queries/movies';
 
 import { Query } from '@/components/query';
 
-import { TvMediaCard } from '../_components/tv-media-card';
+import { TvMediaCard } from '../_components/tv-card';
 
 // ============================================================
 // Sub-components

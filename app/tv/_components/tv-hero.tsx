@@ -1,15 +1,21 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { Route } from 'next';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { Star } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+
+// ============================================================
+// Utilities
+// ============================================================
+
+function getDetailHref(item: FeaturedItem) {
+  return item.mediaType === 'movie' ? `/tv/movies/${item.id}` : `/tv/shows/${item.id}`;
+}
 
 // ============================================================
 // Types
@@ -36,7 +42,6 @@ interface TvFeaturedHeroProps {
 function TvFeaturedHero({ items }: TvFeaturedHeroProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const isPaused = useRef(false);
-  const router = useRouter();
 
   const active = items[activeIndex];
 
@@ -73,14 +78,12 @@ function TvFeaturedHero({ items }: TvFeaturedHeroProps) {
     },
   });
 
-  const handleViewDetails = useCallback(() => {
-    if (!active) return;
-    const path = active.mediaType === 'movie' ? `/tv/movies/${active.id}` : `/tv/shows/${active.id}`;
-    router.push(path as Route);
-  }, [active, router]);
+  const detailHref = active ? getDetailHref(active) : '';
 
   const { ref: buttonRef, focused: buttonFocused } = useFocusable({
-    onEnterPress: handleViewDetails,
+    onEnterPress: () => {
+      if (detailHref) window.location.href = detailHref;
+    },
   });
 
   if (!active) return null;
@@ -122,8 +125,11 @@ function TvFeaturedHero({ items }: TvFeaturedHeroProps) {
 
           <div
             ref={buttonRef}
+            onClick={() => {
+              if (detailHref) window.location.href = detailHref;
+            }}
             className={cn(
-              'mt-2 w-fit rounded-lg px-8 py-3 text-xl font-semibold transition-all duration-150',
+              'mt-2 w-fit cursor-pointer rounded-lg px-8 py-3 text-xl font-semibold transition-all duration-150',
               buttonFocused
                 ? 'scale-105 bg-accent text-accent-foreground ring-3 ring-accent/50'
                 : 'bg-muted/30 text-foreground'

@@ -1,8 +1,6 @@
 'use client';
 
-import { Route } from 'next';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { Film } from 'lucide-react';
@@ -27,19 +25,23 @@ interface TvMediaCardProps {
 // ============================================================
 
 function TvMediaCard({ id, title, year, posterUrl, mediaType, onFocus }: TvMediaCardProps) {
-  const router = useRouter();
   const href = mediaType === 'movie' ? `/tv/movies/${id}` : `/tv/shows/${id}`;
 
   const { ref, focused } = useFocusable({
-    onEnterPress: () => router.push(href as Route),
+    onEnterPress: () => {
+      window.location.href = href;
+    },
     onFocus: (layout) => onFocus?.({ x: layout.x, node: layout.node }),
   });
 
   return (
     <div
       ref={ref}
+      onClick={() => {
+        window.location.href = href;
+      }}
       className={cn(
-        'flex w-[200px] shrink-0 flex-col gap-2 outline-none transition-all duration-150 ease-out',
+        'flex w-[200px] shrink-0 cursor-pointer flex-col gap-2 outline-none transition-all duration-150 ease-out',
         focused ? 'scale-105 opacity-100' : 'scale-100 opacity-70'
       )}
     >

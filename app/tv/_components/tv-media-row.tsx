@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react';
 
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 
-import { TvMediaCard } from './tv-media-card';
+import { TvMediaCard } from './tv-card';
 
 // ============================================================
 // Types

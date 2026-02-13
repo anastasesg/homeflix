@@ -13,8 +13,8 @@ import { trendingShowsQueryOptions } from '@/options/queries/shows';
 
 import { Query } from '@/components/query';
 
-import type { FeaturedItem } from './_components/tv-featured-hero';
-import { TvFeaturedHero } from './_components/tv-featured-hero';
+import type { FeaturedItem } from './_components/tv-hero';
+import { TvFeaturedHero } from './_components/tv-hero';
 import type { TvMediaItem } from './_components/tv-media-row';
 import { TvMediaRow } from './_components/tv-media-row';
 
