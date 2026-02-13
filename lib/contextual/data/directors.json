@@ -1,0 +1,22 @@
+[
+  { "name": "Stanley Kubrick", "tmdbId": 240, "slug": "kubrick" },
+  { "name": "Akira Kurosawa", "tmdbId": 5026, "slug": "kurosawa" },
+  { "name": "Alfred Hitchcock", "tmdbId": 2636, "slug": "hitchcock" },
+  { "name": "Martin Scorsese", "tmdbId": 1032, "slug": "scorsese" },
+  { "name": "Francis Ford Coppola", "tmdbId": 1776, "slug": "coppola" },
+  { "name": "Andrei Tarkovsky", "tmdbId": 8452, "slug": "tarkovsky" },
+  { "name": "Ingmar Bergman", "tmdbId": 6648, "slug": "bergman" },
+  { "name": "Federico Fellini", "tmdbId": 4415, "slug": "fellini" },
+  { "name": "David Lynch", "tmdbId": 5602, "slug": "lynch" },
+  { "name": "David Fincher", "tmdbId": 7467, "slug": "fincher" },
+  { "name": "Paul Thomas Anderson", "tmdbId": 4762, "slug": "pta" },
+  { "name": "Denis Villeneuve", "tmdbId": 137427, "slug": "villeneuve" },
+  { "name": "Christopher Nolan", "tmdbId": 525, "slug": "nolan" },
+  { "name": "Bong Joon-ho", "tmdbId": 21684, "slug": "bong-joon-ho" },
+  { "name": "Park Chan-wook", "tmdbId": 10099, "slug": "park-chan-wook" },
+  { "name": "Wong Kar-wai", "tmdbId": 12453, "slug": "wong-kar-wai" },
+  { "name": "Hayao Miyazaki", "tmdbId": 608, "slug": "miyazaki" },
+  { "name": "Wes Anderson", "tmdbId": 5655, "slug": "wes-anderson" },
+  { "name": "Joel Coen", "tmdbId": 1223, "slug": "coen-brothers" },
+  { "name": "Sofia Coppola", "tmdbId": 1769, "slug": "sofia-coppola" }
+]
