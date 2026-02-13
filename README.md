@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Homeflix
 
-## Getting Started
+A media management dashboard built with Next.js, providing a unified interface for managing movies, shows, downloads, and more through Radarr, Sonarr, Prowlarr, and TMDB.
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Node.js](https://nodejs.org/) >= 20.9.0
+- [Bun](https://bun.sh/) (package manager & runtime)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   git clone <repo-url>
+   cd homeflix
+   ```
 
-## Learn More
+2. **Install dependencies**
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   bun install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Configure environment variables**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   Copy the example and fill in your API details:
 
-## Deploy on Vercel
+   ```bash
+   cp .env.example .env.local
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   Required variables:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   | Variable | Description |
+   |---|---|
+   | `NEXT_PUBLIC_RADARR_API_URL` | Radarr instance URL |
+   | `NEXT_PUBLIC_RADARR_API_KEY` | Radarr API key |
+   | `NEXT_PUBLIC_SONARR_API_URL` | Sonarr instance URL |
+   | `NEXT_PUBLIC_SONARR_API_KEY` | Sonarr API key |
+   | `NEXT_PUBLIC_PROWLARR_API_URL` | Prowlarr instance URL |
+   | `NEXT_PUBLIC_PROWLARR_API_KEY` | Prowlarr API key |
+   | `NEXT_PUBLIC_TMDB_API_URL` | TMDB API URL |
+   | `NEXT_PUBLIC_TMDB_API_KEY` | TMDB API key (v3) |
+
+4. **Start the development server**
+
+   ```bash
+   bun dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `bun dev` | Start development server (Turbopack) |
+| `bun build` | Production build |
+| `bun check` | TypeScript type checking |
+| `bun lint --fix` | Lint and auto-fix |
+| `bun generate:api` | Regenerate OpenAPI types from specs |
+| `bun reset` | Clean reinstall (removes node_modules, .next, lockfile) |
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router, React 19, Turbopack)
+- **Styling**: Tailwind CSS 4, shadcn/ui (Radix)
+- **Data Fetching**: TanStack React Query, openapi-fetch
+- **State**: URL state via nuqs, React Query cache
+- **Forms**: React Hook Form + Zod
