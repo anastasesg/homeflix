@@ -12,6 +12,7 @@ import type { MediaRowProps } from '@/components/media';
 import { MediaRow, MediaRowError, MediaRowLoading } from '@/components/media';
 import { Query } from '@/components/query';
 
+import { HomeContextual } from './home-contextual';
 import { StubRow } from './stub-row';
 
 // ============================================================================
@@ -62,6 +63,7 @@ function HomeBrowse(_props: HomeBrowseProps) {
     <div className="space-y-8">
       <StubRow title="Continue Watching" />
       <StubRow title="Recently Added" />
+      <HomeContextual />
       <BrowseRow
         type="movie"
         title="Trending Movies"
