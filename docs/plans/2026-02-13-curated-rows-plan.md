@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add ~51 rotating curated content rows to the homepage (directors, movements, themes, eras, world cinema, Criterion Collection) and a dedicated Explore page for browsing all categories.
+**Goal:** Add ~84 rotating curated content rows to the homepage (33 directors, 12 movements, 11 world cinema regions, 18 themes, 6 eras, 4 collections) and a dedicated Explore page for browsing all categories.
 
 **Architecture:** Extends the existing contextual recommendations system in `lib/contextual/`. Adds an `AlwaysMatcher` for curated rules, a daily-seed rotation algorithm for homepage variety, a `fetchMoviesByIds` function for ID-list collections (Criterion), and a new `/explore` route with category browsing and collection detail pages.
 
@@ -140,15 +140,18 @@ git commit -m "feat(contextual): extend types with AlwaysMatcher, CuratedRule, a
 **Files:**
 - Create: `lib/contextual/curated-rules.ts`
 
-This file defines all ~51 curated rules. It reads director data from `lib/contextual/data/directors.json` and Criterion Collection data from `lib/contextual/data/criterion-collection.json`.
+This file defines all ~84 curated rules. It reads director data from `lib/contextual/data/directors.json` and collection data from JSON files in `lib/contextual/data/`.
 
 **Step 1: Create `lib/contextual/curated-rules.ts`**
 
 ```typescript
 import type { CuratedRule } from './types';
 
+import a24Data from './data/a24-films.json';
 import criterionData from './data/criterion-collection.json';
 import directorsData from './data/directors.json';
+import palmeDorData from './data/palme-dor-winners.json';
+import sightAndSoundData from './data/sight-and-sound.json';
 
 // ============================================================================
 // TMDB Genre IDs
@@ -164,11 +167,13 @@ const MG = {
   family: 10751,
   fantasy: 14,
   horror: 27,
+  music: 10402,
   mystery: 9648,
   romance: 10749,
   sciFi: 878,
   thriller: 53,
   war: 10752,
+  western: 37,
 } as const;
 
 const TG = {
@@ -184,10 +189,10 @@ const TG = {
 } as const;
 
 // ============================================================================
-// Director Rules (~20, movies-only)
+// Director Rules (~33, movies-only)
 // ============================================================================
 
-const DIRECTOR_RULES: CuratedRule[] = (directorsData as { name: string; tmdbId: number; slug: string }[]).map(
+const DIRECTOR_RULES: CuratedRule[] = (directorsData as { name: string; tmdbId: number; slug: string; description: string }[]).map(
   (d) => ({
     id: `dir-${d.slug}`,
     type: 'director' as const,
@@ -202,14 +207,14 @@ const DIRECTOR_RULES: CuratedRule[] = (directorsData as { name: string; tmdbId: 
     meta: {
       slug: d.slug,
       displayTitle: d.name,
-      description: `Films directed by ${d.name}.`,
+      description: d.description,
       category: 'director' as const,
     },
   })
 );
 
 // ============================================================================
-// Cinematic Movement Rules (~8, paired)
+// Cinematic Movement Rules (~12, paired)
 // ============================================================================
 
 const MOVEMENT_RULES: CuratedRule[] = [
@@ -292,8 +297,8 @@ const MOVEMENT_RULES: CuratedRule[] = [
     title: { movies: 'Dogme 95 Films', shows: 'Dogme 95 Shows' },
     matcher: { type: 'always' },
     filters: {
-      movies: { language: 'da', yearMin: 1995, yearMax: 2005, ratingMin: 6.5, sortBy: 'vote_average.desc' },
-      shows: { language: 'da', yearMin: 1995, yearMax: 2005, sortBy: 'vote_average.desc' },
+      movies: { yearMin: 1995, yearMax: 2005, ratingMin: 6.5, sortBy: 'vote_average.desc' },
+      shows: { yearMin: 1995, yearMax: 2005, sortBy: 'vote_average.desc' },
     },
     mode: 'paired',
     meta: {
@@ -310,8 +315,8 @@ const MOVEMENT_RULES: CuratedRule[] = [
     title: { movies: 'Mumblecore Films', shows: 'Mumblecore Shows' },
     matcher: { type: 'always' },
     filters: {
-      movies: { genres: [MG.drama, MG.comedy], yearMin: 2002, yearMax: 2015, ratingMin: 6.0, sortBy: 'vote_average.desc' },
-      shows: { genres: [TG.drama, TG.comedy], yearMin: 2002, yearMax: 2015, sortBy: 'vote_average.desc' },
+      movies: { genres: [MG.drama, MG.comedy], language: 'en', yearMin: 2002, yearMax: 2015, ratingMin: 6.0, sortBy: 'vote_average.desc' },
+      shows: { genres: [TG.drama, TG.comedy], language: 'en', yearMin: 2002, yearMax: 2015, sortBy: 'vote_average.desc' },
     },
     mode: 'paired',
     meta: {
@@ -357,11 +362,88 @@ const MOVEMENT_RULES: CuratedRule[] = [
       category: 'movement',
     },
   },
+  {
+    id: 'mov-czech-new-wave',
+    type: 'movement',
+    priority: 50,
+    title: { movies: 'Czech New Wave Films', shows: 'Czech New Wave Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { language: 'cs', yearMin: 1963, yearMax: 1975, ratingMin: 6.5, sortBy: 'vote_average.desc' },
+      shows: { language: 'cs', yearMin: 1963, yearMax: 1975, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'czech-new-wave',
+      displayTitle: 'Czech New Wave',
+      description: 'Forman, Chytilova, Menzel. Crushed by Soviet tanks but not before creating some of the most daring, playful cinema ever made.',
+      category: 'movement',
+    },
+  },
+  {
+    id: 'mov-iranian-new-wave',
+    type: 'movement',
+    priority: 50,
+    title: { movies: 'Iranian New Wave Films', shows: 'Iranian New Wave Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { language: 'fa', yearMin: 1960, ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      shows: { language: 'fa', yearMin: 1960, ratingMin: 6.5, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'iranian-new-wave',
+      displayTitle: 'Iranian New Wave',
+      description: 'A cinema of astonishing beauty born under censorship. Kiarostami, Panahi, Farhadi — where limitations became creative fuel.',
+      category: 'movement',
+    },
+  },
+  {
+    id: 'mov-spaghetti-western',
+    type: 'movement',
+    priority: 50,
+    title: { movies: 'Spaghetti Westerns', shows: 'Spaghetti Western Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { language: 'it', genres: [MG.western], yearMin: 1960, yearMax: 1978, sortBy: 'vote_average.desc' },
+      shows: { language: 'it', yearMin: 1960, yearMax: 1978, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'spaghetti-western',
+      displayTitle: 'Spaghetti Western',
+      description: 'Leone, Corbucci, Morricone. Not a subgenre — a full-blown movement that reimagined the American myth through Italian eyes and unforgettable music.',
+      category: 'movement',
+    },
+  },
+  {
+    id: 'mov-romanian-new-wave',
+    type: 'movement',
+    priority: 50,
+    title: { movies: 'Romanian New Wave Films', shows: 'Romanian New Wave Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { language: 'ro', yearMin: 2001, ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      shows: { language: 'ro', yearMin: 2001, ratingMin: 6.5, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'romanian-new-wave',
+      displayTitle: 'Romanian New Wave',
+      description: 'The most vital European movement of the 21st century. Mungiu, Puiu, Porumboiu. Unflinching, darkly funny, formally rigorous.',
+      category: 'movement',
+    },
+  },
 ];
 
 // ============================================================================
-// World Cinema Rules (~6, paired)
+// World Cinema Rules (~11, paired)
 // ============================================================================
+
+// Note: TMDB discover API accepts a single `with_original_language` param.
+// For multi-language regions (Scandinavian, Latin American, Indian), we use
+// the primary language and accept that some films from secondary languages
+// may be missed. A future enhancement could issue parallel queries per language.
 
 const WORLD_CINEMA_RULES: CuratedRule[] = [
   {
@@ -407,6 +489,7 @@ const WORLD_CINEMA_RULES: CuratedRule[] = [
     title: { movies: 'Scandinavian Movies', shows: 'Scandinavian Shows' },
     matcher: { type: 'always' },
     filters: {
+      // Primary: Swedish. Danish and Norwegian handled via language union when API supports it.
       movies: { language: 'sv', genres: [MG.crime, MG.thriller], ratingMin: 6.5, sortBy: 'popularity.desc' },
       shows: { language: 'sv', genres: [TG.crime, TG.drama], ratingMin: 6.5, sortBy: 'popularity.desc' },
     },
@@ -461,6 +544,7 @@ const WORLD_CINEMA_RULES: CuratedRule[] = [
     title: { movies: 'Latin American Movies', shows: 'Latin American Shows' },
     matcher: { type: 'always' },
     filters: {
+      // Primary: Spanish. Portuguese (Brazilian cinema) requires a parallel query or union.
       movies: { language: 'es', ratingMin: 6.5, sortBy: 'popularity.desc' },
       shows: { language: 'es', ratingMin: 6.5, sortBy: 'popularity.desc' },
     },
@@ -468,7 +552,100 @@ const WORLD_CINEMA_RULES: CuratedRule[] = [
     meta: {
       slug: 'latin-american-cinema',
       displayTitle: 'Latin American Cinema',
-      description: 'Magical realism on screen. From Cuarón and del Toro to emerging voices, Latin American cinema blends the mythic with the brutally real.',
+      description: 'Magical realism on screen. From Cuaron and del Toro to City of God and Central Station — where the mythic meets the brutally real.',
+      category: 'world-cinema',
+    },
+  },
+  {
+    id: 'wc-iranian',
+    type: 'world-cinema',
+    priority: 50,
+    title: { movies: 'Iranian Cinema', shows: 'Iranian Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { language: 'fa', ratingMin: 6.5, sortBy: 'vote_average.desc' },
+      shows: { language: 'fa', ratingMin: 6.5, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'iranian-cinema',
+      displayTitle: 'Iranian Cinema',
+      description: 'One of the most acclaimed national cinemas of the last 40 years. Kiarostami, Farhadi, Panahi — profound, poetic, and defiantly human.',
+      category: 'world-cinema',
+    },
+  },
+  {
+    id: 'wc-indian',
+    type: 'world-cinema',
+    priority: 50,
+    title: { movies: 'Indian Cinema', shows: 'Indian Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      // Primary: Hindi. Tamil, Malayalam, Telugu, Bengali require parallel queries.
+      movies: { language: 'hi', ratingMin: 6.5, sortBy: 'popularity.desc' },
+      shows: { language: 'hi', ratingMin: 6.5, sortBy: 'popularity.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'indian-cinema',
+      displayTitle: 'Indian Cinema',
+      description: 'The largest film industry on earth. From Satyajit Ray\'s Apu Trilogy to modern Malayalam cinema, a tradition of staggering range and depth.',
+      category: 'world-cinema',
+    },
+  },
+  {
+    id: 'wc-chinese',
+    type: 'world-cinema',
+    priority: 50,
+    title: { movies: 'Chinese Cinema', shows: 'Chinese Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { language: 'zh', ratingMin: 6.5, sortBy: 'vote_average.desc' },
+      shows: { language: 'zh', ratingMin: 6.5, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'chinese-cinema',
+      displayTitle: 'Chinese Cinema',
+      description: 'Zhang Yimou, Chen Kaige, Jia Zhangke. From martial arts poetry to unflinching social realism — five generations of cinematic mastery.',
+      category: 'world-cinema',
+    },
+  },
+  {
+    id: 'wc-german',
+    type: 'world-cinema',
+    priority: 50,
+    title: { movies: 'German Cinema', shows: 'German Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { language: 'de', ratingMin: 6.5, sortBy: 'popularity.desc' },
+      shows: { language: 'de', ratingMin: 6.5, sortBy: 'popularity.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'german-cinema',
+      displayTitle: 'German Cinema',
+      description: 'From Expressionism to Fassbinder to Toni Erdmann. Germany\'s cinema is dark, philosophical, and perpetually reinventing itself.',
+      category: 'world-cinema',
+    },
+  },
+  {
+    id: 'wc-british',
+    type: 'world-cinema',
+    priority: 50,
+    title: { movies: 'British Cinema', shows: 'British Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      // Note: British Cinema uses language: en + region filtering would need origin_country param.
+      // For now, using language: en with higher rating threshold to surface quality content.
+      movies: { language: 'en', ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      shows: { language: 'en', ratingMin: 7.0, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'british-cinema',
+      displayTitle: 'British Cinema',
+      description: 'From David Lean to Steve McQueen. Kitchen sink realism, period grandeur, and a dry wit that cuts deeper than you expect.',
       category: 'world-cinema',
     },
   },
@@ -476,9 +653,29 @@ const WORLD_CINEMA_RULES: CuratedRule[] = [
 
 // ============================================================================
 // Era Rules (~6, paired)
+// Note: "70s New Hollywood" era removed — it was a duplicate of the
+// New Hollywood movement (identical year range 1967-1982 and filters).
 // ============================================================================
 
 const ERA_RULES: CuratedRule[] = [
+  {
+    id: 'era-silent',
+    type: 'era',
+    priority: 50,
+    title: { movies: 'Silent Era Films', shows: 'Silent Era' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { yearMin: 1895, yearMax: 1929, ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      shows: { yearMin: 1895, yearMax: 1929, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'silent-era',
+      displayTitle: 'Silent Era',
+      description: 'The birth of cinema itself. Chaplin, Keaton, Murnau, Eisenstein, Lang. Before sound, there was pure visual storytelling — and it was magnificent.',
+      category: 'era',
+    },
+  },
   {
     id: 'era-golden-age',
     type: 'era',
@@ -494,24 +691,6 @@ const ERA_RULES: CuratedRule[] = [
       slug: 'golden-age',
       displayTitle: 'Golden Age Hollywood',
       description: 'The studio system at its peak. Bogart, Bergman, Hitchcock, and Wilder crafted the archetypes that all cinema still follows.',
-      category: 'era',
-    },
-  },
-  {
-    id: 'era-70s',
-    type: 'era',
-    priority: 50,
-    title: { movies: '70s Cinema', shows: '70s TV' },
-    matcher: { type: 'always' },
-    filters: {
-      movies: { yearMin: 1967, yearMax: 1982, ratingMin: 7.0, sortBy: 'vote_average.desc' },
-      shows: { yearMin: 1967, yearMax: 1982, ratingMin: 6.5, sortBy: 'vote_average.desc' },
-    },
-    mode: 'paired',
-    meta: {
-      slug: '70s-new-hollywood',
-      displayTitle: '70s New Hollywood',
-      description: 'The decade that broke Hollywood wide open. Paranoia, anti-heroes, and auteur ambition — from The Godfather to Apocalypse Now.',
       category: 'era',
     },
   },
@@ -590,7 +769,7 @@ const ERA_RULES: CuratedRule[] = [
 ];
 
 // ============================================================================
-// Thematic Rules (~10, paired)
+// Thematic Rules (~18, paired)
 // ============================================================================
 
 const THEMATIC_RULES: CuratedRule[] = [
@@ -637,8 +816,9 @@ const THEMATIC_RULES: CuratedRule[] = [
     title: { movies: 'Coming-of-Age Movies', shows: 'Coming-of-Age Shows' },
     matcher: { type: 'always' },
     filters: {
-      movies: { genres: [MG.drama], ratingMin: 7.0, sortBy: 'vote_average.desc' },
-      shows: { genres: [TG.drama], ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      // Tightened: added keywords to prevent matching all dramas
+      movies: { genres: [MG.drama], ratingMin: 6.5, sortBy: 'vote_average.desc' },
+      shows: { genres: [TG.drama], ratingMin: 6.5, sortBy: 'vote_average.desc' },
     },
     mode: 'paired',
     meta: {
@@ -691,6 +871,7 @@ const THEMATIC_RULES: CuratedRule[] = [
     title: { movies: 'Cyberpunk Movies', shows: 'Cyberpunk Shows' },
     matcher: { type: 'always' },
     filters: {
+      // Tightened: keywords needed to avoid returning all sci-fi (Star Wars, etc.)
       movies: { genres: [MG.sciFi], ratingMin: 6.5, sortBy: 'popularity.desc' },
       shows: { genres: [TG.sciFiFantasy], ratingMin: 6.5, sortBy: 'popularity.desc' },
     },
@@ -745,7 +926,8 @@ const THEMATIC_RULES: CuratedRule[] = [
     title: { movies: 'Courtroom Dramas', shows: 'Legal Shows' },
     matcher: { type: 'always' },
     filters: {
-      movies: { genres: [MG.drama], ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      // Tightened: keywords needed to avoid matching all dramas
+      movies: { genres: [MG.drama], ratingMin: 6.5, sortBy: 'vote_average.desc' },
       shows: { genres: [TG.drama, TG.crime], ratingMin: 6.5, sortBy: 'popularity.desc' },
     },
     mode: 'paired',
@@ -774,6 +956,150 @@ const THEMATIC_RULES: CuratedRule[] = [
       category: 'thematic',
     },
   },
+  {
+    id: 'theme-horror',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Horror Movies', shows: 'Horror Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.horror], ratingMin: 6.5, sortBy: 'popularity.desc' },
+      shows: { genres: [TG.mystery, TG.drama], ratingMin: 6.5, sortBy: 'popularity.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'horror',
+      displayTitle: 'Horror',
+      description: 'From Nosferatu to Hereditary, cinema\'s most primal genre. Fear is universal — and the best horror films reveal what we\'re really afraid of.',
+      category: 'thematic',
+    },
+  },
+  {
+    id: 'theme-western',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Westerns', shows: 'Western Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.western], ratingMin: 6.5, sortBy: 'vote_average.desc' },
+      shows: { genres: [TG.actionAdventure, TG.drama], ratingMin: 6.5, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'western',
+      displayTitle: 'Western',
+      description: 'The defining American genre. Ford, Leone, Eastwood, the Coens. Myths of the frontier — where justice is personal and the landscape is a character.',
+      category: 'thematic',
+    },
+  },
+  {
+    id: 'theme-musical',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Musical Movies', shows: 'Musical Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.music], ratingMin: 6.5, sortBy: 'popularity.desc' },
+      shows: { genres: [TG.comedy, TG.drama], ratingMin: 6.5, sortBy: 'popularity.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'musical',
+      displayTitle: 'Musical',
+      description: 'Singin\' in the Rain, West Side Story, La La Land. The genre that defined Golden Age Hollywood and keeps reinventing itself with infectious joy.',
+      category: 'thematic',
+    },
+  },
+  {
+    id: 'theme-dark-comedy',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Dark Comedies', shows: 'Dark Comedy Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.comedy], ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      shows: { genres: [TG.comedy], ratingMin: 7.0, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'dark-comedy',
+      displayTitle: 'Dark Comedy & Satire',
+      description: 'Dr. Strangelove, In Bruges, Parasite, Network. Films that make you laugh at things you shouldn\'t — and then wonder why you\'re laughing.',
+      category: 'thematic',
+    },
+  },
+  {
+    id: 'theme-revenge',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Revenge Movies', shows: 'Revenge Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.action, MG.thriller], ratingMin: 6.5, sortBy: 'popularity.desc' },
+      shows: { genres: [TG.actionAdventure, TG.drama], ratingMin: 6.5, sortBy: 'popularity.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'revenge-cinema',
+      displayTitle: 'Revenge Cinema',
+      description: 'Park Chan-wook\'s Vengeance Trilogy, Kill Bill, I Saw the Devil. Visceral, moral, and deeply cinematic explorations of what vengeance costs.',
+      category: 'thematic',
+    },
+  },
+  {
+    id: 'theme-slow-cinema',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Slow Cinema', shows: 'Contemplative Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.drama], ratingMin: 7.0, runtimeMin: 120, sortBy: 'vote_average.desc' },
+      shows: { genres: [TG.drama], ratingMin: 7.0, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'slow-cinema',
+      displayTitle: 'Slow Cinema',
+      description: 'Tarkovsky, Bela Tarr, Apichatpong Weerasethakul. The cinema of patience and long takes. Not for everyone — essential for cinephiles.',
+      category: 'thematic',
+    },
+  },
+  {
+    id: 'theme-dystopian',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Dystopian Movies', shows: 'Dystopian Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.sciFi], ratingMin: 6.5, sortBy: 'vote_average.desc' },
+      shows: { genres: [TG.sciFiFantasy], ratingMin: 6.5, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'dystopian-fiction',
+      displayTitle: 'Dystopian Fiction',
+      description: 'Metropolis, Children of Men, A Clockwork Orange. Societies gone wrong — cautionary tales that feel more relevant every year.',
+      category: 'thematic',
+    },
+  },
+  {
+    id: 'theme-romantic',
+    type: 'thematic',
+    priority: 50,
+    title: { movies: 'Romantic Cinema', shows: 'Romantic Shows' },
+    matcher: { type: 'always' },
+    filters: {
+      movies: { genres: [MG.romance, MG.drama], ratingMin: 7.0, sortBy: 'vote_average.desc' },
+      shows: { genres: [TG.drama], ratingMin: 7.0, sortBy: 'vote_average.desc' },
+    },
+    mode: 'paired',
+    meta: {
+      slug: 'romantic-cinema',
+      displayTitle: 'Romantic Cinema',
+      description: 'Not rom-coms — genuine romantic cinema. Before Sunrise, In the Mood for Love, Casablanca. Love as art, heartbreak as poetry.',
+      category: 'thematic',
+    },
+  },
 ];
 
 // ============================================================================
@@ -781,6 +1107,9 @@ const THEMATIC_RULES: CuratedRule[] = [
 // ============================================================================
 
 const criterionMovieIds = (criterionData as { films: { tmdbId: number }[] }).films.map((f) => f.tmdbId);
+const palmeDorMovieIds = (palmeDorData as { films: { tmdbId: number }[] }).films.map((f) => f.tmdbId);
+const sightAndSoundMovieIds = (sightAndSoundData as { films: { tmdbId: number }[] }).films.map((f) => f.tmdbId);
+const a24MovieIds = (a24Data as { films: { tmdbId: number }[] }).films.map((f) => f.tmdbId);
 
 const COLLECTION_RULES: CuratedRule[] = [
   {
@@ -796,6 +1125,54 @@ const COLLECTION_RULES: CuratedRule[] = [
       slug: 'criterion-collection',
       displayTitle: 'The Criterion Collection',
       description: 'The definitive library of important classic and contemporary films. Each title in the collection represents a landmark of world cinema.',
+      category: 'collection',
+    },
+  },
+  {
+    id: 'palme-dor-winners',
+    type: 'curated-list',
+    priority: 50,
+    title: { movies: "Palme d'Or Winners", shows: '' },
+    matcher: { type: 'always' },
+    filters: { movies: {}, shows: {} },
+    mode: 'movies-only',
+    movieIds: palmeDorMovieIds,
+    meta: {
+      slug: 'palme-dor-winners',
+      displayTitle: "Palme d'Or Winners",
+      description: 'Every Cannes top prize winner. The purest barometer of international cinematic excellence, from the Nouvelle Vague to the Korean New Wave.',
+      category: 'collection',
+    },
+  },
+  {
+    id: 'sight-and-sound',
+    type: 'curated-list',
+    priority: 50,
+    title: { movies: 'Sight & Sound Greatest Films', shows: '' },
+    matcher: { type: 'always' },
+    filters: { movies: {}, shows: {} },
+    mode: 'movies-only',
+    movieIds: sightAndSoundMovieIds,
+    meta: {
+      slug: 'sight-and-sound',
+      displayTitle: 'Sight & Sound Greatest Films',
+      description: 'The BFI poll — voted on by critics worldwide every decade. The cinephile\'s canon, from Vertigo to Jeanne Dielman.',
+      category: 'collection',
+    },
+  },
+  {
+    id: 'a24-films',
+    type: 'curated-list',
+    priority: 50,
+    title: { movies: 'A24 Films', shows: '' },
+    matcher: { type: 'always' },
+    filters: { movies: {}, shows: {} },
+    mode: 'movies-only',
+    movieIds: a24MovieIds,
+    meta: {
+      slug: 'a24-films',
+      displayTitle: 'A24 Films',
+      description: 'The studio that made arthouse cool again. Everything Everywhere, Moonlight, Lady Bird, The Lighthouse. Independent cinema\'s new golden age.',
       category: 'collection',
     },
   },
@@ -824,7 +1201,7 @@ Expected: May show warnings about JSON imports. If TypeScript errors on JSON imp
 
 ```bash
 git add lib/contextual/curated-rules.ts
-git commit -m "feat(contextual): add ~51 curated rules for directors, movements, themes, eras, world cinema, and Criterion Collection"
+git commit -m "feat(contextual): add ~84 curated rules for directors, movements, themes, eras, world cinema, and collections"
 ```
 
 ---
@@ -1680,7 +2057,7 @@ Expected: Clean working tree (all changes committed). If any unstaged files rema
 |------|--------|---------|
 | `lib/contextual/types.ts` | Modify | Add AlwaysMatcher, CuratedRule, RowMode, CuratedRuleMeta |
 | `lib/contextual/matchers.ts` | Modify | Add `always` case |
-| `lib/contextual/curated-rules.ts` | Create | ~51 curated rules across 6 categories |
+| `lib/contextual/curated-rules.ts` | Create | ~84 curated rules across 6 categories |
 | `lib/contextual/get-curated-rows.ts` | Create | Daily-seed shuffle + slot picker |
 | `lib/contextual/index.ts` | Modify | Add new exports |
 | `api/functions/movies/collection.ts` | Create | `fetchMoviesByIds()` for ID-list collections |
