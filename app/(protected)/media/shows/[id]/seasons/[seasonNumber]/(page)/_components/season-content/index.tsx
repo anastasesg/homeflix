@@ -1,10 +1,9 @@
 'use client';
 
-import { showProductionClusterQueryOptions } from '@/options/queries/shows/detail';
+import { showProductionClusterQueryOptions, showSeasonCreditsQueryOptions } from '@/options/queries/shows/detail';
 
-import { ProductionSection } from '@/components/media/sections';
+import { CastSection, ProductionSection } from '@/components/media/sections';
 
-import { CastSection } from './cast-section';
 import { CreditsByEpisodeSection } from './credits-by-episode-section';
 import { CrewSection } from './crew-section';
 import { EpisodesSection } from './episodes-section';
@@ -26,7 +25,7 @@ function SeasonContent({ tmdbId, seasonNumber }: SeasonContentProps) {
       <OverviewSection tmdbId={tmdbId} seasonNumber={seasonNumber} />
       <EpisodesSection tmdbId={tmdbId} seasonNumber={seasonNumber} />
       <GallerySection tmdbId={tmdbId} seasonNumber={seasonNumber} />
-      <CastSection tmdbId={tmdbId} seasonNumber={seasonNumber} />
+      <CastSection queryOptions={showSeasonCreditsQueryOptions(tmdbId, seasonNumber)} />
       <CrewSection tmdbId={tmdbId} seasonNumber={seasonNumber} />
       <CreditsByEpisodeSection tmdbId={tmdbId} seasonNumber={seasonNumber} />
       <ProductionSection queryOptions={showProductionClusterQueryOptions(tmdbId)} />

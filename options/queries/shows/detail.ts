@@ -5,12 +5,14 @@ import {
   fetchShowCredits,
   fetchShowDetail,
   fetchShowEpisode,
+  fetchShowEpisodeCredits,
   fetchShowEpisodeImages,
   fetchShowImages,
   fetchShowKeywords,
   fetchShowRecommendations,
   fetchShowReviews,
   fetchShowSeason,
+  fetchShowSeasonCredits,
   fetchShowVideos,
   fetchSimilarShows,
 } from '@/api/functions';
@@ -63,10 +65,26 @@ export function showSeasonQueryOptions(tmdbId: number, seasonNumber: number) {
   });
 }
 
+export function showSeasonCreditsQueryOptions(tmdbId: number, seasonNumber: number) {
+  return queryOptions({
+    queryKey: ['shows', 'detail', tmdbId, 'season', seasonNumber, 'credits'] as const,
+    queryFn: () => fetchShowSeasonCredits(tmdbId, seasonNumber),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
 export function showEpisodeQueryOptions(tmdbId: number, seasonNumber: number, episodeNumber: number) {
   return queryOptions({
     queryKey: ['shows', 'detail', tmdbId, 'season', seasonNumber, 'episode', episodeNumber] as const,
     queryFn: () => fetchShowEpisode(tmdbId, seasonNumber, episodeNumber),
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+export function showEpisodeCreditsQueryOptions(tmdbId: number, seasonNumber: number, episodeNumber: number) {
+  return queryOptions({
+    queryKey: ['shows', 'detail', tmdbId, 'season', seasonNumber, 'episode', episodeNumber, 'credits'] as const,
+    queryFn: () => fetchShowEpisodeCredits(tmdbId, seasonNumber, episodeNumber),
     staleTime: 10 * 60 * 1000,
   });
 }

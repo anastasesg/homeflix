@@ -3,10 +3,10 @@
 import Image from 'next/image';
 
 import { useQuery } from '@tanstack/react-query';
-import { Users } from 'lucide-react';
+import { Sparkles, Users } from 'lucide-react';
 
-import type { EpisodeBasic } from '@/api/entities';
-import { showEpisodeQueryOptions } from '@/options/queries/shows/detail';
+import type { EpisodeCredits } from '@/api/entities';
+import { showEpisodeCreditsQueryOptions } from '@/options/queries/shows/detail';
 
 import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
@@ -29,17 +29,17 @@ function getInitials(name: string): string {
 }
 
 // ============================================================================
-// Guest Star Card
+// Person Card
 // ============================================================================
 
-interface GuestStarCardProps {
+interface PersonCardProps {
   name: string;
   character: string;
   profileUrl?: string;
   order: number;
 }
 
-function GuestStarCard({ name, character, profileUrl, order }: GuestStarCardProps) {
+function PersonCard({ name, character, profileUrl, order }: PersonCardProps) {
   const isTopBilled = order < 3;
 
   return (
@@ -109,33 +109,35 @@ function EpisodeCastLoading() {
 }
 
 // ============================================================================
-// Success
+// Sub-sections
 // ============================================================================
 
-interface EpisodeCastContentProps {
-  guestStars: EpisodeBasic['guestStars'];
+interface PeopleCarouselProps {
+  title: string;
+  icon: typeof Sparkles;
+  people: EpisodeCredits['cast'];
 }
 
-function EpisodeCastContent({ guestStars }: EpisodeCastContentProps) {
-  if (guestStars.length === 0) return null;
+function PeopleCarousel({ title, icon, people }: PeopleCarouselProps) {
+  if (people.length === 0) return null;
 
   return (
     <section>
-      <SectionHeader icon={Users} title="Guest Stars" count={guestStars.length} />
+      <SectionHeader icon={icon} title={title} count={people.length} />
       <Carousel opts={{ align: 'start', loop: false, dragFree: true }} className="w-full">
         <CarouselContent className="-ml-2 py-1">
-          {guestStars.map((guest, index) => (
-            <CarouselItem key={`${guest.name}-${index}`} className="basis-[110px] pl-2 sm:basis-[130px]">
-              <GuestStarCard
-                name={guest.name}
-                character={guest.character}
-                profileUrl={guest.profileUrl}
-                order={guest.order}
+          {people.map((person, index) => (
+            <CarouselItem key={`${person.id}-${index}`} className="basis-[110px] pl-2 sm:basis-[130px]">
+              <PersonCard
+                name={person.name}
+                character={person.character}
+                profileUrl={person.profileUrl}
+                order={person.order}
               />
             </CarouselItem>
           ))}
         </CarouselContent>
-        {guestStars.length > 4 && (
+        {people.length > 4 && (
           <>
             <CarouselPrevious className="left-2 size-8 border-border bg-background/80 backdrop-blur-sm hover:bg-background" />
             <CarouselNext className="right-2 size-8 border-border bg-background/80 backdrop-blur-sm hover:bg-background" />
@@ -143,6 +145,25 @@ function EpisodeCastContent({ guestStars }: EpisodeCastContentProps) {
         )}
       </Carousel>
     </section>
+  );
+}
+
+// ============================================================================
+// Success
+// ============================================================================
+
+interface EpisodeCastContentProps {
+  credits: EpisodeCredits;
+}
+
+function EpisodeCastContent({ credits }: EpisodeCastContentProps) {
+  if (credits.cast.length === 0 && credits.guestStars.length === 0) return null;
+
+  return (
+    <div className="flex flex-col space-y-8">
+      <PeopleCarousel title="Cast" icon={Sparkles} people={credits.cast} />
+      <PeopleCarousel title="Guest Stars" icon={Users} people={credits.guestStars} />
+    </div>
   );
 }
 
@@ -157,7 +178,7 @@ interface EpisodeCastProps {
 }
 
 function EpisodeCast({ tmdbId, seasonNumber, episodeNumber }: EpisodeCastProps) {
-  const query = useQuery(showEpisodeQueryOptions(tmdbId, seasonNumber, episodeNumber));
+  const query = useQuery(showEpisodeCreditsQueryOptions(tmdbId, seasonNumber, episodeNumber));
 
   return (
     <Query
@@ -165,7 +186,7 @@ function EpisodeCast({ tmdbId, seasonNumber, episodeNumber }: EpisodeCastProps) 
       callbacks={{
         loading: EpisodeCastLoading,
         error: () => null,
-        success: (episode) => <EpisodeCastContent guestStars={episode.guestStars} />,
+        success: (credits) => <EpisodeCastContent credits={credits} />,
       }}
     />
   );

@@ -1,4 +1,5 @@
 export * from './content-rating';
+export * from './episode-credits';
 export * from './history-event';
 export * from './media-credits';
 export * from './media-file';

@@ -2,6 +2,7 @@ import { createTMDBClient, type TMDBTVSeason } from '@/api/clients/tmdb';
 import type {
   ContentRating,
   EpisodeBasic,
+  EpisodeCredits,
   EpisodeImages,
   MediaCredits,
   MediaImages,
@@ -18,10 +19,12 @@ import {
   tmdbToShowContentRatings,
   tmdbToShowCredits,
   tmdbToShowDetail,
+  tmdbToShowEpisodeCredits,
   tmdbToShowImages,
   tmdbToShowKeywords,
   tmdbToShowRecommendations,
   tmdbToShowReviews,
+  tmdbToShowSeasonCredits,
   tmdbToShowVideos,
   tmdbToSimilarShows,
 } from '@/api/mappers';
@@ -84,6 +87,15 @@ export async function fetchShowSeason(tmdbId: number, seasonNumber: number): Pro
   return tmdbToSeasonDetail(data);
 }
 
+export async function fetchShowSeasonCredits(tmdbId: number, seasonNumber: number): Promise<MediaCredits> {
+  const client = createTMDBClient();
+  const { data, error } = await client.GET('/3/tv/{series_id}/season/{season_number}/aggregate_credits', {
+    params: { path: { series_id: tmdbId, season_number: seasonNumber } },
+  });
+  if (error || !data) throw new Error('Failed to fetch season credits from TMDB');
+  return tmdbToShowSeasonCredits(data);
+}
+
 export async function fetchShowEpisode(
   tmdbId: number,
   seasonNumber: number,
@@ -95,6 +107,20 @@ export async function fetchShowEpisode(
   });
   if (error || !data) throw new Error('Failed to fetch show episode from TMDB');
   return tmdbToEpisode(data as NonNullable<TMDBTVSeason['episodes']>[number]);
+}
+
+export async function fetchShowEpisodeCredits(
+  tmdbId: number,
+  seasonNumber: number,
+  episodeNumber: number
+): Promise<EpisodeCredits> {
+  const client = createTMDBClient();
+  const { data, error } = await client.GET(
+    '/3/tv/{series_id}/season/{season_number}/episode/{episode_number}/credits',
+    { params: { path: { series_id: tmdbId, season_number: seasonNumber, episode_number: episodeNumber } } }
+  );
+  if (error || !data) throw new Error('Failed to fetch episode credits from TMDB');
+  return tmdbToShowEpisodeCredits(data);
 }
 
 export async function fetchShowEpisodeImages(
