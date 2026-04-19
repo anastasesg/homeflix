@@ -3,20 +3,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Globe, Shuffle, ThumbsUp, Tv } from 'lucide-react';
+import { Shuffle, ThumbsUp } from 'lucide-react';
 import type { Route } from 'next';
 
 import { type ShowRecommendation } from '@/api/entities';
 import {
-  showCreatedByQueryOptions,
   showCreditsQueryOptions,
-  showDetailNetworksQueryOptions,
-  showDetailsInfoQueryOptions,
-  showExternalLinksQueryOptions,
   showImagesQueryOptions,
   showKeywordsQueryOptions,
   showOverviewQueryOptions,
-  showProductionQueryOptions,
+  showProductionClusterQueryOptions,
   showRecommendationsQueryOptions,
   showReviewsQueryOptions,
   showSeasonsQueryOptions,
@@ -27,46 +23,15 @@ import {
 import {
   CastSection,
   CrewSection,
-  type ExternalLink,
-  ExternalLinksSection,
   GallerySection,
   MediaCarouselSection,
   OverviewSection,
 } from '@/components/media/sections';
 
-import { CreatedBySection } from './created-by-section';
-import { DetailsSection } from './details-section';
 import { KeywordsSection } from './keywords-section';
-import { NetworkSection } from './network-section';
 import { ProductionSection } from './production-section';
 import { ReviewsSection } from './reviews-section';
 import { SeasonsSection } from './seasons-section';
-
-// ============================================================================
-// Utilities
-// ============================================================================
-
-function buildShowLinks(data: { imdbId?: string; tvdbId?: number; tmdbId: number; homepage?: string }): ExternalLink[] {
-  const links: ExternalLink[] = [];
-  if (data.imdbId) {
-    links.push({ id: 'imdb', url: `https://www.imdb.com/title/${data.imdbId}`, label: 'IMDb', icon: Globe });
-  }
-  if (data.tvdbId) {
-    links.push({ id: 'tvdb', url: `https://thetvdb.com/?tab=series&id=${data.tvdbId}`, label: 'TVDB', icon: Tv });
-  }
-  if (data.tmdbId) {
-    links.push({
-      id: 'tmdb',
-      url: `https://www.themoviedb.org/tv/${data.tmdbId}`,
-      label: 'TMDB',
-      icon: Globe,
-    });
-  }
-  if (data.homepage) {
-    links.push({ id: 'homepage', url: data.homepage, label: 'Official Site', icon: Globe });
-  }
-  return links;
-}
 
 // ============================================================================
 // Sub-Components
@@ -119,15 +84,21 @@ function ShowContent({ tmdbId }: ShowContentProps) {
     <div className="flex flex-col space-y-8">
       <OverviewSection queryOptions={showOverviewQueryOptions(tmdbId)} />
       <SeasonsSection tmdbId={tmdbId} queryOptions={showSeasonsQueryOptions(tmdbId)} />
-      <CreatedBySection queryOptions={showCreatedByQueryOptions(tmdbId)} />
-      <NetworkSection queryOptions={showDetailNetworksQueryOptions(tmdbId)} />
+
       <GallerySection
         imagesQueryOptions={showImagesQueryOptions(tmdbId)}
         titleQueryOptions={showTitleQueryOptions(tmdbId)}
       />
+
       <CastSection queryOptions={showCreditsQueryOptions(tmdbId)} />
-      <CrewSection queryOptions={showCreditsQueryOptions(tmdbId)} />
-      <ReviewsSection queryOptions={showReviewsQueryOptions(tmdbId)} />
+      <CrewSection
+        queryOptions={showCreditsQueryOptions(tmdbId)}
+        featuredJobs={['Creator', 'Executive Producer', 'Director', 'Writer', 'Original Music Composer']}
+      />
+
+      {/* Trivia stand-in until a dedicated trivia source is wired. */}
+      <KeywordsSection queryOptions={showKeywordsQueryOptions(tmdbId)} />
+
       <MediaCarouselSection
         queryOptions={showRecommendationsQueryOptions(tmdbId)}
         icon={ThumbsUp}
@@ -140,10 +111,9 @@ function ShowContent({ tmdbId }: ShowContentProps) {
         title="Similar Shows"
         renderCard={(show: ShowRecommendation) => <ShowCard show={show} />}
       />
-      <KeywordsSection queryOptions={showKeywordsQueryOptions(tmdbId)} />
-      <DetailsSection queryOptions={showDetailsInfoQueryOptions(tmdbId)} />
-      <ProductionSection queryOptions={showProductionQueryOptions(tmdbId)} />
-      <ExternalLinksSection queryOptions={showExternalLinksQueryOptions(tmdbId)} buildLinks={buildShowLinks} />
+
+      <ProductionSection queryOptions={showProductionClusterQueryOptions(tmdbId)} />
+      <ReviewsSection queryOptions={showReviewsQueryOptions(tmdbId)} />
     </div>
   );
 }

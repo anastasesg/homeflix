@@ -106,38 +106,15 @@ export function showOverviewQueryOptions(tmdbId: number) {
   });
 }
 
-export function showCreatedByQueryOptions(tmdbId: number) {
-  return queryOptions({
-    ...showDetailQueryOptions(tmdbId),
-    select: (show) => show.createdBy,
-  });
-}
-
-export function showDetailsInfoQueryOptions(tmdbId: number) {
+export function showProductionClusterQueryOptions(tmdbId: number) {
   return queryOptions({
     ...showDetailQueryOptions(tmdbId),
     select: (show) => ({
+      createdBy: show.createdBy,
+      networks: show.networks,
+      productionCompanies: show.productionCompanies,
       genres: show.genres,
       languages: show.languages,
-    }),
-  });
-}
-
-export function showProductionQueryOptions(tmdbId: number) {
-  return queryOptions({
-    ...showDetailQueryOptions(tmdbId),
-    select: (show) => show.productionCompanies,
-  });
-}
-
-export function showExternalLinksQueryOptions(tmdbId: number) {
-  return queryOptions({
-    ...showDetailQueryOptions(tmdbId),
-    select: (show) => ({
-      tmdbId: show.tmdbId,
-      imdbId: show.imdbId,
-      tvdbId: show.tvdbId,
-      homepage: show.homepage,
     }),
   });
 }
@@ -172,13 +149,6 @@ export function showSeasonsQueryOptions(tmdbId: number) {
   return queryOptions({
     ...showDetailQueryOptions(tmdbId),
     select: (show) => show.seasons,
-  });
-}
-
-export function showDetailNetworksQueryOptions(tmdbId: number) {
-  return queryOptions({
-    ...showDetailQueryOptions(tmdbId),
-    select: (show) => show.networks,
   });
 }
 

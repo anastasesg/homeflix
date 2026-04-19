@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, Layers, Tv } from 'lucide-react';
+import { ChevronRight, Layers, Tv } from 'lucide-react';
 import type { Route } from 'next';
 
 import type { ShowDetail, ShowLibraryInfo } from '@/api/entities';
@@ -14,71 +14,78 @@ import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 import { SectionHeader } from '@/components/media/sections/section-header';
 import type { DataQueryOptions } from '@/components/media/sections/types';
 import { Queries } from '@/components/query';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // ============================================================================
-// Season Card
+// Season Row
 // ============================================================================
 
-interface SeasonCardProps {
+interface SeasonRowProps {
   tmdbId: number;
   season: ShowDetail['seasons'][number];
   progress?: { fileCount: number; episodeCount: number };
 }
 
-function SeasonCard({ tmdbId, season, progress }: SeasonCardProps) {
+function SeasonRow({ tmdbId, season, progress }: SeasonRowProps) {
+  const progressPercent =
+    progress && progress.episodeCount > 0 ? Math.round((progress.fileCount / progress.episodeCount) * 100) : undefined;
+  const isComplete = progressPercent === 100;
+  const airYear = season.airDate ? season.airDate.substring(0, 4) : undefined;
+
   return (
-    <Link href={`/media/shows/${tmdbId}/seasons/${season.seasonNumber}` as Route} className="group block pb-0.5">
-      {/* Poster */}
-      <div className="relative aspect-[2/3] overflow-hidden rounded-lg border border-border/60 shadow-sm transition-all duration-300 group-hover:border-border group-hover:shadow-md group-hover:shadow-black/10 dark:group-hover:shadow-black/30">
+    <Link
+      href={`/media/shows/${tmdbId}/seasons/${season.seasonNumber}` as Route}
+      className="group flex items-start gap-3 rounded-lg border border-border/40 bg-muted/10 p-2.5 transition-all duration-200 hover:border-border hover:bg-accent/40"
+    >
+      {/* Thumbnail */}
+      <div className="relative h-24 w-16 shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted">
         {season.posterUrl ? (
-          <Image
-            src={season.posterUrl}
-            alt={season.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-          />
+          <Image src={season.posterUrl} alt={season.name} fill className="object-cover" sizes="64px" />
         ) : (
-          <div className="flex h-full items-center justify-center bg-muted">
-            <Tv className="size-8 text-muted-foreground/40" />
+          <div className="flex h-full items-center justify-center">
+            <Tv className="size-5 text-muted-foreground/40" />
           </div>
         )}
+      </div>
 
-        {/* Episode count badge */}
-        <div className="absolute bottom-2 right-2">
-          <Badge
-            variant="secondary"
-            className="border border-border/40 bg-background/80 text-[10px] font-semibold backdrop-blur-sm"
-          >
+      {/* Text + progress */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="truncate text-sm font-semibold text-foreground/90 transition-colors group-hover:text-foreground">
+            {season.name}
+          </p>
+          <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
             {season.episodeCount} ep{season.episodeCount !== 1 ? 's' : ''}
-          </Badge>
+          </span>
         </div>
 
-        {/* Download progress bar */}
-        {progress && progress.episodeCount > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-background/50 backdrop-blur-sm">
+        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          {airYear && <span>{airYear}</span>}
+          {progress && progressPercent !== undefined && (
+            <>
+              {airYear && <span className="text-muted-foreground/40">·</span>}
+              <span className={cn('tabular-nums', isComplete && 'text-emerald-500')}>
+                {isComplete ? 'Complete' : `${progress.fileCount}/${progress.episodeCount}`}
+              </span>
+            </>
+          )}
+        </div>
+
+        {season.overview && (
+          <p className="line-clamp-2 text-xs leading-snug text-muted-foreground/80">{season.overview}</p>
+        )}
+
+        {progress && progressPercent !== undefined && (
+          <div className="mt-auto h-1 overflow-hidden rounded-full bg-muted/60">
             <div
-              className={cn('h-full', progress.fileCount >= progress.episodeCount ? 'bg-emerald-500' : 'bg-blue-500')}
-              style={{ width: `${Math.round((progress.fileCount / progress.episodeCount) * 100)}%` }}
+              className={cn('h-full transition-all', isComplete ? 'bg-emerald-500' : 'bg-blue-500')}
+              style={{ width: `${progressPercent}%` }}
             />
           </div>
         )}
       </div>
 
-      {/* Text below image */}
-      <div className="mt-2 px-0.5">
-        <p className="truncate text-[13px] font-semibold leading-tight text-foreground/90 transition-colors group-hover:text-foreground">
-          Season {season.seasonNumber}
-        </p>
-        {season.airDate && (
-          <p className="mt-0.5 flex items-center gap-1 truncate text-xs leading-tight text-muted-foreground">
-            <Calendar className="size-3 shrink-0" />
-            {season.airDate.substring(0, 4)}
-          </p>
-        )}
-      </div>
+      <ChevronRight className="mt-1 size-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-muted-foreground" />
     </Link>
   );
 }
@@ -94,13 +101,16 @@ function SeasonsSectionLoading() {
         <Skeleton className="size-4 rounded" />
         <Skeleton className="h-4 w-20" />
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i}>
-            <Skeleton className="aspect-[2/3] w-full rounded-lg" />
-            <div className="mt-2 space-y-1 px-0.5">
-              <Skeleton className="h-3.5 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
+          <div key={i} className="flex items-start gap-3 rounded-lg border border-border/40 p-2.5">
+            <Skeleton className="h-24 w-16 rounded-md" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/3" />
+              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-3 w-5/6" />
+              <Skeleton className="h-1 w-full" />
             </div>
           </div>
         ))}
@@ -125,13 +135,13 @@ function SeasonsSectionContent({ seasons, tmdbId, libraryInfo }: SeasonsSectionC
   return (
     <section>
       <SectionHeader icon={Layers} title="Seasons" count={seasons.length} />
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
         {seasons.map((season) => {
           const libSeason = libraryInfo?.seasons.find((s) => s.seasonNumber === season.seasonNumber);
           const progress = libSeason
             ? { fileCount: libSeason.episodeFileCount, episodeCount: libSeason.episodeCount }
             : undefined;
-          return <SeasonCard key={season.id} tmdbId={tmdbId} season={season} progress={progress} />;
+          return <SeasonRow key={season.id} tmdbId={tmdbId} season={season} progress={progress} />;
         })}
       </div>
     </section>

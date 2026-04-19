@@ -32,6 +32,50 @@ function getInitials(name: string): string {
 
 type CrewMember = MediaCredits['crew'][number];
 
+interface FeaturedPerson {
+  name: string;
+  profileUrl?: string;
+  jobs: string[];
+}
+
+/**
+ * Splits crew into featured (matching featuredJobs, deduped by person) and remaining.
+ * Featured members are sorted by the order jobs appear in featuredJobs.
+ */
+function splitFeaturedCrew(
+  crew: CrewMember[],
+  featuredJobs: string[]
+): { featured: FeaturedPerson[]; remaining: CrewMember[] } {
+  if (featuredJobs.length === 0) return { featured: [], remaining: crew };
+
+  const jobSet = new Set(featuredJobs.map((j) => j.toLowerCase()));
+  const byName = new Map<string, FeaturedPerson>();
+  const remaining: CrewMember[] = [];
+
+  for (const person of crew) {
+    if (jobSet.has(person.job.toLowerCase())) {
+      const existing = byName.get(person.name);
+      if (existing) {
+        if (!existing.jobs.includes(person.job)) existing.jobs.push(person.job);
+      } else {
+        byName.set(person.name, { name: person.name, profileUrl: person.profileUrl, jobs: [person.job] });
+      }
+    } else {
+      remaining.push(person);
+    }
+  }
+
+  const priorityIndex = (jobs: string[]): number => {
+    const indices = jobs
+      .map((j) => featuredJobs.findIndex((p) => p.toLowerCase() === j.toLowerCase()))
+      .filter((i) => i >= 0);
+    return indices.length > 0 ? Math.min(...indices) : Number.MAX_SAFE_INTEGER;
+  };
+
+  const featured = [...byName.values()].sort((a, b) => priorityIndex(a.jobs) - priorityIndex(b.jobs));
+  return { featured, remaining };
+}
+
 /**
  * Groups crew by department.
  * When priority is provided, matching departments sort first in the specified order.
@@ -78,6 +122,41 @@ interface CrewCardProps {
   name: string;
   job: string;
   profileUrl?: string;
+}
+
+interface FeaturedCrewCardProps {
+  name: string;
+  jobs: string[];
+  profileUrl?: string;
+}
+
+function FeaturedCrewCard({ name, jobs, profileUrl }: FeaturedCrewCardProps) {
+  const jobLabel = jobs.join(' · ');
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="group flex items-center gap-3 rounded-lg border border-border/60 bg-muted/10 p-3 transition-all duration-200 hover:border-border hover:bg-accent/50 hover:shadow-sm hover:shadow-black/5 dark:hover:shadow-black/20">
+          <div className="relative size-12 shrink-0 overflow-hidden rounded-full border border-border/60">
+            {profileUrl ? (
+              <Image src={profileUrl} alt={name} fill className="object-cover" sizes="48px" />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-muted">
+                <span className="text-xs font-medium text-muted-foreground/60">{getInitials(name)}</span>
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-foreground">{name}</p>
+            <p className="truncate text-xs font-medium text-amber-600 dark:text-amber-400/90">{jobLabel}</p>
+          </div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" className="max-w-xs">
+        <span className="font-medium">{name}</span>
+        <span className="opacity-60"> — {jobs.join(', ')}</span>
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 function CrewCard({ name, job, profileUrl }: CrewCardProps) {
@@ -211,13 +290,15 @@ function DepartmentGroup({ department, members }: DepartmentGroupProps) {
 interface CrewSectionContentProps {
   credits: MediaCredits;
   departmentPriority?: string[];
+  featuredJobs?: string[];
 }
 
-function CrewSectionContent({ credits, departmentPriority }: CrewSectionContentProps) {
-  const departments = useMemo(
-    () => groupByDepartment(credits.crew, departmentPriority),
-    [credits.crew, departmentPriority]
+function CrewSectionContent({ credits, departmentPriority, featuredJobs }: CrewSectionContentProps) {
+  const { featured, remaining } = useMemo(
+    () => splitFeaturedCrew(credits.crew, featuredJobs ?? []),
+    [credits.crew, featuredJobs]
   );
+  const departments = useMemo(() => groupByDepartment(remaining, departmentPriority), [remaining, departmentPriority]);
   const [deptExpanded, setDeptExpanded] = useState(false);
 
   if (credits.crew.length === 0) return null;
@@ -234,6 +315,26 @@ function CrewSectionContent({ credits, departmentPriority }: CrewSectionContentP
   return (
     <section>
       <SectionHeader icon={Film} title="Crew" count={credits.crew.length} />
+
+      {featured.length > 0 && (
+        <div className="mb-6">
+          <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+            Key Creatives
+            <span className="ml-1.5 text-muted-foreground/40">{featured.length}</span>
+          </p>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 md:grid-cols-3">
+            {featured.map((person) => (
+              <FeaturedCrewCard
+                key={person.name}
+                name={person.name}
+                jobs={person.jobs}
+                profileUrl={person.profileUrl}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="space-y-5">
         {visibleEntries.map(([department, members]) => (
           <DepartmentGroup key={department} department={department} members={members} />
@@ -269,9 +370,10 @@ function CrewSectionContent({ credits, departmentPriority }: CrewSectionContentP
 interface CrewSectionProps {
   queryOptions: DataQueryOptions<MediaCredits>;
   departmentPriority?: string[];
+  featuredJobs?: string[];
 }
 
-function CrewSection({ queryOptions, departmentPriority }: CrewSectionProps) {
+function CrewSection({ queryOptions, departmentPriority, featuredJobs }: CrewSectionProps) {
   const query = useQuery(queryOptions);
 
   return (
@@ -280,7 +382,9 @@ function CrewSection({ queryOptions, departmentPriority }: CrewSectionProps) {
       callbacks={{
         loading: CrewSectionLoading,
         error: () => null,
-        success: (credits) => <CrewSectionContent credits={credits} departmentPriority={departmentPriority} />,
+        success: (credits) => (
+          <CrewSectionContent credits={credits} departmentPriority={departmentPriority} featuredJobs={featuredJobs} />
+        ),
       }}
     />
   );

@@ -7,12 +7,12 @@ import { Clock, Play, Shield, Star, Tv } from 'lucide-react';
 
 import { type MediaVideos, type ShowDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
+import { cn } from '@/lib/utils';
 import {
   showContentRatingsQueryOptions,
   showDetailQueryOptions,
   showVideosQueryOptions,
 } from '@/options/queries/shows/detail';
-import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -44,6 +44,73 @@ function ContentRatingBadge({ tmdbId }: ContentRatingBadgeProps) {
       <Shield className="size-3" />
       {usRating}
     </span>
+  );
+}
+
+// ============================================================================
+// External Logo Link
+// ============================================================================
+
+interface ExternalLogoLinkProps {
+  url: string;
+  label: string;
+  tone: string;
+}
+
+function ExternalLogoLink({ url, label, tone }: ExternalLogoLinkProps) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Open on ${label}`}
+      className={cn(
+        'rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm transition-all hover:-translate-y-0.5',
+        tone
+      )}
+    >
+      {label}
+    </a>
+  );
+}
+
+interface ExternalLogoStripProps {
+  imdbId?: string;
+  tvdbId?: number;
+  tmdbId: number;
+  homepage?: string;
+}
+
+function ExternalLogoStrip({ imdbId, tvdbId, tmdbId, homepage }: ExternalLogoStripProps) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {imdbId && (
+        <ExternalLogoLink
+          url={`https://www.imdb.com/title/${imdbId}`}
+          label="IMDb"
+          tone="border-yellow-400/40 bg-yellow-400/10 text-yellow-500 hover:bg-yellow-400/20"
+        />
+      )}
+      <ExternalLogoLink
+        url={`https://www.themoviedb.org/tv/${tmdbId}`}
+        label="TMDB"
+        tone="border-cyan-400/40 bg-cyan-400/10 text-cyan-400 hover:bg-cyan-400/20"
+      />
+      {tvdbId && (
+        <ExternalLogoLink
+          url={`https://thetvdb.com/?tab=series&id=${tvdbId}`}
+          label="TVDB"
+          tone="border-emerald-400/40 bg-emerald-400/10 text-emerald-400 hover:bg-emerald-400/20"
+        />
+      )}
+      {homepage && (
+        <ExternalLogoLink
+          url={homepage}
+          label="WWW"
+          tone="border-border/60 bg-muted/20 text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground"
+        />
+      )}
+    </div>
   );
 }
 
@@ -166,9 +233,6 @@ function ShowHeaderSuccess({ show, videos, tmdbId }: ShowHeaderSuccessProps) {
   const statusBadge = getShowStatusBadge(show.status);
   const networkName = show.networks[0]?.name;
 
-  // Fetch library info for episode progress
-  const { data: libraryInfo } = useQuery(showLibraryInfoQueryOptions(tmdbId));
-
   return (
     <section className="relative flex min-h-[420px] overflow-hidden rounded-xl sm:min-h-[500px] lg:min-h-[560px]">
       {/* Backdrop Image */}
@@ -248,15 +312,6 @@ function ShowHeaderSuccess({ show, videos, tmdbId }: ShowHeaderSuccessProps) {
                 {show.numberOfSeasons} {show.numberOfSeasons === 1 ? 'Season' : 'Seasons'}
               </span>
 
-              {libraryInfo?.inLibrary && (
-                <>
-                  <Separator orientation="vertical" className="h-4 bg-foreground/20" />
-                  <span className="text-muted-foreground">
-                    {libraryInfo.downloadedEpisodes} of {libraryInfo.totalEpisodes} episodes
-                  </span>
-                </>
-              )}
-
               {show.runtime && show.runtime > 0 && (
                 <>
                   <Separator orientation="vertical" className="h-4 bg-foreground/20" />
@@ -276,6 +331,15 @@ function ShowHeaderSuccess({ show, videos, tmdbId }: ShowHeaderSuccessProps) {
                   <span className="text-muted-foreground">{networkName}</span>
                 </>
               )}
+
+              <Separator orientation="vertical" className="h-4 bg-foreground/20" />
+
+              <ExternalLogoStrip
+                imdbId={show.imdbId}
+                tvdbId={show.tvdbId}
+                tmdbId={show.tmdbId}
+                homepage={show.homepage}
+              />
             </div>
 
             {/* Streaming Actions */}
