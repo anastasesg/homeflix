@@ -5,23 +5,32 @@ import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 import { Building2, Tv } from 'lucide-react';
 
-import type { ShowDetail } from '@/api/entities';
-
-import { SectionHeader } from '@/components/media/sections/section-header';
-import type { DataQueryOptions } from '@/components/media/sections/types';
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+import { SectionHeader } from './section-header';
+import type { DataQueryOptions } from './types';
+
 // ============================================================================
 // Types
 // ============================================================================
 
+interface ProductionCreator {
+  name: string;
+  profileUrl?: string;
+}
+
+interface ProductionBadge {
+  name: string;
+  logoUrl?: string;
+}
+
 interface ProductionData {
-  createdBy: ShowDetail['createdBy'];
-  networks: ShowDetail['networks'];
-  productionCompanies: ShowDetail['productionCompanies'];
+  createdBy: ProductionCreator[];
+  networks: ProductionBadge[];
+  productionCompanies: ProductionBadge[];
   genres: string[];
   languages: string[];
 }
@@ -92,7 +101,7 @@ function CreatorCard({ name, profileUrl }: CreatorCardProps) {
 }
 
 interface NetworkBadgeProps {
-  network: ShowDetail['networks'][number];
+  network: ProductionBadge;
 }
 
 function NetworkBadge({ network }: NetworkBadgeProps) {
@@ -111,7 +120,7 @@ function NetworkBadge({ network }: NetworkBadgeProps) {
 }
 
 interface CompanyBadgeProps {
-  company: ShowDetail['productionCompanies'][number];
+  company: ProductionBadge;
 }
 
 function CompanyBadge({ company }: CompanyBadgeProps) {
@@ -268,5 +277,5 @@ function ProductionSection({ queryOptions }: ProductionSectionProps) {
   );
 }
 
-export type { ProductionSectionProps };
+export type { ProductionData, ProductionSectionProps };
 export { ProductionSection };

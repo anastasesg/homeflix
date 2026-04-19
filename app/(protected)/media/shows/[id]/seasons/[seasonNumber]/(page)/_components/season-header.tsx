@@ -4,18 +4,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, ChevronLeft, ChevronRight, Clock, Film, Star, Tv } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Clock, Cloud, Film, Play, Star, Tv } from 'lucide-react';
+import type { Route } from 'next';
 
-import type { SeasonDetail, ShowDetail, ShowLibraryInfo } from '@/api/entities';
+import type { SeasonDetail, ShowDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
-import { cn } from '@/lib/utils';
 import { showDetailQueryOptions, showSeasonQueryOptions } from '@/options/queries/shows/detail';
 import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -41,6 +40,10 @@ function computeAverageRating(season: SeasonDetail): number {
 
 function computeTotalRuntime(season: SeasonDetail): number {
   return season.episodes.reduce((sum, e) => sum + (e.runtime ?? 0), 0);
+}
+
+function formatEpisodeNumber(num: number): string {
+  return String(num).padStart(2, '0');
 }
 
 // ============================================================================
@@ -100,6 +103,42 @@ function SeasonNav({ show, seasonNumber, tmdbId }: SeasonNavProps) {
   );
 }
 
+interface SeasonActionsProps {
+  tmdbId: number;
+  seasonNumber: number;
+  season: SeasonDetail;
+}
+
+function SeasonActions({ tmdbId, seasonNumber, season }: SeasonActionsProps) {
+  const { data: libraryInfo } = useQuery({ ...showLibraryInfoQueryOptions(tmdbId), retry: false });
+
+  if (!libraryInfo?.inLibrary) return null;
+
+  const sonarrSeason = libraryInfo.seasons.find((s) => s.seasonNumber === seasonNumber);
+  const downloadedCount = sonarrSeason?.episodeFileCount ?? 0;
+  const firstEpisode = season.episodes[0];
+
+  if (downloadedCount === 0 || !firstEpisode) {
+    return (
+      <div className="mt-5 flex w-fit items-center gap-2 rounded-full border border-border/40 bg-muted/20 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur-sm">
+        <Cloud className="size-3.5" />
+        Episodes pending download
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5 flex flex-wrap items-center gap-3">
+      <Button size="lg" className="gap-2 rounded-full bg-foreground text-background hover:bg-foreground/90" asChild>
+        <Link href={`/media/shows/${tmdbId}/seasons/${seasonNumber}/episodes/${firstEpisode.episodeNumber}` as Route}>
+          <Play className="size-5 fill-current" />
+          Play E{formatEpisodeNumber(firstEpisode.episodeNumber)}
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
 // ============================================================================
 // Error
 // ============================================================================
@@ -150,6 +189,7 @@ function SeasonHeaderLoading() {
               <Skeleton className="h-4 w-px" />
               <Skeleton className="h-4 w-20" />
             </div>
+            <Skeleton className="mt-4 h-11 w-32 rounded-full" />
           </div>
         </div>
       </div>
@@ -164,19 +204,13 @@ function SeasonHeaderLoading() {
 interface SeasonHeaderSuccessProps {
   show: ShowDetail;
   season: SeasonDetail;
-  library: ShowLibraryInfo;
   seasonNumber: number;
   tmdbId: number;
 }
 
-function SeasonHeaderSuccess({ show, season, library, seasonNumber, tmdbId }: SeasonHeaderSuccessProps) {
+function SeasonHeaderSuccess({ show, season, seasonNumber, tmdbId }: SeasonHeaderSuccessProps) {
   useSetBreadcrumb(`/media/shows/${tmdbId}`, show.name);
   useSetBreadcrumb(`/media/shows/${tmdbId}/seasons/${seasonNumber}`, season.name);
-
-  const sonarrSeason = library.inLibrary ? library.seasons.find((s) => s.seasonNumber === seasonNumber) : undefined;
-  const downloaded = sonarrSeason?.episodeFileCount ?? 0;
-  const total = sonarrSeason?.episodeCount ?? season.episodes.length;
-  const progressPercent = total > 0 ? (downloaded / total) * 100 : 0;
 
   const avgRating = computeAverageRating(season);
   const totalRuntime = computeTotalRuntime(season);
@@ -273,25 +307,7 @@ function SeasonHeaderSuccess({ show, season, library, seasonNumber, tmdbId }: Se
               )}
             </div>
 
-            {/* Progress bar for library items */}
-            {library.inLibrary && sonarrSeason && (
-              <div className="mt-5">
-                <div className="flex items-baseline justify-between text-sm">
-                  <span className="font-medium">
-                    {downloaded}/{total} episodes
-                  </span>
-                  <span
-                    className={cn('text-xs', progressPercent === 100 ? 'text-emerald-400' : 'text-muted-foreground/60')}
-                  >
-                    {progressPercent === 100 ? 'Complete' : `${Math.round(progressPercent)}%`}
-                  </span>
-                </div>
-                <Progress
-                  value={progressPercent}
-                  className={cn('mt-1.5 h-2 bg-muted/50', progressPercent === 100 && '[&>div]:bg-emerald-500')}
-                />
-              </div>
-            )}
+            <SeasonActions tmdbId={tmdbId} seasonNumber={seasonNumber} season={season} />
           </div>
         </div>
       </div>
@@ -311,22 +327,15 @@ interface SeasonHeaderProps {
 function SeasonHeader({ tmdbId, seasonNumber }: SeasonHeaderProps) {
   const showQuery = useQuery(showDetailQueryOptions(tmdbId));
   const seasonQuery = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
-  const libraryQuery = useQuery(showLibraryInfoQueryOptions(tmdbId));
 
   return (
     <Queries
-      results={[showQuery, seasonQuery, libraryQuery] as const}
+      results={[showQuery, seasonQuery] as const}
       callbacks={{
         loading: SeasonHeaderLoading,
         error: () => <SeasonHeaderError />,
-        success: ([show, season, library]) => (
-          <SeasonHeaderSuccess
-            show={show}
-            season={season}
-            library={library}
-            seasonNumber={seasonNumber}
-            tmdbId={tmdbId}
-          />
+        success: ([show, season]) => (
+          <SeasonHeaderSuccess show={show} season={season} seasonNumber={seasonNumber} tmdbId={tmdbId} />
         ),
       }}
     />

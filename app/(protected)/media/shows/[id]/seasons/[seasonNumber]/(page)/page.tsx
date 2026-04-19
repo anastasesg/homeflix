@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation';
 
+import { SeasonContent } from './_components/season-content';
 import { SeasonHeader } from './_components/season-header';
-import { SeasonStats } from './_components/season-stats';
-import { SeasonTabs } from './_components/season-tabs';
 
 interface PageProps {
   params: Promise<{ id: string; seasonNumber: string }>;
@@ -17,8 +16,7 @@ export default async function Page({ params }: PageProps) {
   return (
     <>
       <SeasonHeader tmdbId={tmdbId} seasonNumber={seasonNumber} />
-      <SeasonStats tmdbId={tmdbId} seasonNumber={seasonNumber} />
-      <SeasonTabs tmdbId={tmdbId} seasonNumber={seasonNumber} />
+      <SeasonContent tmdbId={tmdbId} seasonNumber={seasonNumber} />
     </>
   );
 }

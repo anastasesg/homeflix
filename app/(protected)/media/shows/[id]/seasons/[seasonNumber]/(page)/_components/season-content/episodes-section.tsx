@@ -10,6 +10,7 @@ import type { EpisodeBasic, SeasonDetail } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Badge } from '@/components/ui/badge';
@@ -59,7 +60,6 @@ function EpisodeCard({ episode, tmdbId, seasonNumber }: EpisodeCardProps) {
         unaired && 'opacity-60'
       )}
     >
-      {/* Still image */}
       <div className="w-32 shrink-0 sm:w-40 md:w-48">
         <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg">
           {episode.stillUrl ? (
@@ -71,7 +71,6 @@ function EpisodeCard({ episode, tmdbId, seasonNumber }: EpisodeCardProps) {
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(min-width: 768px) 192px, (min-width: 640px) 160px, 128px"
               />
-              {/* Unaired overlay */}
               {unaired && (
                 <div className="absolute inset-0 flex items-center justify-center bg-background/60">
                   <Badge className="bg-amber-500/20 text-amber-400">Upcoming</Badge>
@@ -89,7 +88,6 @@ function EpisodeCard({ episode, tmdbId, seasonNumber }: EpisodeCardProps) {
             </div>
           )}
 
-          {/* Episode number badge */}
           <div className="absolute bottom-1.5 left-1.5">
             <Badge className="bg-black/70 font-mono text-[10px] text-white backdrop-blur-sm">
               E{formatEpisodeNumber(episode.episodeNumber)}
@@ -98,11 +96,9 @@ function EpisodeCard({ episode, tmdbId, seasonNumber }: EpisodeCardProps) {
         </AspectRatio>
       </div>
 
-      {/* Info */}
       <div className="flex min-w-0 flex-1 flex-col justify-center">
         <p className="truncate font-semibold">{episode.name}</p>
 
-        {/* Metadata row */}
         <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
           {episode.airDate && (
             <span className="flex items-center gap-1">
@@ -136,7 +132,6 @@ function EpisodeCard({ episode, tmdbId, seasonNumber }: EpisodeCardProps) {
           )}
         </div>
 
-        {/* Overview */}
         {episode.overview && (
           <p className="mt-2 hidden line-clamp-2 text-sm text-muted-foreground/80 sm:block">{episode.overview}</p>
         )}
@@ -146,7 +141,7 @@ function EpisodeCard({ episode, tmdbId, seasonNumber }: EpisodeCardProps) {
 }
 
 // ============================================================================
-// Empty State
+// Empty
 // ============================================================================
 
 function EmptyEpisodes() {
@@ -168,23 +163,29 @@ function EmptyEpisodes() {
 // Loading
 // ============================================================================
 
-function EpisodesTabLoading() {
+function EpisodesSectionLoading() {
   return (
-    <div className="space-y-3">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex gap-4 rounded-xl border border-border/40 p-3">
-          <div className="w-32 shrink-0 sm:w-40 md:w-48">
-            <Skeleton className="aspect-video w-full rounded-lg" />
+    <section>
+      <div className="mb-4 flex items-center gap-2">
+        <Skeleton className="size-4 rounded" />
+        <Skeleton className="h-4 w-20" />
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex gap-4 rounded-xl border border-border/40 p-3">
+            <div className="w-32 shrink-0 sm:w-40 md:w-48">
+              <Skeleton className="aspect-video w-full rounded-lg" />
+            </div>
+            <div className="flex flex-1 flex-col justify-center gap-2">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+              <Skeleton className="hidden h-3 w-full sm:block" />
+              <Skeleton className="hidden h-3 w-2/3 sm:block" />
+            </div>
           </div>
-          <div className="flex flex-1 flex-col justify-center gap-2">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
-            <Skeleton className="hidden h-3 w-full sm:block" />
-            <Skeleton className="hidden h-3 w-2/3 sm:block" />
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -192,23 +193,31 @@ function EpisodesTabLoading() {
 // Content
 // ============================================================================
 
-interface EpisodesTabContentProps {
+interface EpisodesSectionContentProps {
   season: SeasonDetail;
   tmdbId: number;
   seasonNumber: number;
 }
 
-function EpisodesTabContent({ season, tmdbId, seasonNumber }: EpisodesTabContentProps) {
+function EpisodesSectionContent({ season, tmdbId, seasonNumber }: EpisodesSectionContentProps) {
   if (season.episodes.length === 0) {
-    return <EmptyEpisodes />;
+    return (
+      <section>
+        <SectionHeader icon={Film} title="Episodes" />
+        <EmptyEpisodes />
+      </section>
+    );
   }
 
   return (
-    <div className="space-y-3">
-      {season.episodes.map((episode) => (
-        <EpisodeCard key={episode.id} episode={episode} tmdbId={tmdbId} seasonNumber={seasonNumber} />
-      ))}
-    </div>
+    <section>
+      <SectionHeader icon={Film} title="Episodes" count={season.episodes.length} />
+      <div className="space-y-3">
+        {season.episodes.map((episode) => (
+          <EpisodeCard key={episode.id} episode={episode} tmdbId={tmdbId} seasonNumber={seasonNumber} />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -216,25 +225,25 @@ function EpisodesTabContent({ season, tmdbId, seasonNumber }: EpisodesTabContent
 // Main
 // ============================================================================
 
-interface EpisodesTabProps {
+interface EpisodesSectionProps {
   tmdbId: number;
   seasonNumber: number;
 }
 
-function EpisodesTab({ tmdbId, seasonNumber }: EpisodesTabProps) {
+function EpisodesSection({ tmdbId, seasonNumber }: EpisodesSectionProps) {
   const seasonQuery = useQuery(showSeasonQueryOptions(tmdbId, seasonNumber));
 
   return (
     <Query
       result={seasonQuery}
       callbacks={{
-        loading: EpisodesTabLoading,
+        loading: EpisodesSectionLoading,
         error: () => null,
-        success: (season) => <EpisodesTabContent season={season} tmdbId={tmdbId} seasonNumber={seasonNumber} />,
+        success: (season) => <EpisodesSectionContent season={season} tmdbId={tmdbId} seasonNumber={seasonNumber} />,
       }}
     />
   );
 }
 
-export type { EpisodesTabProps };
-export { EpisodesTab };
+export type { EpisodesSectionProps };
+export { EpisodesSection };

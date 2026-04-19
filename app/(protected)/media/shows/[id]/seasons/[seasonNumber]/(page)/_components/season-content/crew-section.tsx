@@ -10,10 +10,9 @@ import { ChevronDown, Film } from 'lucide-react';
 import type { SeasonDetail } from '@/api/entities';
 import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Utilities
@@ -49,7 +48,6 @@ function aggregateCrew(season: SeasonDetail): Map<string, AggregatedCrewMember[]
     }
   }
 
-  // Group by department with priority ordering
   const DEPARTMENT_PRIORITY = ['Directing', 'Writing', 'Production'];
   const groups = new Map<string, AggregatedCrewMember[]>();
 
@@ -63,7 +61,6 @@ function aggregateCrew(season: SeasonDetail): Map<string, AggregatedCrewMember[]
     }
   }
 
-  // Re-order: priority departments first
   const sorted = new Map<string, AggregatedCrewMember[]>();
   for (const dept of DEPARTMENT_PRIORITY) {
     const members = groups.get(dept);
@@ -104,7 +101,6 @@ function CrewCard({ person }: CrewCardProps) {
     <Tooltip>
       <TooltipTrigger asChild>
         <div className="group flex items-center gap-3 rounded-lg border border-border/60 p-2.5 transition-all duration-200 hover:border-border hover:bg-accent/50 hover:shadow-sm hover:shadow-black/5 dark:hover:shadow-black/20">
-          {/* Avatar */}
           <div className="relative size-10 shrink-0 overflow-hidden rounded-full border border-border/60">
             {person.profileUrl ? (
               <Image src={person.profileUrl} alt={person.name} fill className="object-cover" sizes="40px" />
@@ -115,7 +111,6 @@ function CrewCard({ person }: CrewCardProps) {
             )}
           </div>
 
-          {/* Info */}
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-foreground/90 transition-colors group-hover:text-foreground">
               {person.name}

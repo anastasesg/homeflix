@@ -10,12 +10,11 @@ import { Sparkles } from 'lucide-react';
 import type { SeasonDetail } from '@/api/entities';
 import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Utilities
@@ -37,7 +36,6 @@ function aggregateGuestStars(season: SeasonDetail): AggregatedGuestStar[] {
       const existing = map.get(star.name);
       if (existing) {
         existing.episodeCount += 1;
-        // Keep the highest-billed (lowest order) appearance
         if (star.order < existing.order) {
           existing.order = star.order;
           existing.character = star.character;
@@ -55,7 +53,6 @@ function aggregateGuestStars(season: SeasonDetail): AggregatedGuestStar[] {
     }
   }
 
-  // Sort: episode count desc, then order asc
   return [...map.values()].sort((a, b) => b.episodeCount - a.episodeCount || a.order - b.order);
 }
 
@@ -85,7 +82,6 @@ function CastCard({ person, index }: CastCardProps) {
     <Tooltip>
       <TooltipTrigger asChild>
         <div className="group cursor-default pb-0.5">
-          {/* Portrait image */}
           <div className="relative aspect-[2/3] overflow-hidden rounded-lg border border-border/60 shadow-sm transition-all duration-300 group-hover:border-border group-hover:shadow-md group-hover:shadow-black/10 dark:group-hover:shadow-black/30">
             {person.profileUrl ? (
               <Image
@@ -101,14 +97,12 @@ function CastCard({ person, index }: CastCardProps) {
               </div>
             )}
 
-            {/* Top-billed indicator */}
             {isTopBilled && (
               <div className="absolute left-0 top-0 h-6 w-6">
                 <div className="absolute left-0 top-0 size-full bg-gradient-to-br from-amber-500/30 to-transparent" />
               </div>
             )}
 
-            {/* Episode count badge */}
             {person.episodeCount > 1 && (
               <div className="absolute right-1.5 top-1.5">
                 <Badge className="bg-black/70 text-[10px] text-white backdrop-blur-sm">{person.episodeCount} eps</Badge>
@@ -116,7 +110,6 @@ function CastCard({ person, index }: CastCardProps) {
             )}
           </div>
 
-          {/* Text below image */}
           <div className="mt-2 px-0.5">
             <p className="truncate text-[13px] font-semibold leading-tight text-foreground/90 transition-colors group-hover:text-foreground">
               {person.name}

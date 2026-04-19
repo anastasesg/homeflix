@@ -11,11 +11,10 @@ import type { SeasonDetail } from '@/api/entities';
 import { cn } from '@/lib/utils';
 import { showSeasonQueryOptions } from '@/options/queries/shows/detail';
 
+import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-
-import { SectionHeader } from './section-header';
 
 // ============================================================================
 // Utilities
@@ -94,7 +93,6 @@ function Lightbox({ stills, initialIndex, seasonName, open, onOpenChange }: Ligh
           {seasonName} — {current.name} ({formatEpisodeNumber(current.episodeNumber)})
         </DialogTitle>
 
-        {/* Top bar */}
         <div className="flex items-center justify-between border-b border-border/40 px-4 py-2.5">
           <span className="text-xs font-medium tabular-nums text-muted-foreground">
             {formatEpisodeNumber(current.episodeNumber)} — {currentIndex + 1} / {stills.length}
@@ -107,7 +105,6 @@ function Lightbox({ stills, initialIndex, seasonName, open, onOpenChange }: Ligh
           </button>
         </div>
 
-        {/* Main image area */}
         <div className="relative flex flex-1 items-center justify-center overflow-hidden px-12 py-4">
           {stills.length > 1 && (
             <button
@@ -140,7 +137,6 @@ function Lightbox({ stills, initialIndex, seasonName, open, onOpenChange }: Ligh
           )}
         </div>
 
-        {/* Thumbnail filmstrip */}
         {stills.length > 1 && (
           <div className="border-t border-border/40 px-4 py-2.5">
             <div className="scrollbar-none flex gap-1.5 overflow-x-auto">
@@ -195,17 +191,14 @@ function GalleryItem({ still, onClick }: GalleryItemProps) {
             sizes="(max-width: 640px) 85vw, (max-width: 768px) 70vw, (max-width: 1024px) 55vw, 45vw"
           />
 
-          {/* Ambient gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100" />
 
-          {/* Expand icon */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
             <div className="rounded-full border border-foreground/15 bg-black/40 p-2.5 shadow-lg backdrop-blur-md">
               <Maximize2 className="size-4 text-foreground/90" />
             </div>
           </div>
 
-          {/* Episode label — bottom-left */}
           <div className="absolute bottom-2 left-2">
             <span className="text-[10px] font-semibold tabular-nums text-foreground/50 drop-shadow-sm transition-colors group-hover:text-foreground/70">
               {formatEpisodeNumber(still.episodeNumber)}

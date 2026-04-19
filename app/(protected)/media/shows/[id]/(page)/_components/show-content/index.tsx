@@ -26,10 +26,10 @@ import {
   GallerySection,
   MediaCarouselSection,
   OverviewSection,
+  ProductionSection,
 } from '@/components/media/sections';
 
 import { KeywordsSection } from './keywords-section';
-import { ProductionSection } from './production-section';
 import { ReviewsSection } from './reviews-section';
 import { SeasonsSection } from './seasons-section';
 
