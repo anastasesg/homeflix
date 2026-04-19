@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, ChevronLeft, ChevronRight, Clock, Layers, Star, Tv } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Clock, Cloud, Layers, Play, Star, Tv } from 'lucide-react';
 
 import type { EpisodeBasic, SeasonDetail, ShowDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
@@ -13,6 +13,7 @@ import {
   showEpisodeQueryOptions,
   showSeasonQueryOptions,
 } from '@/options/queries/shows/detail';
+import { showLibraryInfoQueryOptions } from '@/options/queries/shows/library';
 
 import { Queries } from '@/components/query';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +50,44 @@ function formatVoteCount(count: number): string {
 }
 
 // ============================================================================
+// Sub-components
+// ============================================================================
+
+interface EpisodeActionsProps {
+  tmdbId: number;
+  seasonNumber: number;
+  upcoming: boolean;
+}
+
+function EpisodeActions({ tmdbId, seasonNumber, upcoming }: EpisodeActionsProps) {
+  const { data: libraryInfo } = useQuery({ ...showLibraryInfoQueryOptions(tmdbId), retry: false });
+
+  if (upcoming) return null;
+  if (!libraryInfo?.inLibrary) return null;
+
+  const sonarrSeason = libraryInfo.seasons.find((s) => s.seasonNumber === seasonNumber);
+  const seasonHasFiles = (sonarrSeason?.episodeFileCount ?? 0) > 0;
+
+  if (!seasonHasFiles) {
+    return (
+      <div className="mt-5 flex w-fit items-center gap-2 rounded-full border border-border/40 bg-muted/20 px-3 py-1.5 text-xs text-muted-foreground backdrop-blur-sm">
+        <Cloud className="size-3.5" />
+        Pending download
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-5 flex flex-wrap items-center gap-3">
+      <Button size="lg" className="gap-2 rounded-full bg-foreground text-background hover:bg-foreground/90">
+        <Play className="size-5 fill-current" />
+        Play
+      </Button>
+    </div>
+  );
+}
+
+// ============================================================================
 // Error
 // ============================================================================
 
@@ -81,6 +120,7 @@ function EpisodeHeaderLoading() {
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-20" />
         </div>
+        <Skeleton className="mt-4 h-11 w-28 rounded-full" />
       </div>
     </section>
   );
@@ -234,6 +274,8 @@ function EpisodeHeaderSuccess({
 
           <span className="text-muted-foreground/60">{show.name}</span>
         </div>
+
+        <EpisodeActions tmdbId={tmdbId} seasonNumber={seasonNumber} upcoming={upcoming} />
       </div>
     </section>
   );

@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation';
 
-import { EpisodeActions } from './_components/episode-actions';
-import { EpisodeFile } from './_components/episode-file';
+import { EpisodeCast } from './_components/episode-cast';
+import { EpisodeCrew } from './_components/episode-crew';
 import { EpisodeGallery } from './_components/episode-gallery';
 import { EpisodeHeader } from './_components/episode-header';
-import { EpisodeInfo } from './_components/episode-info';
 import { EpisodeLinks } from './_components/episode-links';
+import { EpisodeSynopsis } from './_components/episode-synopsis';
 
 interface PageProps {
   params: Promise<{ id: string; seasonNumber: string; episodeNumber: string }>;
@@ -29,10 +29,10 @@ export default async function Page({ params }: PageProps) {
   return (
     <>
       <EpisodeHeader tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
-      <EpisodeInfo tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
+      <EpisodeSynopsis tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
+      <EpisodeCast tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
+      <EpisodeCrew tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
       <EpisodeGallery tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
-      <EpisodeFile tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
-      <EpisodeActions tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
       <EpisodeLinks tmdbId={tmdbId} seasonNumber={seasonNumber} episodeNumber={episodeNumber} />
     </>
   );
