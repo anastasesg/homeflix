@@ -3,15 +3,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Film, Globe, Shuffle, Star, ThumbsUp } from 'lucide-react';
+import { Shuffle, Star, ThumbsUp } from 'lucide-react';
 import type { Route } from 'next';
 
 import { type MovieRecommendation } from '@/api/entities';
 import {
   movieCreditsQueryOptions,
-  movieExternalLinksQueryOptions,
   movieImagesQueryOptions,
+  movieKeywordsQueryOptions,
   movieOverviewQueryOptions,
+  movieProductionClusterQueryOptions,
   movieRecommendationsQueryOptions,
   movieTitleQueryOptions,
   similarMoviesQueryOptions,
@@ -20,41 +21,17 @@ import {
 import {
   CastSection,
   CrewSection,
-  type ExternalLink,
-  ExternalLinksSection,
   GallerySection,
+  KeywordsSection,
   MediaCarouselSection,
   OverviewSection,
+  ProductionSection,
 } from '@/components/media/sections';
 
+import { BoxOfficeSection } from './box-office-section';
 import { CollectionSection } from './collection-section';
-import { DetailsSection } from './details-section';
 import { DirectorFilmographySection } from './director-filmography-section';
-import { ProductionSection } from './production-section';
 import { ReviewsSection } from './reviews-section';
-
-// ============================================================================
-// Utilities
-// ============================================================================
-
-function buildMovieLinks(data: { imdbId?: string; tmdbId: number; homepage?: string }): ExternalLink[] {
-  const links: ExternalLink[] = [];
-  if (data.imdbId) {
-    links.push({ id: 'imdb', url: `https://www.imdb.com/title/${data.imdbId}`, label: 'IMDb', icon: Globe });
-  }
-  if (data.tmdbId) {
-    links.push({
-      id: 'tmdb',
-      url: `https://www.themoviedb.org/movie/${data.tmdbId}`,
-      label: 'TMDB',
-      icon: Film,
-    });
-  }
-  if (data.homepage) {
-    links.push({ id: 'homepage', url: data.homepage, label: 'Official Site', icon: Globe });
-  }
-  return links;
-}
 
 // ============================================================================
 // Sub-Components
@@ -108,19 +85,40 @@ interface MovieContentProps {
   tmdbId: number;
 }
 
+const MOVIE_FEATURED_JOBS = [
+  'Director',
+  'Writer',
+  'Screenplay',
+  'Story',
+  'Producer',
+  'Original Music Composer',
+  'Director of Photography',
+];
+
+const MOVIE_DEPARTMENT_PRIORITY = ['Directing', 'Writing', 'Production', 'Camera', 'Editing', 'Sound', 'Art'];
+
 function MovieContent({ tmdbId }: MovieContentProps) {
   return (
     <div className="flex flex-col space-y-8">
+      {/* 1. Overview */}
       <OverviewSection queryOptions={movieOverviewQueryOptions(tmdbId)} />
+
+      {/* Franchise context — movie's closest analogue to the show's Seasons band. */}
+      <CollectionSection tmdbId={tmdbId} />
+
+      {/* 2. Cast */}
+      <CastSection queryOptions={movieCreditsQueryOptions(tmdbId)} />
+
+      {/* 3. Trivia (keywords stand-in until a dedicated trivia source is wired). */}
+      <KeywordsSection queryOptions={movieKeywordsQueryOptions(tmdbId)} />
+
+      {/* 4. Gallery */}
       <GallerySection
         imagesQueryOptions={movieImagesQueryOptions(tmdbId)}
         titleQueryOptions={movieTitleQueryOptions(tmdbId)}
       />
-      <CastSection queryOptions={movieCreditsQueryOptions(tmdbId)} />
-      <CrewSection queryOptions={movieCreditsQueryOptions(tmdbId)} />
-      <CollectionSection tmdbId={tmdbId} />
-      <ReviewsSection tmdbId={tmdbId} />
-      <DirectorFilmographySection tmdbId={tmdbId} />
+
+      {/* 5. Related / similar */}
       <MediaCarouselSection
         queryOptions={movieRecommendationsQueryOptions(tmdbId)}
         icon={ThumbsUp}
@@ -133,9 +131,21 @@ function MovieContent({ tmdbId }: MovieContentProps) {
         title="Similar Movies"
         renderCard={(movie: MovieRecommendation) => <MovieCard movie={movie} />}
       />
-      <DetailsSection tmdbId={tmdbId} />
-      <ProductionSection tmdbId={tmdbId} />
-      <ExternalLinksSection queryOptions={movieExternalLinksQueryOptions(tmdbId)} buildLinks={buildMovieLinks} />
+
+      {/* 6. Crew (+ director filmography as crew-adjacent trivia) */}
+      <CrewSection
+        queryOptions={movieCreditsQueryOptions(tmdbId)}
+        featuredJobs={MOVIE_FEATURED_JOBS}
+        departmentPriority={MOVIE_DEPARTMENT_PRIORITY}
+      />
+      <DirectorFilmographySection tmdbId={tmdbId} />
+
+      {/* 7. External ratings (reviews; external links moved into header pills). */}
+      <ReviewsSection tmdbId={tmdbId} />
+
+      {/* 8. Production details */}
+      <BoxOfficeSection tmdbId={tmdbId} />
+      <ProductionSection queryOptions={movieProductionClusterQueryOptions(tmdbId)} />
     </div>
   );
 }

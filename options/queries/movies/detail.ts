@@ -95,31 +95,25 @@ export function movieTitleQueryOptions(tmdbId: number) {
   });
 }
 
-export function movieDetailGenresQueryOptions(tmdbId: number) {
+export function movieProductionClusterQueryOptions(tmdbId: number) {
   return queryOptions({
     ...movieDetailQueryOptions(tmdbId),
-    select: (movie) => movie.genres,
+    select: (movie) => ({
+      createdBy: [],
+      networks: [],
+      productionCompanies: movie.productionCompanies,
+      genres: movie.genres,
+      languages: movie.languages,
+    }),
   });
 }
 
-export function movieProductionQueryOptions(tmdbId: number) {
+export function movieBoxOfficeQueryOptions(tmdbId: number) {
   return queryOptions({
     ...movieDetailQueryOptions(tmdbId),
     select: (movie) => ({
       budget: movie.budget,
       revenue: movie.revenue,
-      productionCompanies: movie.productionCompanies,
-    }),
-  });
-}
-
-export function movieExternalLinksQueryOptions(tmdbId: number) {
-  return queryOptions({
-    ...movieDetailQueryOptions(tmdbId),
-    select: (movie) => ({
-      imdbId: movie.imdbId,
-      tmdbId: movie.tmdbId,
-      homepage: movie.homepage,
     }),
   });
 }

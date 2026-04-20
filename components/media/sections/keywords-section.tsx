@@ -1,14 +1,15 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Sparkles } from 'lucide-react';
+import { Tag } from 'lucide-react';
 
-import { type MediaKeywords } from '@/api/entities';
-import { movieKeywordsQueryOptions } from '@/options/queries/movies/detail';
+import type { MediaKeywords } from '@/api/entities';
 
-import { SectionHeader } from '@/components/media/sections/section-header';
 import { Query } from '@/components/query';
 import { Skeleton } from '@/components/ui/skeleton';
+
+import { SectionHeader } from './section-header';
+import type { DataQueryOptions } from './types';
 
 // ============================================================================
 // Loading
@@ -16,17 +17,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 function KeywordsSectionLoading() {
   return (
-    <div className="flex-1">
+    <section>
       <div className="mb-4 flex items-center gap-2">
         <Skeleton className="size-4 rounded" />
-        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-4 w-24" />
       </div>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-7 w-16 rounded-full" style={{ animationDelay: `${i * 50}ms` }} />
+          <Skeleton key={i} className="h-6 w-20 rounded-full" />
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -42,8 +43,8 @@ function KeywordsSectionContent({ data }: KeywordsSectionContentProps) {
   if (data.keywords.length === 0) return null;
 
   return (
-    <div className="flex-1">
-      <SectionHeader icon={Sparkles} title="Keywords" />
+    <section>
+      <SectionHeader icon={Tag} title="Keywords" count={data.keywords.length} />
       <div className="flex flex-wrap gap-1.5">
         {data.keywords.slice(0, 15).map((keyword) => (
           <span
@@ -54,7 +55,7 @@ function KeywordsSectionContent({ data }: KeywordsSectionContentProps) {
           </span>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -63,11 +64,11 @@ function KeywordsSectionContent({ data }: KeywordsSectionContentProps) {
 // ============================================================================
 
 interface KeywordsSectionProps {
-  tmdbId: number;
+  queryOptions: DataQueryOptions<MediaKeywords>;
 }
 
-function KeywordsSection({ tmdbId }: KeywordsSectionProps) {
-  const query = useQuery(movieKeywordsQueryOptions(tmdbId));
+function KeywordsSection({ queryOptions }: KeywordsSectionProps) {
+  const query = useQuery(queryOptions);
 
   return (
     <Query

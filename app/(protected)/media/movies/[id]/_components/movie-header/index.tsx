@@ -7,6 +7,7 @@ import { Clock, Play, Shield, Star } from 'lucide-react';
 
 import { type MediaVideos, type MovieDetail } from '@/api/entities';
 import { useSetBreadcrumb } from '@/context';
+import { cn } from '@/lib/utils';
 import {
   movieContentRatingQueryOptions,
   movieDetailQueryOptions,
@@ -43,6 +44,65 @@ function ContentRatingBadge({ tmdbId }: ContentRatingBadgeProps) {
       <Shield className="size-3" />
       {usRating}
     </span>
+  );
+}
+
+// ============================================================================
+// External Logo Strip
+// ============================================================================
+
+interface ExternalLogoLinkProps {
+  url: string;
+  label: string;
+  tone: string;
+}
+
+function ExternalLogoLink({ url, label, tone }: ExternalLogoLinkProps) {
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Open on ${label}`}
+      className={cn(
+        'rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm transition-all hover:-translate-y-0.5',
+        tone
+      )}
+    >
+      {label}
+    </a>
+  );
+}
+
+interface ExternalLogoStripProps {
+  imdbId?: string;
+  tmdbId: number;
+  homepage?: string;
+}
+
+function ExternalLogoStrip({ imdbId, tmdbId, homepage }: ExternalLogoStripProps) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {imdbId && (
+        <ExternalLogoLink
+          url={`https://www.imdb.com/title/${imdbId}`}
+          label="IMDb"
+          tone="border-yellow-400/40 bg-yellow-400/10 text-yellow-500 hover:bg-yellow-400/20"
+        />
+      )}
+      <ExternalLogoLink
+        url={`https://www.themoviedb.org/movie/${tmdbId}`}
+        label="TMDB"
+        tone="border-cyan-400/40 bg-cyan-400/10 text-cyan-400 hover:bg-cyan-400/20"
+      />
+      {homepage && (
+        <ExternalLogoLink
+          url={homepage}
+          label="WWW"
+          tone="border-border/60 bg-muted/20 text-muted-foreground hover:border-border hover:bg-muted/40 hover:text-foreground"
+        />
+      )}
+    </div>
   );
 }
 
@@ -217,6 +277,10 @@ function MovieHeaderSuccess({ movie, videos, tmdbId }: MovieHeaderSuccessProps) 
               <Separator orientation="vertical" className="h-4 bg-foreground/20" />
 
               <span className="text-muted-foreground">{movie.genres.slice(0, 3).join(' / ')}</span>
+
+              <Separator orientation="vertical" className="h-4 bg-foreground/20" />
+
+              <ExternalLogoStrip imdbId={movie.imdbId} tmdbId={movie.tmdbId} homepage={movie.homepage} />
             </div>
 
             {/* Streaming Actions */}

@@ -24,12 +24,12 @@ import {
   CastSection,
   CrewSection,
   GallerySection,
+  KeywordsSection,
   MediaCarouselSection,
   OverviewSection,
   ProductionSection,
 } from '@/components/media/sections';
 
-import { KeywordsSection } from './keywords-section';
 import { ReviewsSection } from './reviews-section';
 import { SeasonsSection } from './seasons-section';
 
