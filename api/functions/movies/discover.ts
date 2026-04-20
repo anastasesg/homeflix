@@ -67,6 +67,15 @@ export async function fetchMoviesByGenre(genreId: number): Promise<MovieItem[]> 
   return (data.results ?? []).map(tmbdToMovieItem);
 }
 
+export async function fetchContextualMovies(filters: DiscoverMovieFilters): Promise<MovieItem[]> {
+  const client = createTMDBClient();
+  const { data, error } = await client.GET('/3/discover/movie', {
+    params: { query: buildDiscoverMovieQuery(filters) },
+  });
+  if (error || !data) throw new Error('Failed to fetch contextual movies from TMDB');
+  return (data.results ?? []).map(tmbdToMovieItem);
+}
+
 export async function fetchFilteredMovies(filters: DiscoverMovieFilters): Promise<DiscoverMoviePage> {
   const client = createTMDBClient();
   const { data, error } = await client.GET('/3/discover/movie', {
